@@ -3,14 +3,24 @@
   "short_name": "Taffy Story",
   "icons": [
     {
-      "src": "/favicon-128x128.png",
-      "type": "image/png",
-      "sizes": "128x128"
-    },
-    {
       "src": "/favicon-192x192.png",
       "type": "image/png",
       "sizes": "192x192"
+    },
+    {
+      "src": "/favicon-256x256.png",
+      "type": "image/png",
+      "sizes": "256x256"
+    },
+    {
+      "src": "/favicon.png",
+      "type": "image/png",
+      "sizes": "64x64"
+    },
+    {
+      "src": "/favicon.ico",
+      "type": "image/x-icon",
+      "sizes": "32x32"
     }
   ],
   "theme_color": "#000000",
