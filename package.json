@@ -1,26 +1,21 @@
 {
-  "name": "nextjs-notion-starter-kit",
-  "version": "1.0.13",
+  "name": "taffy-story",
+  "version": "0.1.0",
   "private": true,
-  "description": "The perfect starter kit for building beautiful websites with Next.js and Notion.",
+  "description": "Taffy Story",
   "author": {
-    "email": "2skydev@gmail.com",
-    "name": "2skydev",
-    "url": "https://github.com/2skydev"
+    "email": "thma0202@gmail.com",
+    "name": "hth0202",
+    "url": "https://github.com/hth0202"
   },
   "contributors": [
     {
-      "email": "wmsttks@gmail.com",
-      "name": "yoonjihong",
-      "url": "https://github.com/yoonjihong"
-    },
-    {
-      "email": "webd200@gmail.com",
-      "name": "jong-hui",
-      "url": "https://github.com/jong-hui"
+      "email": "2skydev@gmail.com",
+      "name": "2skydev",
+      "url": "https://github.com/2skydev"
     }
   ],
-  "repository": "2skydev/blog",
+  "repository": "hth0202/blog",
   "license": "MIT",
   "engines": {
     "node": ">=16"
