@@ -263,6 +263,17 @@ export class NotionAdapter {
       }
     }
 
+    // 테이블 행 셀 데이터 변환
+    if (block.type === 'table_row' && block.table_row?.cells) {
+      block.table_row.cells.forEach((cell: any[], index: number) => {
+        if (cell && cell.length > 0) {
+          properties[index.toString()] = this.convertRichText(cell);
+        } else {
+          properties[index.toString()] = [['']];
+        }
+      });
+    }
+
     return properties;
   }
 
@@ -289,6 +300,26 @@ export class NotionAdapter {
     // 코드 블록 언어
     if (block.type === 'code' && block.code?.language) {
       format.code_wrap = true;
+    }
+
+    // 테이블 format 처리
+    if (block.type === 'table' && block.table) {
+      // 테이블 컬럼 순서와 포맷 정보 생성
+      const tableWidth = block.table.table_width || 0;
+      if (tableWidth > 0) {
+        // 컬럼 순서 생성 (0부터 시작하는 인덱스)
+        format.table_block_column_order = Array.from({ length: tableWidth }, (_, i) =>
+          i.toString(),
+        );
+
+        // 기본 컬럼 포맷 생성
+        format.table_block_column_format = {};
+        for (let i = 0; i < tableWidth; i++) {
+          format.table_block_column_format[i.toString()] = {
+            width: 120,
+          };
+        }
+      }
     }
 
     // undefined 값들을 null로 변환하거나 제거

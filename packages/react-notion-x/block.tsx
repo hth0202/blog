@@ -713,26 +713,26 @@ export const Block: React.FC<BlockProps> = props => {
       const tableBlock = recordMap.block[block.parent_id]?.value as types.TableBlock;
       const order = tableBlock?.format?.table_block_column_order;
       const formatMap = tableBlock?.format?.table_block_column_format;
+      const properties = block.properties || {};
 
-      if (!tableBlock || !order) {
-        return null;
+      // 컬럼 순서 결정: tableBlock의 order가 있으면 사용, 없으면 properties에서 추출
+      const columns = order || Object.keys(properties);
+
+      // 빈 행이면 기본 셀 하나 표시
+      if (columns.length === 0) {
+        columns.push('0');
       }
 
       return (
         <tr className={cs('notion-simple-table-row', blockId)}>
-          {order.map(column => {
+          {columns.map(column => {
             const color = formatMap?.[column]?.color;
+            const width = formatMap?.[column]?.width || 120;
 
             return (
-              <td
-                key={column}
-                className={color ? `notion-${color}` : ''}
-                style={{
-                  width: formatMap?.[column]?.width || 120,
-                }}
-              >
+              <td key={column} className={color ? `notion-${color}` : ''} style={{ width }}>
                 <div className="notion-simple-table-cell">
-                  <Text value={block.properties?.[column] || [['ㅤ']]} block={block} />
+                  <Text value={properties[column] || [['']]} block={block} />
                 </div>
               </td>
             );
