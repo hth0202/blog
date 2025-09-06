@@ -31,6 +31,11 @@ export class NotionAdapter {
         type: 'page' as notion.BlockType,
         properties: {
           title: this.extractTitle(page),
+          description: this.extractDescription(page),
+          status: this.extractStatus(page),
+          category: this.extractCategory(page),
+          tags: this.extractTags(page),
+          author: this.extractAuthor(page),
         },
         content: blocks.map(block => block.id.replace(/-/g, '')),
         format: {
@@ -47,7 +52,7 @@ export class NotionAdapter {
         created_time: new Date(page.created_time).getTime(),
         last_edited_time: new Date(page.last_edited_time).getTime(),
         parent_id: page.parent?.page_id || page.parent?.database_id || 'workspace',
-        parent_table: 'space',
+        parent_table: page.parent?.type === 'database_id' ? 'collection' : 'space',
         alive: true,
         created_by_table: 'notion_user',
         created_by_id: this.extractUserId(page.created_by),
@@ -367,13 +372,74 @@ export class NotionAdapter {
    * 페이지 제목 추출
    */
   private extractTitle(page: any): notion.Decoration[] {
-    if (page.properties?.title?.title) {
-      return this.convertRichText(page.properties.title.title);
+    // '제목' 프로퍼티만 확인
+    const titleProp = page.properties?.['제목'];
+    if (titleProp?.title && Array.isArray(titleProp.title) && titleProp.title.length > 0) {
+      return this.convertRichText(titleProp.title);
     }
-    if (page.properties?.Name?.title) {
-      return this.convertRichText(page.properties.Name.title);
-    }
+
     return [['Untitled']];
+  }
+
+  /**
+   * 페이지 설명 추출 (Rich Text)
+   */
+  private extractDescription(page: any): notion.Decoration[] {
+    const descProp = page.properties?.['설명'];
+    if (descProp?.rich_text && Array.isArray(descProp.rich_text) && descProp.rich_text.length > 0) {
+      return this.convertRichText(descProp.rich_text);
+    }
+    return [['']];
+  }
+
+  /**
+   * 페이지 상태 추출 (Status)
+   */
+  private extractStatus(page: any): notion.Decoration[] {
+    const statusProp = page.properties?.['상태'];
+    if (statusProp?.status?.name) {
+      return [[statusProp.status.name]];
+    }
+    return [['']];
+  }
+
+  /**
+   * 페이지 카테고리 추출 (Select)
+   */
+  private extractCategory(page: any): notion.Decoration[] {
+    const categoryProp = page.properties?.['카테고리'];
+    if (categoryProp?.select?.name) {
+      return [[categoryProp.select.name]];
+    }
+    return [['']];
+  }
+
+  /**
+   * 페이지 태그 추출 (Multi Select)
+   */
+  private extractTags(page: any): notion.Decoration[] {
+    const tagsProp = page.properties?.['태그'];
+    if (tagsProp?.multi_select && Array.isArray(tagsProp.multi_select)) {
+      const tags = tagsProp.multi_select.map((tag: any) => tag.name);
+      return [tags];
+    }
+    return [['']];
+  }
+
+  /**
+   * 페이지 작성자 추출 (Created By / Person)
+   */
+  private extractAuthor(page: any): notion.Decoration[] {
+    const authorProp = page.properties?.['작성자'];
+    if (authorProp?.created_by) {
+      // created_by 타입인 경우
+      return [['u', authorProp.created_by.id]];
+    } else if (authorProp?.people && Array.isArray(authorProp.people)) {
+      // people 타입인 경우
+      const people = authorProp.people.map((person: any) => person.name || person.id);
+      return [people];
+    }
+    return [['']];
   }
 
   /**
