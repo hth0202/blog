@@ -21,6 +21,13 @@ export async function getPreviewImageMap(recordMap: ExtendedRecordMap): Promise<
       urls,
       async url => {
         const cacheKey = normalizeUrl(url);
+
+        // 공식 API의 서명된 URL인 경우 프리뷰 생성을 건너뛰기
+        if (url.includes('amazonaws.com') || url.includes('file.notion.so')) {
+          // 서명된 URL은 만료되므로 프리뷰 이미지 생성하지 않음
+          return [cacheKey, null];
+        }
+
         return [cacheKey, await getPreviewImage(url, { cacheKey })];
       },
       {
@@ -47,7 +54,22 @@ async function createPreviewImage(
       console.warn(`redis error get "${cacheKey}"`, err.message);
     }
 
-    const { body } = await got(url, { responseType: 'buffer' });
+    // 공식 Notion API의 서명된 URL인 경우 직접 사용
+    let imageUrl = url;
+    if (url.includes('amazonaws.com') || url.includes('file.notion.so')) {
+      // 서명된 URL은 그대로 사용
+      imageUrl = url;
+    } else if (url.startsWith('https://www.notion.so/image/')) {
+      // 이미 프록시된 URL은 그대로 사용
+      imageUrl = url;
+    }
+
+    const { body } = await got(imageUrl, {
+      responseType: 'buffer',
+      timeout: {
+        request: 10000, // 10초 타임아웃
+      },
+    });
     const result = await lqip(body);
 
     const previewImage = {

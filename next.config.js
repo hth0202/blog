@@ -27,6 +27,14 @@ module.exports = withBundleAnalyzer({
         protocol: 'https',
         hostname: 's3.*.amazonaws.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'img.notionusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'file.notion.so',
+      },
     ],
     formats: ['image/avif', 'image/webp'],
     dangerouslyAllowSVG: true,
