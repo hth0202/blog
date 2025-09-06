@@ -527,7 +527,7 @@ export const Block: React.FC<BlockProps> = props => {
               'notion-callout',
               block.format?.block_color && `notion-${block.format?.block_color}_co`,
               blockId,
-              status[block.format.page_icon],
+              status[block.format?.page_icon],
             )}
           >
             <PageIcon block={block} />
@@ -569,7 +569,7 @@ export const Block: React.FC<BlockProps> = props => {
             rel="noopener noreferrer"
             className={cs(
               'notion-bookmark',
-              block.format?.block_color && `notion-${block.format.block_color}`,
+              block.format?.block_color && `notion-${block.format?.block_color}`,
               blockId,
             )}
             href={link[0][0]}
@@ -711,8 +711,8 @@ export const Block: React.FC<BlockProps> = props => {
 
     case 'table_row': {
       const tableBlock = recordMap.block[block.parent_id]?.value as types.TableBlock;
-      const order = tableBlock.format?.table_block_column_order;
-      const formatMap = tableBlock.format?.table_block_column_format;
+      const order = tableBlock?.format?.table_block_column_order;
+      const formatMap = tableBlock?.format?.table_block_column_format;
 
       if (!tableBlock || !order) {
         return null;
