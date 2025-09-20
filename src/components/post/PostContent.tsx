@@ -1,10 +1,8 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 
-import { PostCard, PostCardSkeleton } from '@/components/post';
-
-import { getPosts, getCategories } from '@/services/notion';
+import { PostCard } from '@/components/post';
 
 import { Post, Category } from '@/types/blog';
 
@@ -12,42 +10,27 @@ import { ChevronDownIcon, SearchIcon } from '@/constants';
 
 type SortOrder = 'latest' | 'views' | 'oldest';
 
-export default function BlogPage() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
+interface PostContentProps {
+  initialPosts: Post[];
+  initialCategories: Category[];
+}
 
+export function PostContent({
+  initialPosts,
+  initialCategories,
+}: PostContentProps) {
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [sortOrder, setSortOrder] = useState<SortOrder>('latest');
   const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const [fetchedPosts, fetchedCategories] = await Promise.all([
-          getPosts(),
-          getCategories(),
-        ]);
-        setPosts(fetchedPosts);
-        setCategories(fetchedCategories);
-      } catch (error) {
-        console.error('Failed to fetch blog data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
-
   const allTags = useMemo(() => {
     const tags = new Set<string>();
-    posts.forEach((post) => {
+    initialPosts.forEach((post) => {
       post.tags.forEach((tag) => tags.add(tag));
     });
     return Array.from(tags).sort();
-  }, [posts]);
+  }, [initialPosts]);
 
   const handleTagClick = (tag: string) => {
     setActiveTags((prev) =>
@@ -56,10 +39,12 @@ export default function BlogPage() {
   };
 
   const filteredPosts = useMemo(() => {
-    let filtered = posts;
+    let filtered = initialPosts;
 
     if (activeCategory !== 'all') {
-      const selectedCategory = categories.find((c) => c.id === activeCategory);
+      const selectedCategory = initialCategories.find(
+        (c) => c.id === activeCategory,
+      );
       if (selectedCategory) {
         filtered = filtered.filter(
           (post) => post.category === selectedCategory.name,
@@ -90,7 +75,13 @@ export default function BlogPage() {
     }
 
     return filtered;
-  }, [activeCategory, activeTags, posts, categories, searchQuery]);
+  }, [
+    activeCategory,
+    activeTags,
+    initialPosts,
+    initialCategories,
+    searchQuery,
+  ]);
 
   const sortedPosts = useMemo(() => {
     return [...filteredPosts].sort((a, b) => {
@@ -107,7 +98,7 @@ export default function BlogPage() {
   }, [filteredPosts, sortOrder]);
 
   const activeCategoryName =
-    categories.find((c) => c.id === activeCategory)?.name || '전체보기';
+    initialCategories.find((c) => c.id === activeCategory)?.name || '전체보기';
 
   return (
     <div className="animate-fade-in mx-auto max-w-6xl">
@@ -119,7 +110,7 @@ export default function BlogPage() {
               카테고리
             </h3>
             <ul className="space-y-2">
-              {categories.map((category) => (
+              {initialCategories.map((category) => (
                 <li key={category.id}>
                   <button
                     onClick={() => {
@@ -198,11 +189,7 @@ export default function BlogPage() {
           </div>
 
           <div className="space-y-8">
-            {loading ? (
-              Array.from({ length: 4 }).map((_, index) => (
-                <PostCardSkeleton key={index} />
-              ))
-            ) : sortedPosts.length > 0 ? (
+            {sortedPosts.length > 0 ? (
               sortedPosts.map((post) => <PostCard key={post.id} post={post} />)
             ) : (
               <div className="py-16 text-center">
