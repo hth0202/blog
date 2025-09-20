@@ -19,9 +19,17 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
           />
         </div>
         <div className="flex flex-grow flex-col">
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            {post.category}
+          <span className="flex items-center justify-between">
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              {post.category}
+            </span>
+            {post.status !== '발행' && (
+              <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                {post.status}
+              </span>
+            )}
           </span>
+
           <h3 className="my-1 text-xl font-bold">{post.title}</h3>
           <span className="mb-2 text-xs text-gray-400 dark:text-gray-500">
             {post.date}
