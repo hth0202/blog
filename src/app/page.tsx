@@ -12,7 +12,7 @@ async function getRecentPosts(): Promise<Post[]> {
   try {
     const notionPosts = await getPostsFromNotion();
     if (notionPosts && notionPosts.length > 0) {
-      return notionPosts.slice(0, 3); // 최근 3개 포스트
+      return notionPosts.filter((post) => post.status === '발행').slice(0, 3); // 최근 3개 포스트
     }
     return []; // 포스트가 없을 때 빈 배열 반환
   } catch (error) {
