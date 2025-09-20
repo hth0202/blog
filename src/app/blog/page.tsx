@@ -5,7 +5,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import PostCard, { PostCardSkeleton } from '../../components/PostCard';
 import { ChevronDownIcon, SearchIcon } from '../../constants';
 import { getPosts, getCategories } from '../../services/notion';
-import { Post, Category } from '../../types';
+import { Post, Category } from '../../types/blog';
 
 type SortOrder = 'latest' | 'views' | 'oldest';
 

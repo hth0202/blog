@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import React from 'react';
 
-import { Project } from '../types';
+import { Project } from '../types/blog';
 
 interface ProjectCardProps {
   project: Project;

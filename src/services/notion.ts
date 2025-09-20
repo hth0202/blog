@@ -4,13 +4,7 @@ import {
   MOCK_PROJECTS,
   MOCK_PROJECT_CATEGORIES,
 } from '../constants';
-import { Post, Category, Project, ProjectCategory } from '../types';
-
-import { NotionAPI } from 'notion-client';
-
-export const notion = new NotionAPI({
-  apiBaseUrl: process.env.NOTION_API_BASE_URL,
-});
+import { Post, Category, Project, ProjectCategory } from '../types/blog';
 
 // Simulate network delay to mimic real API calls
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));

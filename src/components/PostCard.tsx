@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import React from 'react';
 
-import { Post } from '../types';
+import { Post } from '../types/blog';
 
 interface PostCardProps {
   post: Post;

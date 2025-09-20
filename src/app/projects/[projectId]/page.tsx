@@ -9,7 +9,7 @@ import remarkGfm from 'remark-gfm';
 
 import { HeartIcon, HeartIconFilled, ShareIcon } from '../../../constants';
 import { getProjectById } from '../../../services/notion';
-import { Project } from '../../../types';
+import { Project } from '../../../types/blog';
 
 export default function ProjectDetailPage() {
   const params = useParams();

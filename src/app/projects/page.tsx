@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 
 import ProjectCard, { ProjectCardSkeleton } from '../../components/ProjectCard';
 import { getProjects, getProjectCategories } from '../../services/notion';
-import { Project, ProjectCategory } from '../../types';
+import { Project, ProjectCategory } from '../../types/blog';
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);

@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useRef } from 'react';
 import { useBoolean } from 'usehooks-ts';
 
@@ -56,6 +58,9 @@ const useAnimateText = () => {
   return { textRef, animationComplete };
 };
 
+/* -------------------------------------------------------------------------------------------------
+ * MainSection
+ * -----------------------------------------------------------------------------------------------*/
 export function MainSection() {
   const { textRef, animationComplete } = useAnimateText();
 

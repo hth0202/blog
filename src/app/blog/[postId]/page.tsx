@@ -9,7 +9,7 @@ import remarkGfm from 'remark-gfm';
 
 import { HeartIcon, HeartIconFilled, ShareIcon } from '../../../constants';
 import { getPostById } from '../../../services/notion';
-import { Post } from '../../../types';
+import { Post } from '../../../types/blog';
 
 export default function PostDetailPage() {
   const params = useParams();

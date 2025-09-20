@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Post, Category, Project, ProjectCategory } from './types';
+import { Post, Category, Project, ProjectCategory } from './types/blog';
 
 export const MOCK_CATEGORIES: Category[] = [
   { id: 'all', name: '전체보기' },

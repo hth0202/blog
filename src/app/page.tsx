@@ -1,9 +1,25 @@
-import React from 'react';
-
 import { MainSection } from '@/components/home';
-import { PostCardSkeleton } from '@/components/PostCard';
+import PostCard from '@/components/PostCard';
 
-export default function HomePage() {
+import { getPostsFromNotion } from '@/services/notion-api';
+
+export const dynamic = 'force-static';
+export const revalidate = 10; // 10초마다 재생성
+
+async function getRecentPosts() {
+  try {
+    const notionPosts = await getPostsFromNotion();
+    if (notionPosts && notionPosts.length > 0) {
+      return notionPosts.slice(0, 3); // 최근 3개 포스트
+    }
+  } catch (error) {
+    console.error('포스트 데이터 가져오기 실패:', error);
+  }
+}
+
+export default async function HomePage() {
+  const recentPosts = await getRecentPosts();
+
   return (
     <div className="-mt-16">
       <MainSection />
@@ -18,9 +34,15 @@ export default function HomePage() {
               최근 게시한 글
             </h2>
             <div className="space-y-8">
-              {Array.from({ length: 3 }).map((_, index) => (
-                <PostCardSkeleton key={index} />
-              ))}
+              {recentPosts && recentPosts.length > 0 ? (
+                recentPosts.map((post) => (
+                  <PostCard key={post.id} post={post} />
+                ))
+              ) : (
+                <div className="py-8 text-center text-gray-500 dark:text-gray-400">
+                  게시글이 없습니다.
+                </div>
+              )}
             </div>
           </section>
         </div>
