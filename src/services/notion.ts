@@ -3,8 +3,14 @@ import {
   MOCK_CATEGORIES,
   MOCK_PROJECTS,
   MOCK_PROJECT_CATEGORIES,
-} from "../constants";
-import { Post, Category, Project, ProjectCategory } from "../types";
+} from '../constants';
+import { Post, Category, Project, ProjectCategory } from '../types';
+
+import { NotionAPI } from 'notion-client';
+
+export const notion = new NotionAPI({
+  apiBaseUrl: process.env.NOTION_API_BASE_URL,
+});
 
 // Simulate network delay to mimic real API calls
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
@@ -13,7 +19,7 @@ export const getPosts = async (): Promise<Post[]> => {
   await delay(500);
   // In a real scenario, you would fetch this from your backend endpoint which calls the Notion API
   return MOCK_POSTS.sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
   );
 };
 
@@ -30,12 +36,12 @@ export const getCategories = async (): Promise<Category[]> => {
 export const getProjects = async (): Promise<Project[]> => {
   await delay(500);
   return MOCK_PROJECTS.sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
   );
 };
 
 export const getProjectById = async (
-  id: number
+  id: number,
 ): Promise<Project | undefined> => {
   await delay(300);
   return MOCK_PROJECTS.find((p) => p.id === id);

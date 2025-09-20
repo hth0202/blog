@@ -1,10 +1,11 @@
-"use client";
+'use client';
 
-import React from "react";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import { useTheme } from "../hooks/useTheme";
-import "./globals.css";
+import React from 'react';
+
+import { useTheme } from '@/hooks/useTheme';
+
+import { Header, Footer } from '@/layouts';
+import './globals.css';
 
 export default function RootLayout({
   children,
@@ -52,9 +53,9 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen">
-        <div className="flex flex-col min-h-screen">
+        <div className="flex min-h-screen flex-col">
           <Header theme={theme} toggleTheme={toggleTheme} />
-          <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <main className="container mx-auto flex-grow px-4 py-8 sm:px-6 lg:px-8">
             {children}
           </main>
           <Footer />
