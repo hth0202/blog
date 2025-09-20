@@ -1,13 +1,13 @@
 import Link from 'next/link';
 import React from 'react';
 
-import { Project } from '../types/blog';
+import type { Project } from '@/types/blog';
 
 interface ProjectCardProps {
   project: Project;
 }
 
-const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
+export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   return (
     <Link href={`/projects/${project.id}`} className="group block h-full">
       <div className="flex h-full flex-col rounded-lg p-4 transition-all duration-300 ease-in-out group-hover:-translate-y-1 group-hover:bg-gray-50 group-hover:shadow-lg dark:group-hover:bg-gray-800/50 dark:group-hover:shadow-gray-800/60">
@@ -57,5 +57,3 @@ export const ProjectCardSkeleton: React.FC = () => (
     </div>
   </div>
 );
-
-export default ProjectCard;

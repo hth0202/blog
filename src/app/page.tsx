@@ -1,19 +1,23 @@
 import { MainSection } from '@/components/home';
-import PostCard from '@/components/PostCard';
+import { PostCard } from '@/components/post';
 
 import { getPostsFromNotion } from '@/services/notion-api';
+
+import type { Post } from '@/types/blog';
 
 export const dynamic = 'force-static';
 export const revalidate = 10; // 10초마다 재생성
 
-async function getRecentPosts() {
+async function getRecentPosts(): Promise<Post[]> {
   try {
     const notionPosts = await getPostsFromNotion();
     if (notionPosts && notionPosts.length > 0) {
       return notionPosts.slice(0, 3); // 최근 3개 포스트
     }
+    return []; // 포스트가 없을 때 빈 배열 반환
   } catch (error) {
     console.error('포스트 데이터 가져오기 실패:', error);
+    return []; // 에러 발생 시 빈 배열 반환
   }
 }
 

@@ -2,10 +2,13 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 
-import PostCard, { PostCardSkeleton } from '../../components/PostCard';
-import { ChevronDownIcon, SearchIcon } from '../../constants';
-import { getPosts, getCategories } from '../../services/notion';
-import { Post, Category } from '../../types/blog';
+import { PostCard, PostCardSkeleton } from '@/components/post';
+
+import { getPosts, getCategories } from '@/services/notion';
+
+import { Post, Category } from '@/types/blog';
+
+import { ChevronDownIcon, SearchIcon } from '@/constants';
 
 type SortOrder = 'latest' | 'views' | 'oldest';
 

@@ -8,6 +8,7 @@ export interface Post {
   thumbnailUrl: string;
   content: string;
   views: number;
+  status: '백로그' | '임시저장' | '발행';
 }
 
 export interface Category {
