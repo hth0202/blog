@@ -84,7 +84,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
             <span>공유하기</span>
           </button>
           <Link
-            href="/blog"
+            href="/post"
             className="rounded-md bg-violet-600 px-6 py-2 text-white transition-colors hover:bg-violet-700"
           >
             목록으로
