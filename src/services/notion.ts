@@ -1,47 +1,81 @@
 import {
-  MOCK_POSTS,
-  MOCK_CATEGORIES,
-  MOCK_PROJECTS,
-  MOCK_PROJECT_CATEGORIES,
-} from '../constants';
+  getPostsFromNotion,
+  getPostByIdFromNotion,
+  getCategoriesFromNotion,
+  getProjectsFromNotion,
+  getProjectByIdFromNotion,
+} from './notion-api';
 import { Post, Category, Project, ProjectCategory } from '../types/blog';
 
-// Simulate network delay to mimic real API calls
-const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
-
 export const getPosts = async (): Promise<Post[]> => {
-  await delay(500);
-  // In a real scenario, you would fetch this from your backend endpoint which calls the Notion API
-  return MOCK_POSTS.sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-  );
+  try {
+    return await getPostsFromNotion();
+  } catch (error) {
+    console.error('포스트 목록 조회 실패:', error);
+    return [];
+  }
 };
 
 export const getPostById = async (id: number): Promise<Post | undefined> => {
-  await delay(300);
-  return MOCK_POSTS.find((p) => p.id === id);
+  try {
+    return await getPostByIdFromNotion(id);
+  } catch (error) {
+    console.error('포스트 조회 실패:', error);
+    return undefined;
+  }
 };
 
 export const getCategories = async (): Promise<Category[]> => {
-  await delay(200);
-  return MOCK_CATEGORIES;
+  try {
+    return await getCategoriesFromNotion();
+  } catch (error) {
+    console.error('카테고리 조회 실패:', error);
+    return [{ id: 'all', name: '전체보기' }];
+  }
 };
 
 export const getProjects = async (): Promise<Project[]> => {
-  await delay(500);
-  return MOCK_PROJECTS.sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-  );
+  try {
+    return await getProjectsFromNotion();
+  } catch (error) {
+    console.error('프로젝트 목록 조회 실패:', error);
+    return [];
+  }
 };
 
 export const getProjectById = async (
   id: number,
 ): Promise<Project | undefined> => {
-  await delay(300);
-  return MOCK_PROJECTS.find((p) => p.id === id);
+  try {
+    return await getProjectByIdFromNotion(id);
+  } catch (error) {
+    console.error('프로젝트 조회 실패:', error);
+    return undefined;
+  }
 };
 
 export const getProjectCategories = async (): Promise<ProjectCategory[]> => {
-  await delay(200);
-  return MOCK_PROJECT_CATEGORIES;
+  try {
+    const projects = await getProjectsFromNotion();
+    const categorySet = new Set<string>();
+
+    projects.forEach((project) => {
+      if (project.category && project.category !== '기타') {
+        categorySet.add(project.category);
+      }
+    });
+
+    const categories: ProjectCategory[] = [
+      { id: 'all', name: '전체보기' },
+      ...Array.from(categorySet).map((category) => ({
+        id: category.toLowerCase().replace(/\s+/g, '-'),
+        name: category,
+      })),
+    ];
+
+    return categories;
+  } catch (error) {
+    console.error('프로젝트 카테고리 조회 실패:', error);
+    return [{ id: 'all', name: '전체보기' }];
+  }
 };

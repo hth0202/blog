@@ -9,7 +9,7 @@ interface PostCardProps {
 
 export const PostCard: React.FC<PostCardProps> = ({ post }) => {
   return (
-    <Link href={`/blog/${post.id}`} className="group block">
+    <Link href={`/post/${post.id}`} className="group block">
       <div className="flex w-full flex-col items-start gap-6 rounded-lg p-4 transition-all duration-300 ease-in-out group-hover:-translate-y-1 group-hover:bg-gray-50 group-hover:shadow-lg sm:flex-row dark:group-hover:bg-gray-800/50 dark:group-hover:shadow-gray-800/60">
         <div className="flex-shrink-0">
           <img

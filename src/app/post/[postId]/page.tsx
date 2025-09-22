@@ -1,105 +1,58 @@
-'use client';
-
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import React, { useState, useEffect } from 'react';
+import { notFound } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 
-import { HeartIcon, HeartIconFilled, ShareIcon } from '../../../constants';
-import { getPostById } from '../../../services/notion';
-import { Post } from '../../../types/blog';
+import { ReactionSection } from '@/components/post';
 
-export default function PostDetailPage() {
-  const params = useParams();
-  const postId = params.postId as string;
-  const [post, setPost] = useState<Post | null | undefined>(undefined);
-  const [hasReacted, setHasReacted] = useState(false);
-  const [reactionCount, setReactionCount] = useState(0);
+import { getPostByIdFromNotion, getNotionPage } from '@/services/notion-api';
 
-  useEffect(() => {
-    const fetchPost = async () => {
-      if (postId) {
-        try {
-          const fetchedPost = await getPostById(Number(postId));
-          setPost(fetchedPost || null);
-          if (fetchedPost) {
-            // Check reaction status from localStorage
-            const reactedPosts = JSON.parse(
-              localStorage.getItem('reacted_posts') || '[]',
-            );
-            if (reactedPosts.includes(fetchedPost.id)) {
-              setHasReacted(true);
-            }
+import { ShareIcon } from '@/constants';
 
-            // Get reaction count from localStorage or initialize it
-            const allReactionCounts = JSON.parse(
-              localStorage.getItem('reaction_counts') || '{}',
-            );
-            const currentCount = allReactionCounts[`post_${fetchedPost.id}`];
-            const initialCount = 12; // Default mock count
+export const revalidate = 10;
 
-            setReactionCount(
-              currentCount !== undefined ? currentCount : initialCount,
-            );
-          }
-        } catch (error) {
-          console.error('Failed to fetch post:', error);
-          setPost(null);
-        }
+// 포스트 데이터를 가져오는 함수
+async function getPost(postId: string) {
+  try {
+    // postId가 Notion 페이지 ID인지 확인
+    const isNotionPageId = postId.includes('-') && postId.length > 10;
+
+    if (isNotionPageId) {
+      // Notion 페이지 데이터 확인
+      const recordMap = await getNotionPage(postId);
+      if (!recordMap) {
+        notFound();
       }
-    };
-    fetchPost();
-  }, [postId]);
+      // Notion 페이지 ID인 경우
+      const post = await getPostByIdFromNotion(postId);
+      if (!post) {
+        notFound();
+      }
+      return post;
+    } else {
+      // 숫자 ID인 경우
+      const post = await getPostByIdFromNotion(Number(postId));
+      if (!post) {
+        notFound();
+      }
+      return post;
+    }
+  } catch (error) {
+    console.error('포스트 조회 실패:', error);
+    notFound();
+  }
+}
 
-  const handleReactionClick = () => {
-    if (!post) return;
-
-    const newReactionCount = hasReacted ? reactionCount - 1 : reactionCount + 1;
-    setReactionCount(newReactionCount);
-
-    const newHasReacted = !hasReacted;
-    setHasReacted(newHasReacted);
-
-    // Update reaction status in localStorage
-    const reactedPosts = JSON.parse(
-      localStorage.getItem('reacted_posts') || '[]',
-    );
-    const updatedReactedPosts = newHasReacted
-      ? [...reactedPosts, post.id]
-      : reactedPosts.filter((id: number) => id !== post.id);
-    localStorage.setItem('reacted_posts', JSON.stringify(updatedReactedPosts));
-
-    // Update reaction count in localStorage
-    const allReactionCounts = JSON.parse(
-      localStorage.getItem('reaction_counts') || '{}',
-    );
-    allReactionCounts[`post_${post.id}`] = newReactionCount;
-    localStorage.setItem('reaction_counts', JSON.stringify(allReactionCounts));
+interface PostDetailPageProps {
+  params: {
+    postId: string;
   };
+}
 
-  if (post === undefined) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-gray-900 dark:border-gray-100"></div>
-      </div>
-    );
-  }
-
-  if (!post) {
-    return (
-      <div className="animate-fade-in py-20 text-center">
-        <h1 className="text-2xl font-bold">포스트를 찾을 수 없습니다.</h1>
-        <Link
-          href="/blog"
-          className="mt-4 inline-block text-violet-500 hover:underline"
-        >
-          블로그로 돌아가기
-        </Link>
-      </div>
-    );
-  }
+export default async function PostDetailPage({ params }: PostDetailPageProps) {
+  const { postId } = await params;
+  const post = await getPost(postId);
 
   return (
     <>
@@ -158,24 +111,7 @@ export default function PostDetailPage() {
         </div>
 
         <div className="border-t border-gray-200 pt-8 dark:border-gray-700">
-          <div className="mb-8 flex flex-col items-center gap-2">
-            <h3 className="font-semibold">반응 {reactionCount}개</h3>
-            <button
-              onClick={handleReactionClick}
-              className={`rounded-full border p-3 transition-colors ${
-                hasReacted
-                  ? 'border-violet-500 text-violet-500'
-                  : 'border-gray-300 text-gray-400 hover:border-violet-500 hover:text-violet-500 dark:border-gray-600 dark:text-gray-500 dark:hover:border-violet-400 dark:hover:text-violet-400'
-              }`}
-              aria-label={hasReacted ? 'Undo reaction' : 'Give a reaction'}
-            >
-              {hasReacted ? (
-                <HeartIconFilled className="h-6 w-6" />
-              ) : (
-                <HeartIcon className="h-6 w-6" />
-              )}
-            </button>
-          </div>
+          <ReactionSection postId={post.id} />
 
           <section aria-labelledby="comments-heading">
             <h2 id="comments-heading" className="mb-4 text-xl font-bold">
