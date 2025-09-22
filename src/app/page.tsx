@@ -5,7 +5,6 @@ import { getPostsFromNotion } from '@/services/notion-api';
 
 import type { Post } from '@/types/blog';
 
-export const dynamic = 'force-dynamic';
 export const revalidate = 10; // 10초마다 재생성 (ISR)
 
 async function getRecentPosts(): Promise<Post[]> {

@@ -68,7 +68,7 @@ const _getNotionPage = async (
 
 // 메모이제이션 적용된 getNotionPage 함수
 export const getNotionPage = pMemoize(_getNotionPage, {
-  maxAge: 5 * 60 * 1000, // 5분 캐시
+  maxAge: 1 * 60 * 1000, // 1분 캐시
   cacheKey: (arguments_: [string]) => arguments_[0],
 });
 
@@ -186,7 +186,7 @@ const _getNotionCollectionData = async (
 
 // 메모이제이션 적용된 getNotionCollectionData 함수
 export const getNotionCollectionData = pMemoize(_getNotionCollectionData, {
-  maxAge: 5 * 60 * 1000, // 5분 캐시
+  maxAge: 1 * 60 * 1000, // 1분 캐시
   cacheKey: (arguments_: [string]) => arguments_[0],
 });
 
@@ -303,7 +303,7 @@ const _getThumbnailFromPage = async (
 
 // 메모이제이션 적용된 썸네일 가져오기 함수
 const getThumbnailFromPage = pMemoize(_getThumbnailFromPage, {
-  maxAge: 10 * 60 * 1000, // 10분 캐시
+  maxAge: 1 * 60 * 60 * 1000, // 1시간 캐시
   cacheKey: (arguments_: [string, string?]) =>
     `${arguments_[0]}-${arguments_[1] || '400/300'}`,
 });
@@ -334,7 +334,7 @@ const _getMultiplePages = async (
 
 // 메모이제이션 적용된 다중 페이지 가져오기 함수
 export const getMultiplePages = pMemoize(_getMultiplePages, {
-  maxAge: 3 * 60 * 1000, // 3분 캐시
+  maxAge: 5 * 60 * 1000, // 5분 캐시
   cacheKey: (arguments_: [string[]]) => arguments_[0].sort().join(','),
 });
 
