@@ -34,14 +34,6 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
   const { postId } = await params;
   const post = await getPost(postId);
 
-  // 디버깅: recordMap 데이터 확인
-  console.log('🔍 Post data:', {
-    id: post.id,
-    title: post.title,
-    hasRecordMap: !!post.recordMap,
-    recordMapKeys: post.recordMap ? Object.keys(post.recordMap) : [],
-  });
-
   return (
     <>
       <article className="animate-fade-in mx-auto max-w-3xl">
