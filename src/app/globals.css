@@ -169,7 +169,7 @@
     font-weight: 800;
     letter-spacing: -0.025em;
     fill: transparent;
-    stroke: #a78bfa;
+    stroke: #818cf8;
     stroke-width: 1;
     stroke-dasharray: 4000;
     stroke-dashoffset: 4000;
@@ -177,17 +177,17 @@
   }
 
   .dark .title-stroke {
-    stroke: #c4b5fd;
+    stroke: #a5b4fc;
   }
 
   .title-stroke.filled {
-    fill: #a78bfa;
-    stroke: #a78bfa;
+    fill: #818cf8;
+    stroke: #818cf8;
   }
 
   .dark .title-stroke.filled {
-    fill: #c4b5fd;
-    stroke: #c4b5fd;
+    fill: #a5b4fc;
+    stroke: #a5b4fc;
   }
 
   @media (min-width: 768px) {

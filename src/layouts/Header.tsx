@@ -15,16 +15,16 @@ export const Header: React.FC<HeaderProps> = ({ theme, toggleTheme }) => {
   const navLinkClass = (path: string) =>
     `text-sm font-medium ${
       pathname === path
-        ? 'text-violet-600 dark:text-violet-400'
+        ? 'text-indigo-600 dark:text-indigo-400'
         : 'text-gray-500 dark:text-gray-400'
-    } hover:text-violet-600 dark:hover:text-violet-400 transition-colors`;
+    } hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors`;
 
   return (
     <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-sm dark:bg-gray-900/80">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between border-b border-gray-200 dark:border-gray-700">
+        <div className="flex h-16 items-center justify-between border-b border-gray-200 dark:border-gray-600">
           <div className="flex items-center space-x-8">
-            <Link href="/" className="text-xl font-bold">
+            <Link href="/" className="text-xl font-bold text-gray-900 dark:text-white">
               태피스토리
             </Link>
           </div>

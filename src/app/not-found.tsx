@@ -5,8 +5,8 @@ import { QuestionMarkCircleIcon } from '@/constants';
 export default function NotFound() {
   return (
     <div className="animate-fade-in flex flex-col items-center justify-center py-20 text-center">
-      <QuestionMarkCircleIcon className="mb-6 h-24 w-24 text-violet-400 dark:text-violet-500" />
-      <h1 className="text-6xl font-extrabold text-gray-800 dark:text-gray-200">
+      <QuestionMarkCircleIcon className="mb-6 h-24 w-24 text-indigo-400 dark:text-indigo-500" />
+      <h1 className="text-6xl font-extrabold text-gray-900 dark:text-white">
         404
       </h1>
       <h2 className="mt-4 mb-2 text-2xl font-bold text-gray-700 dark:text-gray-300">
@@ -18,7 +18,7 @@ export default function NotFound() {
       </p>
       <Link
         href="/"
-        className="rounded-md bg-violet-600 px-8 py-3 font-semibold text-white transition-colors duration-300 hover:bg-violet-700"
+        className="rounded-md bg-indigo-600 px-8 py-3 font-semibold text-white transition-colors duration-300 hover:bg-indigo-700"
       >
         홈으로 돌아가기
       </Link>

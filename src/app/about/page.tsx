@@ -6,8 +6,8 @@ export default function AboutPage() {
   return (
     <div className="animate-fade-in mx-auto max-w-4xl">
       {/* Page Title - Consistent with other pages */}
-      <div className="mb-12 border-b border-gray-200 pb-4 dark:border-gray-700">
-        <h1 className="text-3xl font-bold">소개</h1>
+      <div className="mb-12 border-b border-gray-200 pb-4 dark:border-gray-600">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">소개</h1>
         <p className="mt-2 text-gray-500 dark:text-gray-400">
           태피스토리에 오신 것을 환영합니다.
         </p>
@@ -26,7 +26,7 @@ export default function AboutPage() {
 
         {/* Right: Introduction Text */}
         <div className="flex-grow">
-          <h2 className="mb-4 text-2xl font-bold">
+          <h2 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
             안녕하세요! 서비스 기획자 겸 PM 태피입니다.
           </h2>
           <div className="prose dark:prose-invert max-w-none text-gray-600 dark:text-gray-300">
@@ -47,7 +47,7 @@ export default function AboutPage() {
 
       {/* Career and Contact Section */}
       <section className="prose dark:prose-invert mx-auto max-w-none">
-        <h2 className="mt-12 mb-4 text-2xl font-bold">경력</h2>
+        <h2 className="mt-12 mb-4 text-2xl font-bold text-gray-900 dark:text-white">경력</h2>
         <ul>
           <li>
             <strong>Product Manager</strong> at Company A (2022 - Present)
@@ -60,14 +60,14 @@ export default function AboutPage() {
           </li>
         </ul>
 
-        <h2 className="mt-12 mb-4 text-2xl font-bold">Contact</h2>
+        <h2 className="mt-12 mb-4 text-2xl font-bold text-gray-900 dark:text-white">Contact</h2>
         <p>
           다양한 기회에 열려있습니다. 커피챗이나 협업 제안은 언제나 환영입니다.{' '}
           <br />
           아래 이메일로 연락 주세요:{' '}
           <a
             href="mailto:contact@tappy.story"
-            className="text-violet-500 hover:underline"
+            className="text-indigo-500 hover:underline"
           >
             contact@tappy.story
           </a>

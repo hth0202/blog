@@ -94,10 +94,12 @@ export default function ProjectDetailPage() {
   if (!project) {
     return (
       <div className="animate-fade-in py-20 text-center">
-        <h1 className="text-2xl font-bold">프로젝트를 찾을 수 없습니다.</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          프로젝트를 찾을 수 없습니다.
+        </h1>
         <Link
           href="/projects"
-          className="mt-4 inline-block text-violet-500 hover:underline"
+          className="mt-4 inline-block text-indigo-500 hover:underline"
         >
           프로젝트 목록으로 돌아가기
         </Link>
@@ -112,18 +114,18 @@ export default function ProjectDetailPage() {
           <img
             src={project.thumbnailUrl}
             alt={project.name}
-            className="mb-6 h-64 w-full rounded-lg bg-gray-200 object-cover dark:bg-gray-700"
+            className="mb-6 h-64 w-full rounded-lg bg-gray-100 object-cover dark:bg-gray-700"
           />
           <div className="text-sm text-gray-500 dark:text-gray-400">
             {project.category}
           </div>
-          <h1 className="my-2 text-4xl leading-tight font-extrabold">
+          <h1 className="my-2 text-4xl leading-tight font-extrabold text-gray-900 dark:text-white">
             {project.name}
           </h1>
           <p className="mt-2 mb-4 text-lg text-gray-600 dark:text-gray-300">
             {project.contentPreview}
           </p>
-          <div className="text-sm text-gray-400 dark:text-gray-500">
+          <div className="text-sm text-gray-500 dark:text-gray-400">
             {project.date}
           </div>
         </header>
@@ -141,7 +143,7 @@ export default function ProjectDetailPage() {
           {project.tags.map((tag, index) => (
             <span
               key={index}
-              className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-300"
+              className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-gray-800/50 dark:text-gray-300"
             >
               {tag}
             </span>
@@ -149,27 +151,27 @@ export default function ProjectDetailPage() {
         </div>
 
         <div className="mb-12 flex items-center justify-center gap-4">
-          <button className="flex items-center gap-2 rounded-md border border-gray-300 px-6 py-2 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-800">
+          <button className="flex items-center gap-2 rounded-md border border-gray-300 px-6 py-2 text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800">
             <ShareIcon className="h-5 w-5" />
             <span>공유하기</span>
           </button>
           <Link
             href="/projects"
-            className="rounded-md bg-violet-600 px-6 py-2 text-white transition-colors hover:bg-violet-700"
+            className="rounded-md bg-indigo-600 px-6 py-2 text-white transition-colors hover:bg-indigo-700"
           >
             목록으로
           </Link>
         </div>
 
-        <div className="border-t border-gray-200 pt-8 dark:border-gray-700">
+        <div className="border-t border-gray-200 pt-8 dark:border-gray-600">
           <div className="mb-8 flex flex-col items-center gap-2">
             <h3 className="font-semibold">반응 {reactionCount}개</h3>
             <button
               onClick={handleReactionClick}
               className={`rounded-full border p-3 transition-colors ${
                 hasReacted
-                  ? 'border-violet-500 text-violet-500'
-                  : 'border-gray-300 text-gray-400 hover:border-violet-500 hover:text-violet-500 dark:border-gray-600 dark:text-gray-500 dark:hover:border-violet-400 dark:hover:text-violet-400'
+                  ? 'border-indigo-500 text-indigo-500'
+                  : 'border-gray-300 text-gray-400 hover:border-indigo-500 hover:text-indigo-500 dark:border-gray-600 dark:text-gray-500 dark:hover:border-indigo-400 dark:hover:text-indigo-400'
               }`}
               aria-label={hasReacted ? 'Undo reaction' : 'Give a reaction'}
             >
@@ -182,19 +184,24 @@ export default function ProjectDetailPage() {
           </div>
 
           <section aria-labelledby="comments-heading">
-            <h2 id="comments-heading" className="mb-4 text-xl font-bold">
+            <h2
+              id="comments-heading"
+              className="mb-4 text-xl font-bold text-gray-900 dark:text-white"
+            >
               댓글 {Math.floor(project.views / 100)}개
             </h2>
             <div className="space-y-6">
               {/* Mock Comment */}
               <div className="flex items-start gap-4">
-                <div className="h-10 w-10 flex-shrink-0 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                <div className="h-10 w-10 flex-shrink-0 rounded-full bg-gray-100 dark:bg-gray-700"></div>
                 <div className="flex-grow">
                   <div className="font-semibold">사용자 1</div>
                   <p className="text-sm text-gray-600 dark:text-gray-300">
                     프로젝트 정말 인상적이네요!
                   </p>
-                  <div className="mt-1 text-xs text-gray-400">2일 전</div>
+                  <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    2일 전
+                  </div>
                 </div>
               </div>
             </div>
@@ -203,11 +210,11 @@ export default function ProjectDetailPage() {
               <textarea
                 rows={4}
                 placeholder="댓글을 입력하세요..."
-                className="w-full rounded-md border border-gray-300 bg-gray-50 p-3 text-sm transition-all focus:ring-2 focus:ring-violet-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800"
+                className="w-full rounded-md border border-gray-300 bg-white p-3 text-sm text-gray-900 transition-all focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                 aria-label="댓글 작성"
               />
               <div className="mt-2 flex justify-end">
-                <button className="rounded-md bg-violet-600 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-violet-700">
+                <button className="rounded-md bg-indigo-600 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-indigo-700">
                   댓글 달기
                 </button>
               </div>

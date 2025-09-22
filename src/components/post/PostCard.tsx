@@ -15,7 +15,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
           <img
             src={post.thumbnailUrl}
             alt={post.title}
-            className="h-36 w-full rounded-md bg-gray-200 object-cover sm:w-36 dark:bg-gray-700"
+            className="h-36 w-full rounded-md bg-gray-100 object-cover sm:w-36 dark:bg-gray-700"
           />
         </div>
         <div className="flex flex-grow flex-col">
@@ -24,14 +24,14 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
               {post.category}
             </span>
             {post.status !== '발행' && (
-              <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+              <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-gray-800/50 dark:text-gray-300">
                 {post.status}
               </span>
             )}
           </span>
 
-          <h3 className="my-1 text-xl font-bold">{post.title}</h3>
-          <span className="mb-2 text-xs text-gray-400 dark:text-gray-500">
+          <h3 className="my-1 text-xl font-bold text-gray-900 dark:text-white">{post.title}</h3>
+          <span className="mb-2 text-xs text-gray-500 dark:text-gray-400">
             {post.date}
           </span>
           <p className="mb-4 line-clamp-3 flex-grow text-sm text-gray-600 dark:text-gray-300">
@@ -41,7 +41,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
             {post.tags.map((tag, index) => (
               <span
                 key={index}
-                className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-300"
+                className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-gray-800/50 dark:text-gray-300"
               >
                 {tag}
               </span>
@@ -55,16 +55,16 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
 export const PostCardSkeleton: React.FC = () => (
   <div className="flex w-full animate-pulse flex-col items-start gap-6 p-4 sm:flex-row">
-    <div className="h-36 w-full flex-shrink-0 rounded-md bg-gray-200 sm:w-36 dark:bg-gray-700"></div>
+    <div className="h-36 w-full flex-shrink-0 rounded-md bg-gray-100 sm:w-36 dark:bg-gray-700"></div>
     <div className="flex w-full flex-grow flex-col">
-      <div className="mb-2 h-4 w-1/4 rounded bg-gray-200 dark:bg-gray-700"></div>
-      <div className="mb-2 h-6 w-3/4 rounded bg-gray-200 dark:bg-gray-700"></div>
-      <div className="mb-4 h-4 w-1/5 rounded bg-gray-200 dark:bg-gray-700"></div>
-      <div className="mb-1 h-4 w-full rounded bg-gray-200 dark:bg-gray-700"></div>
-      <div className="mb-4 h-4 w-5/6 rounded bg-gray-200 dark:bg-gray-700"></div>
+      <div className="mb-2 h-4 w-1/4 rounded bg-gray-100 dark:bg-gray-700"></div>
+      <div className="mb-2 h-6 w-3/4 rounded bg-gray-100 dark:bg-gray-700"></div>
+      <div className="mb-4 h-4 w-1/5 rounded bg-gray-100 dark:bg-gray-700"></div>
+      <div className="mb-1 h-4 w-full rounded bg-gray-100 dark:bg-gray-700"></div>
+      <div className="mb-4 h-4 w-5/6 rounded bg-gray-100 dark:bg-gray-700"></div>
       <div className="flex flex-wrap gap-2">
-        <div className="h-6 w-20 rounded-full bg-gray-200 dark:bg-gray-700"></div>
-        <div className="h-6 w-24 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+        <div className="h-6 w-20 rounded-full bg-gray-100 dark:bg-gray-700"></div>
+        <div className="h-6 w-24 rounded-full bg-gray-100 dark:bg-gray-700"></div>
       </div>
     </div>
   </div>

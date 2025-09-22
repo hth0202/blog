@@ -76,7 +76,7 @@ export default function ProjectsPage() {
         {/* Sidebar */}
         <aside className="md:col-span-1">
           <div className="sticky top-24">
-            <h3 className="mb-4 border-b border-gray-200 pb-2 text-lg font-semibold dark:border-gray-700">
+            <h3 className="mb-4 border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900 dark:border-gray-600 dark:text-white">
               카테고리
             </h3>
             <ul className="space-y-2">
@@ -89,8 +89,8 @@ export default function ProjectsPage() {
                     }}
                     className={`w-full rounded px-2 py-1 text-left transition-colors ${
                       activeCategory === category.id
-                        ? 'bg-violet-100 font-bold dark:bg-violet-900/60'
-                        : 'hover:bg-gray-100/50 dark:hover:bg-gray-800/50'
+                        ? 'bg-indigo-100 font-bold text-gray-900 dark:bg-indigo-900/60 dark:text-white'
+                        : 'text-gray-700 hover:bg-gray-100/50 dark:text-gray-300 dark:hover:bg-gray-800/50'
                     }`}
                   >
                     {category.name}
@@ -99,7 +99,7 @@ export default function ProjectsPage() {
               ))}
             </ul>
 
-            <h3 className="mt-8 mb-4 border-b border-gray-200 pb-2 text-lg font-semibold dark:border-gray-700">
+            <h3 className="mt-8 mb-4 border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900 dark:border-gray-600 dark:text-white">
               태그
             </h3>
             <div className="flex flex-wrap gap-2">
@@ -109,8 +109,8 @@ export default function ProjectsPage() {
                   onClick={() => handleTagClick(tag)}
                   className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                     activeTags.includes(tag)
-                      ? 'bg-violet-600 text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                      ? 'bg-indigo-600 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800/50 dark:text-gray-300 dark:hover:bg-gray-600'
                   }`}
                 >
                   {tag}
@@ -122,7 +122,9 @@ export default function ProjectsPage() {
 
         {/* Main Content */}
         <main className="md:col-span-3">
-          <h1 className="mb-8 text-3xl font-bold">작업</h1>
+          <h1 className="mb-8 text-3xl font-bold text-gray-900 dark:text-white">
+            작업
+          </h1>
 
           <div className="grid grid-cols-1 gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-2">
             {loading ? (

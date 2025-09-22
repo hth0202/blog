@@ -33,7 +33,7 @@ export default async function HomePage() {
       >
         <div className="mx-auto max-w-4xl px-4 pt-16 sm:px-6 lg:px-8">
           <section>
-            <h2 className="mb-6 border-b border-gray-200 pb-2 text-2xl font-bold dark:border-gray-700">
+            <h2 className="mb-6 border-b border-gray-200 pb-2 text-2xl font-bold text-gray-900 dark:border-gray-600 dark:text-white">
               최근 게시한 글
             </h2>
             <div className="space-y-8">

@@ -80,7 +80,7 @@ export function MainSection() {
       {/* Sticky container for the hero content */}
       <div className="sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden text-center">
         <div className="absolute inset-0 z-0">
-          <div className="animate-blob-1 absolute top-0 -left-24 h-72 w-72 rounded-full bg-violet-200 opacity-40 blur-3xl filter md:h-96 md:w-96 dark:bg-violet-900/50"></div>
+          <div className="animate-blob-1 absolute top-0 -left-24 h-72 w-72 rounded-full bg-indigo-200 opacity-40 blur-3xl filter md:h-96 md:w-96 dark:bg-indigo-900/50"></div>
           <div className="animate-blob-2 absolute top-0 -right-24 h-72 w-72 rounded-full bg-indigo-200 opacity-40 blur-3xl filter md:h-96 md:w-96 dark:bg-indigo-900/50"></div>
           <div className="animate-blob-3 absolute -bottom-8 left-20 h-72 w-72 rounded-full bg-fuchsia-200 opacity-40 blur-3xl filter md:h-96 md:w-96 dark:bg-fuchsia-900/50"></div>
         </div>
@@ -120,7 +120,7 @@ export function MainSection() {
           className={`absolute bottom-20 left-1/2 z-20 -translate-x-1/2 transition-opacity duration-500 ${scrollIndicatorVisible ? 'opacity-100' : 'opacity-0'}`}
           aria-hidden="true"
         >
-          <div className="animate-bounce-slow text-violet-400 dark:text-violet-300">
+          <div className="animate-bounce-slow text-indigo-400 dark:text-indigo-300">
             <ChevronDoubleDownIcon className="mx-auto h-12 w-12" />
           </div>
         </div>
