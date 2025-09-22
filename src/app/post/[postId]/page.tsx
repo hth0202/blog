@@ -1,10 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import ReactMarkdown from 'react-markdown';
-import rehypeRaw from 'rehype-raw';
-import remarkGfm from 'remark-gfm';
 
 import { ReactionSection } from '@/components/post';
+import { NotionContent } from '@/components/post/article/NotionContent';
 
 import { getPostByIdFromNotion } from '@/services/notion-api';
 
@@ -67,13 +65,14 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
           </div>
         </header>
 
-        <div className="prose dark:prose-invert prose-img:rounded-lg mb-12 max-w-none">
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypeRaw]}
-          >
-            {post.recordMap ? JSON.stringify(post.recordMap) : ''}
-          </ReactMarkdown>
+        <div className="mb-12 max-w-none">
+          {post.recordMap ? (
+            <NotionContent recordMap={post.recordMap} rootPageId={postId} />
+          ) : (
+            <div className="prose dark:prose-invert prose-img:rounded-lg">
+              <p>콘텐츠를 불러올 수 없습니다.</p>
+            </div>
+          )}
         </div>
 
         <div className="mb-8 flex flex-wrap gap-2">
