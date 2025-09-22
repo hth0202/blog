@@ -1,13 +1,16 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useBoolean } from 'usehooks-ts';
+
+import { ChevronDoubleDownIcon } from '@/constants';
 
 /* -------------------------------------------------------------------------------------------------
  * useAnimateText : 메인 페이지에서 타이틀 애니메이션을 다루는 훅
  * -----------------------------------------------------------------------------------------------*/
 const useAnimateText = () => {
   const textRef = useRef<SVGTextElement>(null);
+  const [scrollIndicatorVisible, setScrollIndicatorVisible] = useState(true);
   const {
     value: animationComplete,
     setTrue: setAnimationComplete,
@@ -25,6 +28,13 @@ const useAnimateText = () => {
 
     const handleScroll = () => {
       const scrollTop = window.scrollY;
+
+      // Scroll indicator logic
+      if (scrollTop > 50 && scrollIndicatorVisible) {
+        setScrollIndicatorVisible(false);
+      } else if (scrollTop <= 50 && !scrollIndicatorVisible) {
+        setScrollIndicatorVisible(true);
+      }
 
       // Calculate raw progress (0 to 1)
       const rawProgress = Math.min(scrollTop / animationTriggerScroll, 1);
@@ -53,16 +63,17 @@ const useAnimateText = () => {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [animationComplete]);
+  }, [animationComplete, scrollIndicatorVisible]);
 
-  return { textRef, animationComplete };
+  return { textRef, animationComplete, scrollIndicatorVisible };
 };
 
 /* -------------------------------------------------------------------------------------------------
  * MainSection
  * -----------------------------------------------------------------------------------------------*/
 export function MainSection() {
-  const { textRef, animationComplete } = useAnimateText();
+  const { textRef, animationComplete, scrollIndicatorVisible } =
+    useAnimateText();
 
   return (
     <section className="relative h-[1550px]">
@@ -101,6 +112,16 @@ export function MainSection() {
               <br />
               솔직한 고민과 인사이트를 나눕니다.
             </p>
+          </div>
+        </div>
+
+        {/* Scroll indicator */}
+        <div
+          className={`absolute bottom-20 left-1/2 z-20 -translate-x-1/2 transition-opacity duration-500 ${scrollIndicatorVisible ? 'opacity-100' : 'opacity-0'}`}
+          aria-hidden="true"
+        >
+          <div className="animate-bounce-slow text-violet-400 dark:text-violet-300">
+            <ChevronDoubleDownIcon className="mx-auto h-12 w-12" />
           </div>
         </div>
       </div>
