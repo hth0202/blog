@@ -65,11 +65,9 @@ export function PostContent({
         const condensedPreview = post.contentPreview
           .toLowerCase()
           .replace(/\s+/g, '');
-        const condensedContent = post.content.toLowerCase().replace(/\s+/g, '');
         return (
           condensedTitle.includes(condensedQuery) ||
-          condensedPreview.includes(condensedQuery) ||
-          condensedContent.includes(condensedQuery)
+          condensedPreview.includes(condensedQuery)
         );
       });
     }

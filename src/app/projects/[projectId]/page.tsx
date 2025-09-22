@@ -22,7 +22,7 @@ export default function ProjectDetailPage() {
     const fetchProject = async () => {
       if (projectId) {
         try {
-          const fetchedProject = await getProjectById(Number(projectId));
+          const fetchedProject = await getProjectById(projectId);
           setProject(fetchedProject || null);
           if (fetchedProject) {
             // Check reaction status from localStorage
@@ -69,7 +69,7 @@ export default function ProjectDetailPage() {
     );
     const updatedReactedProjects = newHasReacted
       ? [...reactedProjects, project.id]
-      : reactedProjects.filter((id: number) => id !== project.id);
+      : reactedProjects.filter((id: string) => id !== project.id);
     localStorage.setItem(
       'reacted_projects',
       JSON.stringify(updatedReactedProjects),
@@ -133,7 +133,7 @@ export default function ProjectDetailPage() {
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypeRaw]}
           >
-            {project.content}
+            {project.contentPreview}
           </ReactMarkdown>
         </div>
 
