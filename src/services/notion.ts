@@ -16,7 +16,7 @@ export const getPosts = async (): Promise<Post[]> => {
   }
 };
 
-export const getPostById = async (id: number): Promise<Post | undefined> => {
+export const getPostById = async (id: string): Promise<Post | undefined> => {
   try {
     return await getPostByIdFromNotion(id);
   } catch (error) {
@@ -44,7 +44,7 @@ export const getProjects = async (): Promise<Project[]> => {
 };
 
 export const getProjectById = async (
-  id: number,
+  id: string,
 ): Promise<Project | undefined> => {
   try {
     return await getProjectByIdFromNotion(id);

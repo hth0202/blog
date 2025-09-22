@@ -98,18 +98,23 @@ export const extractPageTitle = (
  * @param title - 제목
  * @returns Post 객체
  */
-export const createBasicPost = (pageId: string, title: string): Post => {
+export const createBasicPost = (
+  pageId: string,
+  title: string,
+  recordMap: ExtendedRecordMap,
+): Post => {
   return {
-    id: parseInt(pageId.replace(/-/g, '').slice(-8), 16),
+    id: parseInt(pageId.replace(/-/g, '').slice(-8), 16).toString(),
+    rawId: pageId,
     category: '기타',
     title,
     date: format(new Date(), 'yyyy.MM.dd'),
     contentPreview: '내용을 불러오는 중...',
     tags: [],
     thumbnailUrl: 'https://picsum.photos/400/300',
-    content: '내용을 불러오는 중...',
     views: 0,
     status: '백로그',
+    recordMap,
   };
 };
 
@@ -119,9 +124,14 @@ export const createBasicPost = (pageId: string, title: string): Post => {
  * @param name - 프로젝트명
  * @returns Project 객체
  */
-export const createBasicProject = (pageId: string, name: string): Project => {
+export const createBasicProject = (
+  pageId: string,
+  name: string,
+  recordMap: ExtendedRecordMap,
+): Project => {
   return {
-    id: parseInt(pageId.replace(/-/g, '').slice(-8), 16),
+    id: parseInt(pageId.replace(/-/g, '').slice(-8), 16).toString(),
+    rawId: pageId,
     category: '기타',
     name,
     role: '역할 없음',
@@ -129,8 +139,8 @@ export const createBasicProject = (pageId: string, name: string): Project => {
     tags: [],
     thumbnailUrl: 'https://picsum.photos/500/400',
     date: format(new Date(), 'yyyy.MM.dd'),
-    content: '내용을 불러오는 중...',
     views: 0,
+    recordMap,
   };
 };
 
@@ -465,14 +475,14 @@ export const transformCollectionToPosts = async (
               : '백로그';
 
           const post: Post = {
-            id: parseInt(blockId.replace(/-/g, '').slice(-8), 16),
+            id: parseInt(blockId.replace(/-/g, '').slice(-8), 16).toString(),
+            rawId: blockId,
             category,
             title,
             date,
             contentPreview,
             tags,
             thumbnailUrl,
-            content: `${title}의 전체 내용입니다...`,
             views,
             status,
           };
@@ -674,7 +684,8 @@ export const transformCollectionToProjects = async (
               : 0;
 
           const project: Project = {
-            id: parseInt(blockId.replace(/-/g, '').slice(-8), 16),
+            id: parseInt(blockId.replace(/-/g, '').slice(-8), 16).toString(),
+            rawId: blockId,
             category,
             name,
             role,
@@ -682,7 +693,6 @@ export const transformCollectionToProjects = async (
             tags,
             thumbnailUrl,
             date,
-            content: `${name}의 전체 내용입니다...`,
             views,
           };
 
@@ -752,21 +762,21 @@ export const getProjectsFromNotion = async (
  * @returns Post 객체 또는 undefined
  */
 export const getPostByIdFromNotion = async (
-  postId: number | string,
+  postId: string,
 ): Promise<Post | undefined> => {
   try {
-    if (typeof postId === 'number') {
-      const posts = await getPostsFromNotion();
-      return posts.find((post) => post.id === postId);
+    const posts = await getPostsFromNotion();
+    const cachedPost = posts.find((post) => post.id === postId);
+    if (!cachedPost) {
+      return undefined;
     }
-
-    const recordMap = await notion.getPage(postId);
+    const recordMap = await getNotionPage(cachedPost.rawId);
     if (!recordMap) {
       return undefined;
     }
 
     const title = extractPageTitle(recordMap, postId);
-    return createBasicPost(postId, title);
+    return { ...cachedPost, title, recordMap } satisfies Post;
   } catch (error) {
     console.error('Notion에서 포스트 가져오기 실패:', error);
     return undefined;
@@ -779,21 +789,18 @@ export const getPostByIdFromNotion = async (
  * @returns Project 객체 또는 undefined
  */
 export const getProjectByIdFromNotion = async (
-  projectId: number | string,
+  projectId: string,
 ): Promise<Project | undefined> => {
   try {
-    if (typeof projectId === 'number') {
-      const projects = await getProjectsFromNotion();
-      return projects.find((project) => project.id === projectId);
-    }
-
-    const recordMap = await notion.getPage(projectId);
-    if (!recordMap) {
+    const projects = await getProjectsFromNotion();
+    const cachedProject = projects.find((project) => project.id === projectId);
+    const recordMap = await getNotionPage(projectId);
+    if (!recordMap || !cachedProject) {
       return undefined;
     }
 
     const name = extractPageTitle(recordMap, projectId);
-    return createBasicProject(projectId, name);
+    return { ...cachedProject, name, recordMap } satisfies Project;
   } catch (error) {
     console.error('Notion에서 프로젝트 가져오기 실패:', error);
     return undefined;

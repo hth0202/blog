@@ -6,7 +6,7 @@ import remarkGfm from 'remark-gfm';
 
 import { ReactionSection } from '@/components/post';
 
-import { getPostByIdFromNotion, getNotionPage } from '@/services/notion-api';
+import { getPostByIdFromNotion } from '@/services/notion-api';
 
 import { ShareIcon } from '@/constants';
 
@@ -15,29 +15,11 @@ export const revalidate = 10;
 // 포스트 데이터를 가져오는 함수
 async function getPost(postId: string) {
   try {
-    // postId가 Notion 페이지 ID인지 확인
-    const isNotionPageId = postId.includes('-') && postId.length > 10;
-
-    if (isNotionPageId) {
-      // Notion 페이지 데이터 확인
-      const recordMap = await getNotionPage(postId);
-      if (!recordMap) {
-        notFound();
-      }
-      // Notion 페이지 ID인 경우
-      const post = await getPostByIdFromNotion(postId);
-      if (!post) {
-        notFound();
-      }
-      return post;
-    } else {
-      // 숫자 ID인 경우
-      const post = await getPostByIdFromNotion(Number(postId));
-      if (!post) {
-        notFound();
-      }
-      return post;
+    const post = await getPostByIdFromNotion(postId);
+    if (!post) {
+      notFound();
     }
+    return post;
   } catch (error) {
     console.error('포스트 조회 실패:', error);
     notFound();
@@ -53,6 +35,14 @@ interface PostDetailPageProps {
 export default async function PostDetailPage({ params }: PostDetailPageProps) {
   const { postId } = await params;
   const post = await getPost(postId);
+
+  // 디버깅: recordMap 데이터 확인
+  console.log('🔍 Post data:', {
+    id: post.id,
+    title: post.title,
+    hasRecordMap: !!post.recordMap,
+    recordMapKeys: post.recordMap ? Object.keys(post.recordMap) : [],
+  });
 
   return (
     <>
@@ -82,7 +72,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypeRaw]}
           >
-            {post.content}
+            {post.recordMap ? JSON.stringify(post.recordMap) : ''}
           </ReactMarkdown>
         </div>
 

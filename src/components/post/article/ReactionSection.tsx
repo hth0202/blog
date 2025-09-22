@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { HeartIcon, HeartIconFilled } from '@/constants';
 
 interface ReactionSectionProps {
-  postId: number;
+  postId: string;
 }
 
 export function ReactionSection({ postId }: ReactionSectionProps) {
@@ -44,7 +44,7 @@ export function ReactionSection({ postId }: ReactionSectionProps) {
     );
     const updatedReactedPosts = newHasReacted
       ? [...reactedPosts, postId]
-      : reactedPosts.filter((id: number) => id !== postId);
+      : reactedPosts.filter((id: string) => id !== postId);
     localStorage.setItem('reacted_posts', JSON.stringify(updatedReactedPosts));
 
     // Update reaction count in localStorage
