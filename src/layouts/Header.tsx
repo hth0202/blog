@@ -34,7 +34,7 @@ export const Header: React.FC<HeaderProps> = ({ theme, toggleTheme }) => {
               <Link href="/" className={navLinkClass('/')}>
                 처음 화면
               </Link>
-              <Link href="/blog" className={navLinkClass('/blog')}>
+              <Link href="/post" className={navLinkClass('/post')}>
                 기록
               </Link>
               <Link href="/projects" className={navLinkClass('/projects')}>
