@@ -4,7 +4,7 @@ import { getPostsFromNotion } from '@/services/notion-api';
 
 import { Post, Category } from '@/types/blog';
 
-export const revalidate = 10; // 10초마다 재생성 (ISR)
+export const revalidate = 300;
 
 async function getPosts(): Promise<{
   posts: Post[];

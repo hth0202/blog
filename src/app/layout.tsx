@@ -1,21 +1,17 @@
-'use client';
-
 import React from 'react';
 
-import { useTheme } from '@/hooks/useTheme';
-
 import { Header, Footer } from '@/layouts';
+import { ThemeProvider } from '@/layouts/ThemeProvider';
 import './globals.css';
+import 'react-notion-x/src/styles.css';
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [theme, toggleTheme] = useTheme();
-
   return (
-    <html lang="ko" className={theme}>
+    <html lang="ko" suppressHydrationWarning>
       <head>
         <title>태피스토리</title>
         <meta
@@ -36,9 +32,9 @@ export default function RootLayout({
                 try {
                   const theme = localStorage.getItem('theme') || 'system';
                   const root = document.documentElement;
-                  
+
                   root.classList.remove('dark');
-                  
+
                   if (theme === 'dark') {
                     root.classList.add('dark');
                     root.style.colorScheme = 'dark';
@@ -52,14 +48,16 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-screen">
-        <div className="flex min-h-screen flex-col">
-          <Header theme={theme} toggleTheme={toggleTheme} />
-          <main className="container mx-auto flex-grow px-4 py-8 sm:px-6 lg:px-8">
-            {children}
-          </main>
-          <Footer />
-        </div>
+      <body className="min-h-screen transition-colors duration-300">
+        <ThemeProvider>
+          <div className="flex min-h-screen flex-col">
+            <Header />
+            <main className="container mx-auto flex-grow px-4 py-8 sm:px-6 lg:px-8">
+              {children}
+            </main>
+            <Footer />
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );

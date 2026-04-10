@@ -5,7 +5,7 @@ import { QuestionMarkCircleIcon } from '@/constants';
 export default function NotFound() {
   return (
     <div className="animate-fade-in flex flex-col items-center justify-center py-20 text-center">
-      <QuestionMarkCircleIcon className="mb-6 h-24 w-24 text-indigo-400 dark:text-indigo-500" />
+      <QuestionMarkCircleIcon className="mb-6 h-24 w-24 text-indigo-400" />
       <h1 className="text-6xl font-extrabold text-gray-900 dark:text-white">
         404
       </h1>

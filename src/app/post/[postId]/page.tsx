@@ -1,47 +1,53 @@
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { ReactionSection } from '@/components/post';
-import { NotionContent } from '@/components/post/article/NotionContent';
+import { CommentSection, NotionContent, ShareButton, ViewTracker } from '@/components/post/article';
 
-import { getPostByIdFromNotion } from '@/services/notion-api';
+import { getPostMetaById, getPostsFromNotion } from '@/services/notion-api';
 
-import { ShareIcon } from '@/constants';
+export const revalidate = 300;
 
-export const revalidate = 10;
-
-// 포스트 데이터를 가져오는 함수
-async function getPost(postId: string) {
-  try {
-    const post = await getPostByIdFromNotion(postId);
-    if (!post) {
-      notFound();
-    }
-    return post;
-  } catch (error) {
-    console.error('포스트 조회 실패:', error);
-    notFound();
-  }
+export async function generateStaticParams() {
+  const posts = await getPostsFromNotion();
+  return posts
+    .filter((p) => p.status === '발행')
+    .map((p) => ({ postId: p.id }));
 }
 
 interface PostDetailPageProps {
-  params: {
-    postId: string;
-  };
+  params: Promise<{ postId: string }>;
+}
+
+function PostArticleSkeleton() {
+  return (
+    <div className="animate-pulse space-y-3">
+      <div className="h-4 w-full rounded bg-gray-200 dark:bg-neutral-700" />
+      <div className="h-4 w-5/6 rounded bg-gray-200 dark:bg-neutral-700" />
+      <div className="h-4 w-4/6 rounded bg-gray-200 dark:bg-neutral-700" />
+      <div className="mt-6 h-4 w-full rounded bg-gray-200 dark:bg-neutral-700" />
+      <div className="h-4 w-5/6 rounded bg-gray-200 dark:bg-neutral-700" />
+      <div className="h-4 w-3/4 rounded bg-gray-200 dark:bg-neutral-700" />
+    </div>
+  );
 }
 
 export default async function PostDetailPage({ params }: PostDetailPageProps) {
   const { postId } = await params;
-  const post = await getPost(postId);
+
+  const post = await getPostMetaById(postId);
+  if (!post) notFound();
 
   return (
     <>
+      <ViewTracker postId={post.id} />
       <article className="animate-fade-in mx-auto max-w-3xl">
         <header className="mb-8">
           <img
             src={post.thumbnailUrl}
             alt={post.title}
-            className="mb-6 h-64 w-full rounded-lg bg-gray-100 object-cover dark:bg-gray-700"
+            className="mb-6 h-64 w-full rounded-lg bg-gray-100 object-cover dark:bg-neutral-700"
           />
           <div className="text-sm text-gray-500 dark:text-gray-400">
             {post.category}
@@ -58,20 +64,16 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
         </header>
 
         <div className="mb-12 max-w-none">
-          {post.recordMap ? (
-            <NotionContent recordMap={post.recordMap} rootPageId={postId} />
-          ) : (
-            <div className="prose dark:prose-invert prose-img:rounded-lg">
-              <p>콘텐츠를 불러올 수 없습니다.</p>
-            </div>
-          )}
+          <Suspense fallback={<PostArticleSkeleton />}>
+            <NotionContent rawId={post.rawId} />
+          </Suspense>
         </div>
 
         <div className="mb-8 flex flex-wrap gap-2">
           {post.tags.map((tag, index) => (
             <span
               key={index}
-              className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-gray-800/50 dark:text-gray-300"
+              className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-white/10 dark:text-indigo-200"
             >
               {tag}
             </span>
@@ -79,10 +81,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
         </div>
 
         <div className="mb-12 flex items-center justify-center gap-4">
-          <button className="flex items-center gap-2 rounded-md border border-gray-300 px-6 py-2 text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800">
-            <ShareIcon className="h-5 w-5" />
-            <span>공유하기</span>
-          </button>
+          <ShareButton title={post.title} />
           <Link
             href="/post"
             className="rounded-md bg-indigo-600 px-6 py-2 text-white transition-colors hover:bg-indigo-700"
@@ -91,62 +90,10 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
           </Link>
         </div>
 
-        <div className="border-t border-gray-200 pt-8 dark:border-gray-600">
-          <ReactionSection postId={post.id} />
+        <div className="border-t border-gray-200 pt-8 dark:border-neutral-600">
+          <ReactionSection postId={post.id} initialLikes={post.likes} />
 
-          <section aria-labelledby="comments-heading">
-            <h2
-              id="comments-heading"
-              className="mb-4 text-xl font-bold text-gray-900 dark:text-white"
-            >
-              댓글 3개
-            </h2>
-            <div className="space-y-6">
-              {/* Mock Comment */}
-              <div className="flex items-start gap-4">
-                <div className="h-10 w-10 flex-shrink-0 rounded-full bg-gray-100 dark:bg-gray-700"></div>
-                <div className="flex-grow">
-                  <div className="font-semibold text-gray-900 dark:text-white">
-                    사용자 1
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">
-                    정말 유용한 글입니다! 감사합니다.
-                  </p>
-                  <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    2일 전
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="h-10 w-10 flex-shrink-0 rounded-full bg-gray-100 dark:bg-gray-700"></div>
-                <div className="flex-grow">
-                  <div className="font-semibold text-gray-900 dark:text-white">
-                    사용자 2
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">
-                    이 부분에 대해 더 자세히 설명해주실 수 있나요?
-                  </p>
-                  <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    1일 전
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8">
-              <textarea
-                rows={4}
-                placeholder="댓글을 입력하세요..."
-                className="w-full rounded-md border border-gray-300 bg-white p-3 text-sm text-gray-900 transition-all focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                aria-label="댓글 작성"
-              />
-              <div className="mt-2 flex justify-end">
-                <button className="rounded-md bg-indigo-600 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-indigo-700">
-                  댓글 달기
-                </button>
-              </div>
-            </div>
-          </section>
+          <CommentSection postId={post.id} />
         </div>
       </article>
     </>
