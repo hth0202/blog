@@ -1,12 +1,19 @@
 'use client';
 
 import { useState } from 'react';
+
 import type { SkillItem } from '@/services/notion-api';
 
-export function SkillCollection({ initialItems }: { initialItems: SkillItem[] }) {
+export function SkillCollection({
+  initialItems,
+}: {
+  initialItems: SkillItem[];
+}) {
   const [openIds, setOpenIds] = useState<Set<string>>(new Set());
   const [loadingIds, setLoadingIds] = useState<Set<string>>(new Set());
-  const [contentCache, setContentCache] = useState<Record<string, string[]>>({});
+  const [contentCache, setContentCache] = useState<Record<string, string[]>>(
+    {},
+  );
 
   if (!initialItems.length) return null;
 
@@ -49,12 +56,23 @@ export function SkillCollection({ initialItems }: { initialItems: SkillItem[] })
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem', marginTop: '1.5rem', width: '100%' }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '2.5rem',
+        marginTop: '1.5rem',
+        width: '100%',
+      }}
+    >
       {groups.map(({ category, items: groupItems }) => (
         <div key={category}>
           {/* 카테고리 제목 */}
-          <div style={{ marginBottom: '1rem' }} className="flex items-center gap-4">
-            <span className="text-base font-bold text-gray-700 dark:text-gray-200 whitespace-nowrap">
+          <div
+            style={{ marginBottom: '1rem' }}
+            className="flex items-center gap-4"
+          >
+            <span className="text-base font-bold whitespace-nowrap text-gray-700 dark:text-gray-200">
               {category}
             </span>
             <div className="flex-1 border-t border-gray-200 dark:border-neutral-700" />
@@ -72,22 +90,27 @@ export function SkillCollection({ initialItems }: { initialItems: SkillItem[] })
                   key={item.id}
                   onClick={() => handleToggle(item.id)}
                   className={[
-                    'rounded-xl cursor-pointer transition-colors p-4 border-2',
+                    'cursor-pointer rounded-xl border-2 p-4 transition-colors',
                     isOpen
                       ? 'border-indigo-500 dark:border-indigo-400'
-                      : 'border-gray-200 dark:border-neutral-700 hover:border-indigo-300 dark:hover:border-indigo-600',
+                      : 'border-gray-200 hover:border-indigo-300 dark:border-neutral-700 dark:hover:border-indigo-600',
                   ].join(' ')}
                 >
                   {/* 아이콘 + 이름 */}
                   <div className="flex items-center gap-2.5">
                     {item.iconUrl && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={item.iconUrl} alt="" className="h-6 w-6 object-contain" />
+                      <img
+                        src={item.iconUrl}
+                        alt=""
+                        className="h-6 w-6 object-contain"
+                      />
                     )}
                     {item.iconEmoji && (
-                      <span className="text-xl leading-none">{item.iconEmoji}</span>
+                      <span className="text-xl leading-none">
+                        {item.iconEmoji}
+                      </span>
                     )}
-                    <span className="text-base font-semibold text-gray-900 dark:text-white flex-1">
+                    <span className="flex-1 text-base font-semibold text-gray-900 dark:text-white">
                       {item.title}
                     </span>
                     <span
@@ -105,7 +128,7 @@ export function SkillCollection({ initialItems }: { initialItems: SkillItem[] })
                           {[1, 2].map((i) => (
                             <div
                               key={i}
-                              className="h-3.5 rounded bg-gray-200 dark:bg-neutral-700 animate-pulse"
+                              className="h-3.5 animate-pulse rounded bg-gray-200 dark:bg-neutral-700"
                               style={{ width: `${60 + i * 15}%` }}
                             />
                           ))}
@@ -117,13 +140,17 @@ export function SkillCollection({ initialItems }: { initialItems: SkillItem[] })
                               key={i}
                               className="flex items-baseline gap-2 text-sm text-gray-600 dark:text-gray-400"
                             >
-                              <span className="shrink-0 text-indigo-500">•</span>
+                              <span className="shrink-0 text-indigo-500">
+                                •
+                              </span>
                               <span>{text}</span>
                             </li>
                           ))}
                         </ul>
                       ) : (
-                        <p className="text-sm text-gray-400 dark:text-gray-500">내용이 없습니다.</p>
+                        <p className="text-sm text-gray-400 dark:text-gray-500">
+                          내용이 없습니다.
+                        </p>
                       )}
                     </div>
                   )}

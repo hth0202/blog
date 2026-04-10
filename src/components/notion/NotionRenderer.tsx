@@ -1,7 +1,7 @@
-import type { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
-
 import { NotionRichText } from './NotionRichText';
 import { SkillCollectionServer } from './SkillCollectionServer';
+
+import type { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 
 // 연속된 리스트 항목을 그룹으로 묶기
 type GroupedBlock =
@@ -53,21 +53,21 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
 
     case 'heading_1':
       return (
-        <h1 className="mb-4 mt-10 text-3xl font-bold text-gray-900 dark:text-white">
+        <h1 className="mt-10 mb-4 text-3xl font-bold text-gray-900 dark:text-white">
           <NotionRichText items={block.heading_1.rich_text} />
         </h1>
       );
 
     case 'heading_2':
       return (
-        <h2 className="mb-3 mt-8 text-2xl font-semibold text-gray-900 dark:text-white">
+        <h2 className="mt-8 mb-3 text-2xl font-semibold text-gray-900 dark:text-white">
           <NotionRichText items={block.heading_2.rich_text} />
         </h2>
       );
 
     case 'heading_3':
       return (
-        <h3 className="mb-2 mt-6 text-xl font-semibold text-gray-800 dark:text-gray-100">
+        <h3 className="mt-6 mb-2 text-xl font-semibold text-gray-800 dark:text-gray-100">
           <NotionRichText items={block.heading_3.rich_text} />
         </h3>
       );
@@ -83,14 +83,17 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
       // 캡션 앞의 [small] / [medium] / [large] 힌트로 크기 제어
       const sizeMatch = captionText.match(/^\[(small|medium|large)\]\s*/i);
       const sizeHint = sizeMatch ? sizeMatch[1].toLowerCase() : 'large';
-      const displayCaption = sizeMatch ? captionText.slice(sizeMatch[0].length) : captionText;
+      const displayCaption = sizeMatch
+        ? captionText.slice(sizeMatch[0].length)
+        : captionText;
       const widthStyle =
-        sizeHint === 'small' ? '33%' :
-        sizeHint === 'medium' ? '60%' : '100%';
+        sizeHint === 'small' ? '33%' : sizeHint === 'medium' ? '60%' : '100%';
 
       return (
-        <figure className="my-6 flex flex-col items-center" style={{ width: widthStyle, margin: '1.5rem auto' }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+        <figure
+          className="my-6 flex flex-col items-center"
+          style={{ width: widthStyle, margin: '1.5rem auto' }}
+        >
           <img
             src={imgSrc}
             alt={displayCaption}
@@ -112,7 +115,9 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
       return (
         <div className="my-4">
           {lang && lang !== 'plain text' && (
-            <div className="rounded-t-lg bg-gray-700 px-4 py-1 text-xs text-gray-300">{lang}</div>
+            <div className="rounded-t-lg bg-gray-700 px-4 py-1 text-xs text-gray-300">
+              {lang}
+            </div>
           )}
           <pre
             className={`overflow-x-auto bg-gray-900 p-4 text-sm text-gray-100 ${lang && lang !== 'plain text' ? 'rounded-b-lg' : 'rounded-lg'}`}
@@ -130,7 +135,7 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
 
     case 'quote':
       return (
-        <blockquote className="my-4 border-l-4 border-indigo-400 pl-4 italic text-gray-600 dark:text-gray-400">
+        <blockquote className="my-4 border-l-4 border-indigo-400 pl-4 text-gray-600 italic dark:text-gray-400">
           <NotionRichText items={block.quote.rich_text} />
           {children && <NotionRenderer blocks={children} />}
         </blockquote>
@@ -156,7 +161,7 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
     case 'toggle':
       return (
         <details className="my-3 rounded-lg border border-gray-200 dark:border-neutral-700">
-          <summary className="cursor-pointer p-4 font-medium text-gray-800 dark:text-gray-200 marker:text-indigo-500">
+          <summary className="cursor-pointer p-4 font-medium text-gray-800 marker:text-indigo-500 dark:text-gray-200">
             <NotionRichText items={block.toggle.rich_text} />
           </summary>
           {children && (
@@ -174,7 +179,9 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
       return (
         <div
           className="my-4 grid gap-4"
-          style={{ gridTemplateColumns: `repeat(${children?.length || 2}, 1fr)` }}
+          style={{
+            gridTemplateColumns: `repeat(${children?.length || 2}, 1fr)`,
+          }}
         >
           {children?.map((col) => (
             <div key={col.id}>
@@ -241,9 +248,7 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
                 : block.numbered_list_item.rich_text
             }
           />
-          {children && (
-            <NotionRenderer blocks={children} />
-          )}
+          {children && <NotionRenderer blocks={children} />}
         </li>
       );
 
@@ -261,12 +266,19 @@ export function NotionRenderer({ blocks }: { blocks: BlockObjectResponse[] }) {
         if ('items' in item) {
           if (item.type === 'bulleted_list') {
             return (
-              <ul key={i} className="my-4 list-disc space-y-2 pl-6 text-gray-700 dark:text-gray-300">
+              <ul
+                key={i}
+                className="my-4 list-disc space-y-2 pl-6 text-gray-700 dark:text-gray-300"
+              >
                 {item.items.map((block) => {
-                  const listChildren = (block as any).children as BlockObjectResponse[] | undefined;
+                  const listChildren = (block as any).children as
+                    | BlockObjectResponse[]
+                    | undefined;
                   return (
                     <li key={block.id}>
-                      <NotionRichText items={(block as any).bulleted_list_item.rich_text} />
+                      <NotionRichText
+                        items={(block as any).bulleted_list_item.rich_text}
+                      />
                       {listChildren && <NotionRenderer blocks={listChildren} />}
                     </li>
                   );
@@ -276,12 +288,19 @@ export function NotionRenderer({ blocks }: { blocks: BlockObjectResponse[] }) {
           }
           if (item.type === 'numbered_list') {
             return (
-              <ol key={i} className="my-4 list-decimal space-y-2 pl-6 text-gray-700 dark:text-gray-300">
+              <ol
+                key={i}
+                className="my-4 list-decimal space-y-2 pl-6 text-gray-700 dark:text-gray-300"
+              >
                 {item.items.map((block) => {
-                  const listChildren = (block as any).children as BlockObjectResponse[] | undefined;
+                  const listChildren = (block as any).children as
+                    | BlockObjectResponse[]
+                    | undefined;
                   return (
                     <li key={block.id}>
-                      <NotionRichText items={(block as any).numbered_list_item.rich_text} />
+                      <NotionRichText
+                        items={(block as any).numbered_list_item.rich_text}
+                      />
                       {listChildren && <NotionRenderer blocks={listChildren} />}
                     </li>
                   );
@@ -291,7 +310,10 @@ export function NotionRenderer({ blocks }: { blocks: BlockObjectResponse[] }) {
           }
         }
         return (
-          <NotionBlock key={(item as BlockObjectResponse).id} block={item as BlockObjectResponse} />
+          <NotionBlock
+            key={(item as BlockObjectResponse).id}
+            block={item as BlockObjectResponse}
+          />
         );
       })}
     </div>
