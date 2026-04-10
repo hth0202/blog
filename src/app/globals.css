@@ -1,6 +1,21 @@
 @import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+  /* Purple color palette */
+  --color-indigo-100: #ede9f6;
+  --color-indigo-200: #d9d0ee;
+  --color-indigo-300: #c4b0e5;
+  --color-indigo-400: #a78bfa;
+  --color-indigo-500: #8b55d4;
+  --color-indigo-600: #6f42c1;
+  --color-indigo-700: #5a35a0;
+  --color-indigo-800: #452880;
+  --color-indigo-900: #301c5e;
+  --color-violet-400: #a78bfa;
+  --color-violet-500: #8b55d4;
+
   /* Custom animations */
   --animate-fade-in: fadeIn 0.6s ease-in-out;
   --animate-fade-in-up: fadeInUp 0.8s ease-out 0.2s both;
@@ -28,19 +43,14 @@
 }
 
 @layer base {
-  :root {
-    --background: var(--color-background);
-    --foreground: var(--color-foreground);
-  }
-
-  /* 시스템 다크모드 자동 감지 */
-  @media (prefers-color-scheme: dark) {
-    :root {
-    }
-  }
-
   html {
     scroll-behavior: smooth;
+    background-color: #ffffff;
+  }
+
+
+  html.dark {
+    background-color: #111111;
   }
 
   body {
@@ -163,36 +173,158 @@
     height: auto;
   }
 
-  .title-stroke {
-    font-family: 'Pretendard', sans-serif;
-    font-size: 10rem;
-    font-weight: 800;
-    letter-spacing: -0.025em;
-    fill: transparent;
-    stroke: #818cf8;
-    stroke-width: 1;
-    stroke-dasharray: 4000;
-    stroke-dashoffset: 4000;
-    transition: fill 0.5s ease-in;
-  }
-
-  .dark .title-stroke {
-    stroke: #a5b4fc;
-  }
-
-  .title-stroke.filled {
-    fill: #818cf8;
-    stroke: #818cf8;
-  }
-
-  .dark .title-stroke.filled {
-    fill: #a5b4fc;
-    stroke: #a5b4fc;
-  }
-
   @media (min-width: 768px) {
     .title-stroke {
       font-size: 12rem;
     }
   }
 }
+
+/* title-stroke: @layer 밖에서 정의해야 Tailwind v4에서 덮어씌워지지 않음 */
+.title-stroke {
+  font-family: 'Pretendard', sans-serif;
+  font-size: 10rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  fill: transparent;
+  stroke: #a78bfa !important;
+  stroke-width: 1;
+  stroke-dasharray: 4000;
+  stroke-dashoffset: 4000;
+  transition: fill 0.5s ease-in;
+}
+
+.dark .title-stroke {
+  stroke: #a78bfa !important;
+}
+
+.title-stroke.filled {
+  fill: #a78bfa !important;
+  stroke: #a78bfa !important;
+}
+
+.dark .title-stroke.filled {
+  fill: #a78bfa !important;
+  stroke: #a78bfa !important;
+}
+
+/* ─── 텍스트 선택 색상 (@layer 밖에서 react-notion-x CSS 이후 적용) ─────── */
+::selection {
+  background-color: #6f42c1;
+  color: #ffffff;
+}
+
+/* react-notion-x 자체 ::selection을 덮어쓰기 위해 명시적 선택자 사용 */
+.notion-text ::selection,
+.notion-h1 ::selection,
+.notion-h2 ::selection,
+.notion-h3 ::selection,
+.notion-callout ::selection,
+.notion-quote ::selection,
+.notion-bulleted_list ::selection,
+.notion-numbered_list ::selection,
+.notion ::selection {
+  background-color: #6f42c1 !important;
+  color: #ffffff !important;
+}
+
+/* ─── react-notion-x 레이아웃 오버라이드 ─────────────────────────────────── */
+/* notion-page 내부 패딩을 제거해 제목과 여백을 일치시킴                        */
+.notion-page {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.notion-page-scroller {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* 소제목 호버 시 링크 아이콘 제거 */
+.notion-hash-link {
+  display: none !important;
+}
+
+/* 페이지 DB 속성(날짜, 상태, 태그 등 프로퍼티 행) 숨김 */
+.notion-collection-row {
+  display: none !important;
+}
+
+/* 인라인 DB(역량 섹션) 너비 제한 해제 */
+.notion-collection,
+.notion-collection-view-tabs-content,
+.notion-collection-view,
+.notion-table-of-contents {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* ─── 이미지 크기 오버라이드 ────────────────────────────────────────────────── */
+/* Notion block_width는 680px 기준 절대값 → 컨테이너 대비 비율로 재해석         */
+.notion-asset-wrapper {
+  max-width: 100% !important;
+}
+
+.notion-asset-wrapper img {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* block_page_width: true 인 이미지는 전체 너비로 */
+.notion-asset-wrapper.notion-asset-wrapper-full-page {
+  width: 100% !important;
+}
+
+/* ─── react-notion-x 폰트 오버라이드 ──────────────────────────────────────── */
+/* react-notion-x/src/styles.css가 나중에 로드되므로 !important로 강제 적용   */
+.notion,
+.notion-page,
+.notion-text,
+.notion-h1,
+.notion-h2,
+.notion-h3,
+.notion-callout,
+.notion-callout-text,
+.notion-toggle,
+.notion-quote,
+.notion-bulleted_list,
+.notion-numbered_list,
+.notion-table,
+.notion-table-cell,
+.notion-page-title-text {
+  font-family: var(--font-family-sans) !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* code / pre는 모노스페이스 유지 */
+.notion code,
+.notion pre,
+.notion-code,
+.notion-code * {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier,
+    monospace !important;
+}
+
+/* ─── Notion 텍스트 배경 색상 (light / dark) ─────────────────────────────── */
+.n-bg-gray       { background-color: #f1f1ef; border-radius: 3px; padding: 0.1em 0.3em; }
+.n-bg-brown      { background-color: #f4eeee; border-radius: 3px; padding: 0.1em 0.3em; }
+.n-bg-orange     { background-color: #faebdd; border-radius: 3px; padding: 0.1em 0.3em; }
+.n-bg-yellow     { background-color: #fbf3db; border-radius: 3px; padding: 0.1em 0.3em; }
+.n-bg-green      { background-color: #edf3ec; border-radius: 3px; padding: 0.1em 0.3em; }
+.n-bg-blue       { background-color: #e7f3f8; border-radius: 3px; padding: 0.1em 0.3em; }
+.n-bg-purple     { background-color: #f6f3f9; border-radius: 3px; padding: 0.1em 0.3em; }
+.n-bg-pink       { background-color: #fbe7f3; border-radius: 3px; padding: 0.1em 0.3em; }
+.n-bg-red        { background-color: #fde9e8; border-radius: 3px; padding: 0.1em 0.3em; }
+
+.dark .n-bg-gray   { background-color: #3a3a3a; }
+.dark .n-bg-brown  { background-color: #3d2d2d; }
+.dark .n-bg-orange { background-color: #3d2a1a; }
+.dark .n-bg-yellow { background-color: #3d3417; }
+.dark .n-bg-green  { background-color: #1f3028; }
+.dark .n-bg-blue   { background-color: #1a2d3d; }
+.dark .n-bg-purple { background-color: #2a1f3d; }
+.dark .n-bg-pink   { background-color: #3d1f2d; }
+.dark .n-bg-red    { background-color: #3d1a1a; }
