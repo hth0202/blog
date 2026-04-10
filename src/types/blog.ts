@@ -1,17 +1,16 @@
-import { ExtendedRecordMap } from 'notion-types';
-
 export interface Post {
   id: string;
   rawId: string;
   category: string;
   title: string;
-  date: string;
+  date: string;     // 표시용: yyyy.MM.dd
+  isoDate: string;  // 정렬용: ISO 8601
   contentPreview: string;
   tags: string[];
   thumbnailUrl: string;
   views: number;
+  likes: number;
   status: '백로그' | '임시저장' | '발행';
-  recordMap?: ExtendedRecordMap;
 }
 
 export interface Category {
@@ -30,10 +29,18 @@ export interface Project {
   thumbnailUrl: string;
   date: string;
   views: number;
-  recordMap?: ExtendedRecordMap;
+  likes: number;
+  status: '백로그' | '임시저장' | '발행';
 }
 
 export interface ProjectCategory {
   id: string;
   name: string;
+}
+
+export interface Comment {
+  id: string;
+  author: string;
+  content: string;
+  createdAt: string;
 }

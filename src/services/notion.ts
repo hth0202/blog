@@ -1,9 +1,7 @@
 import {
   getPostsFromNotion,
-  getPostByIdFromNotion,
   getCategoriesFromNotion,
   getProjectsFromNotion,
-  getProjectByIdFromNotion,
 } from './notion-api';
 import { Post, Category, Project, ProjectCategory } from '../types/blog';
 
@@ -16,14 +14,6 @@ export const getPosts = async (): Promise<Post[]> => {
   }
 };
 
-export const getPostById = async (id: string): Promise<Post | undefined> => {
-  try {
-    return await getPostByIdFromNotion(id);
-  } catch (error) {
-    console.error('포스트 조회 실패:', error);
-    return undefined;
-  }
-};
 
 export const getCategories = async (): Promise<Category[]> => {
   try {
@@ -43,27 +33,19 @@ export const getProjects = async (): Promise<Project[]> => {
   }
 };
 
-export const getProjectById = async (
-  id: string,
-): Promise<Project | undefined> => {
-  try {
-    return await getProjectByIdFromNotion(id);
-  } catch (error) {
-    console.error('프로젝트 조회 실패:', error);
-    return undefined;
-  }
-};
 
 export const getProjectCategories = async (): Promise<ProjectCategory[]> => {
   try {
     const projects = await getProjectsFromNotion();
     const categorySet = new Set<string>();
 
-    projects.forEach((project) => {
-      if (project.category && project.category !== '기타') {
-        categorySet.add(project.category);
-      }
-    });
+    projects
+      .filter((project) => project.status === '발행')
+      .forEach((project) => {
+        if (project.category && project.category !== '기타') {
+          categorySet.add(project.category);
+        }
+      });
 
     const categories: ProjectCategory[] = [
       { id: 'all', name: '전체보기' },
