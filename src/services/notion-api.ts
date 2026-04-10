@@ -1,15 +1,15 @@
-import { unstable_cache } from 'next/cache';
-
 import { Client } from '@notionhq/client';
+import { format } from 'date-fns';
+import { unstable_cache } from 'next/cache';
+import { NotionToMarkdown } from 'notion-to-md';
+
+import type { Post, Category, Project, Comment } from '@/types/blog';
+
+import type { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 
 // 개발 중엔 캐시 끔 (새로고침하면 즉시 반영), 배포 후엔 자동으로 켜짐
 const IS_DEV = process.env.NODE_ENV === 'development';
 const TTL = (seconds: number): number | false => (IS_DEV ? false : seconds);
-import type { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
-import { format } from 'date-fns';
-import { NotionToMarkdown } from 'notion-to-md';
-
-import type { Post, Category, Project, Comment } from '@/types/blog';
 
 // 공식 API 클라이언트
 const notionClient = new Client({
@@ -26,18 +26,25 @@ const NOTION_PROJECTS_DATABASE_ID =
 // ─── 커버 이미지 추출 ────────────────────────────────────────────────────────
 
 const extractCoverUrl = (
-  cover: { type: string; external?: { url: string }; file?: { url: string } } | null,
+  cover: {
+    type: string;
+    external?: { url: string };
+    file?: { url: string };
+  } | null,
   fallback = 'https://picsum.photos/400/300',
 ): string => {
   if (!cover) return fallback;
-  if (cover.type === 'external' && cover.external?.url) return cover.external.url;
+  if (cover.type === 'external' && cover.external?.url)
+    return cover.external.url;
   if (cover.type === 'file' && cover.file?.url) return cover.file.url;
   return fallback;
 };
 
 // ─── 페이지 본문 (공식 API → 블록 배열) ──────────────────────────────────────
 
-const _getPageBlocks = async (pageId: string): Promise<BlockObjectResponse[]> => {
+const _getPageBlocks = async (
+  pageId: string,
+): Promise<BlockObjectResponse[]> => {
   try {
     if (!pageId) return [];
     const blocks: BlockObjectResponse[] = [];
@@ -54,7 +61,9 @@ const _getPageBlocks = async (pageId: string): Promise<BlockObjectResponse[]> =>
         (b): b is BlockObjectResponse => 'type' in b,
       );
       blocks.push(...validBlocks);
-      cursor = response.has_more ? (response.next_cursor ?? undefined) : undefined;
+      cursor = response.has_more
+        ? (response.next_cursor ?? undefined)
+        : undefined;
     } while (cursor);
 
     // has_children인 블록은 재귀적으로 children fetch
@@ -80,11 +89,10 @@ const _getPageBlocks = async (pageId: string): Promise<BlockObjectResponse[]> =>
   }
 };
 
-export const getPageBlocks = unstable_cache(
-  _getPageBlocks,
-  ['notion-blocks'],
-  { revalidate: TTL(300), tags: ['notion-blocks'] },
-);
+export const getPageBlocks = unstable_cache(_getPageBlocks, ['notion-blocks'], {
+  revalidate: TTL(300),
+  tags: ['notion-blocks'],
+});
 
 // ─── 스킬 DB 쿼리 (서버사이드 프리페치용) ────────────────────────────────────
 
@@ -111,11 +119,15 @@ const _querySkillDatabase = async (dbId: string): Promise<SkillItem[]> => {
       .map((page) => {
         const props = page.properties as Record<string, any>;
 
-        const titleProp = Object.values(props).find((p: any) => p.type === 'title');
+        const titleProp = Object.values(props).find(
+          (p: any) => p.type === 'title',
+        );
         const title: string =
           titleProp?.title?.map((t: any) => t.plain_text).join('') ?? '';
 
-        const selectProp = Object.values(props).find((p: any) => p.type === 'select');
+        const selectProp = Object.values(props).find(
+          (p: any) => p.type === 'select',
+        );
         const category: string = selectProp?.select?.name ?? '';
 
         const pageObj = page as any;
@@ -185,23 +197,34 @@ const _getPostsFromNotion = async (databaseId?: string): Promise<Post[]> => {
     });
 
     const posts: Post[] = response.results
-      .filter((page): page is typeof page & { properties: Record<string, unknown> } => 'properties' in page)
+      .filter(
+        (page): page is typeof page & { properties: Record<string, unknown> } =>
+          'properties' in page,
+      )
       .map((page) => {
-        const props = page.properties as Record<string, { type: string; [key: string]: unknown }>;
+        const props = page.properties as Record<string, any>;
 
         const title =
           props['제목']?.type === 'title'
-            ? extractText((props['제목'] as { title: { plain_text: string }[] }).title)
+            ? extractText(
+                (
+                  props['제목'] as unknown as {
+                    title: { plain_text: string }[];
+                  }
+                ).title,
+              )
             : '제목 없음';
 
         const category =
           props['카테고리']?.type === 'select'
-            ? ((props['카테고리'] as { select: { name: string } | null }).select?.name ?? '기타')
+            ? ((props['카테고리'] as { select: { name: string } | null }).select
+                ?.name ?? '기타')
             : '기타';
 
         const rawDate =
           props['날짜']?.type === 'date'
-            ? ((props['날짜'] as { date: { start: string } | null }).date?.start ?? null)
+            ? ((props['날짜'] as { date: { start: string } | null }).date
+                ?.start ?? null)
             : null;
         const date = rawDate
           ? format(new Date(rawDate), 'yyyy.MM.dd')
@@ -209,19 +232,27 @@ const _getPostsFromNotion = async (databaseId?: string): Promise<Post[]> => {
 
         const tags =
           props['태그']?.type === 'multi_select'
-            ? ((props['태그'] as { multi_select: { name: string }[] }).multi_select ?? []).map((t) => t.name)
+            ? (
+                (props['태그'] as { multi_select: { name: string }[] })
+                  .multi_select ?? []
+              ).map((t) => t.name)
             : [];
 
         const contentPreview =
           props['설명']?.type === 'rich_text'
-            ? extractText((props['설명'] as { rich_text: { plain_text: string }[] }).rich_text) || `${title}의 미리보기 내용입니다...`
+            ? extractText(
+                (props['설명'] as { rich_text: { plain_text: string }[] })
+                  .rich_text,
+              ) || `${title}의 미리보기 내용입니다...`
             : `${title}의 미리보기 내용입니다...`;
 
         const status =
           props['상태']?.type === 'status'
-            ? ((props['상태'] as { status: { name: string } | null }).status?.name as Post['status']) ?? '백로그'
+            ? (((props['상태'] as { status: { name: string } | null }).status
+                ?.name as Post['status']) ?? '백로그')
             : props['상태']?.type === 'select'
-              ? ((props['상태'] as { select: { name: string } | null }).select?.name as Post['status']) ?? '백로그'
+              ? (((props['상태'] as { select: { name: string } | null }).select
+                  ?.name as Post['status']) ?? '백로그')
               : '백로그';
 
         const views =
@@ -235,7 +266,15 @@ const _getPostsFromNotion = async (databaseId?: string): Promise<Post[]> => {
             : 0;
 
         const thumbnailUrl = extractCoverUrl(
-          (page as { cover?: { type: string; external?: { url: string }; file?: { url: string } } | null }).cover ?? null,
+          (
+            page as {
+              cover?: {
+                type: string;
+                external?: { url: string };
+                file?: { url: string };
+              } | null;
+            }
+          ).cover ?? null,
         );
 
         return {
@@ -286,30 +325,45 @@ const _getProjectsFromNotion = async (
     });
 
     const projects: Project[] = response.results
-      .filter((page): page is typeof page & { properties: Record<string, unknown> } => 'properties' in page)
+      .filter(
+        (page): page is typeof page & { properties: Record<string, unknown> } =>
+          'properties' in page,
+      )
       .map((page) => {
-        const props = page.properties as Record<string, { type: string; [key: string]: unknown }>;
+        const props = page.properties as Record<string, any>;
 
         const name =
           props['제목']?.type === 'title'
-            ? extractText((props['제목'] as { title: { plain_text: string }[] }).title)
+            ? extractText(
+                (
+                  props['제목'] as unknown as {
+                    title: { plain_text: string }[];
+                  }
+                ).title,
+              )
             : '제목 없음';
 
         const category =
           props['카테고리']?.type === 'select'
-            ? ((props['카테고리'] as { select: { name: string } | null }).select?.name ?? '기타')
+            ? ((props['카테고리'] as { select: { name: string } | null }).select
+                ?.name ?? '기타')
             : '기타';
 
         const role =
           props['역할']?.type === 'select'
-            ? ((props['역할'] as { select: { name: string } | null }).select?.name ?? '')
+            ? ((props['역할'] as { select: { name: string } | null }).select
+                ?.name ?? '')
             : props['역할']?.type === 'rich_text'
-              ? extractText((props['역할'] as { rich_text: { plain_text: string }[] }).rich_text)
+              ? extractText(
+                  (props['역할'] as { rich_text: { plain_text: string }[] })
+                    .rich_text,
+                )
               : '';
 
         const rawDate =
           props['날짜']?.type === 'date'
-            ? ((props['날짜'] as { date: { start: string } | null }).date?.start ?? null)
+            ? ((props['날짜'] as { date: { start: string } | null }).date
+                ?.start ?? null)
             : null;
         const date = rawDate
           ? format(new Date(rawDate), 'yyyy.MM.dd')
@@ -317,12 +371,18 @@ const _getProjectsFromNotion = async (
 
         const tags =
           props['태그']?.type === 'multi_select'
-            ? ((props['태그'] as { multi_select: { name: string }[] }).multi_select ?? []).map((t) => t.name)
+            ? (
+                (props['태그'] as { multi_select: { name: string }[] })
+                  .multi_select ?? []
+              ).map((t) => t.name)
             : [];
 
         const contentPreview =
           props['설명']?.type === 'rich_text'
-            ? extractText((props['설명'] as { rich_text: { plain_text: string }[] }).rich_text) || ''
+            ? extractText(
+                (props['설명'] as { rich_text: { plain_text: string }[] })
+                  .rich_text,
+              ) || ''
             : '';
 
         const views =
@@ -337,13 +397,23 @@ const _getProjectsFromNotion = async (
 
         const status =
           props['상태']?.type === 'status'
-            ? ((props['상태'] as { status: { name: string } | null }).status?.name as Project['status']) ?? '백로그'
+            ? (((props['상태'] as { status: { name: string } | null }).status
+                ?.name as Project['status']) ?? '백로그')
             : props['상태']?.type === 'select'
-              ? ((props['상태'] as { select: { name: string } | null }).select?.name as Project['status']) ?? '백로그'
+              ? (((props['상태'] as { select: { name: string } | null }).select
+                  ?.name as Project['status']) ?? '백로그')
               : '백로그';
 
         const thumbnailUrl = extractCoverUrl(
-          (page as { cover?: { type: string; external?: { url: string }; file?: { url: string } } | null }).cover ?? null,
+          (
+            page as {
+              cover?: {
+                type: string;
+                external?: { url: string };
+                file?: { url: string };
+              } | null;
+            }
+          ).cover ?? null,
           'https://picsum.photos/500/400',
         );
 
@@ -389,39 +459,52 @@ const _getPostMetaById = async (postId: string): Promise<Post | undefined> => {
     const page = await notionClient.pages.retrieve({ page_id: rawId });
     if (!('properties' in page)) return undefined;
 
-    const props = page.properties as Record<string, { type: string; [key: string]: unknown }>;
+    const props = page.properties as Record<string, any>;
 
     const status =
       props['상태']?.type === 'status'
-        ? ((props['상태'] as { status: { name: string } | null }).status?.name as Post['status']) ?? '백로그'
+        ? (((props['상태'] as { status: { name: string } | null }).status
+            ?.name as Post['status']) ?? '백로그')
         : props['상태']?.type === 'select'
-          ? ((props['상태'] as { select: { name: string } | null }).select?.name as Post['status']) ?? '백로그'
+          ? (((props['상태'] as { select: { name: string } | null }).select
+              ?.name as Post['status']) ?? '백로그')
           : '백로그';
 
     const title =
       props['제목']?.type === 'title'
-        ? (props['제목'] as { title: { plain_text: string }[] }).title.map((t) => t.plain_text).join('')
+        ? (props['제목'] as { title: { plain_text: string }[] }).title
+            .map((t) => t.plain_text)
+            .join('')
         : '제목 없음';
 
     const category =
       props['카테고리']?.type === 'select'
-        ? ((props['카테고리'] as { select: { name: string } | null }).select?.name ?? '기타')
+        ? ((props['카테고리'] as { select: { name: string } | null }).select
+            ?.name ?? '기타')
         : '기타';
 
     const rawDate =
       props['날짜']?.type === 'date'
-        ? ((props['날짜'] as { date: { start: string } | null }).date?.start ?? null)
+        ? ((props['날짜'] as { date: { start: string } | null }).date?.start ??
+          null)
         : null;
-    const date = rawDate ? format(new Date(rawDate), 'yyyy.MM.dd') : format(new Date(), 'yyyy.MM.dd');
+    const date = rawDate
+      ? format(new Date(rawDate), 'yyyy.MM.dd')
+      : format(new Date(), 'yyyy.MM.dd');
 
     const tags =
       props['태그']?.type === 'multi_select'
-        ? ((props['태그'] as { multi_select: { name: string }[] }).multi_select ?? []).map((t) => t.name)
+        ? (
+            (props['태그'] as { multi_select: { name: string }[] })
+              .multi_select ?? []
+          ).map((t) => t.name)
         : [];
 
     const contentPreview =
       props['설명']?.type === 'rich_text'
-        ? (props['설명'] as { rich_text: { plain_text: string }[] }).rich_text.map((t) => t.plain_text).join('') || ''
+        ? (props['설명'] as { rich_text: { plain_text: string }[] }).rich_text
+            .map((t) => t.plain_text)
+            .join('') || ''
         : '';
 
     const views =
@@ -435,7 +518,15 @@ const _getPostMetaById = async (postId: string): Promise<Post | undefined> => {
         : 0;
 
     const thumbnailUrl = extractCoverUrl(
-      (page as { cover?: { type: string; external?: { url: string }; file?: { url: string } } | null }).cover ?? null,
+      (
+        page as {
+          cover?: {
+            type: string;
+            external?: { url: string };
+            file?: { url: string };
+          } | null;
+        }
+      ).cover ?? null,
     );
 
     return {
@@ -466,7 +557,9 @@ export const getPostMetaById = unstable_cache(
 
 // ─── 단일 프로젝트 메타 조회 ──────────────────────────────────────────────────
 
-const _getProjectMetaById = async (projectId: string): Promise<Project | undefined> => {
+const _getProjectMetaById = async (
+  projectId: string,
+): Promise<Project | undefined> => {
   try {
     const rawId = projectId.replace(
       /^(.{8})(.{4})(.{4})(.{4})(.{12})$/,
@@ -476,39 +569,56 @@ const _getProjectMetaById = async (projectId: string): Promise<Project | undefin
     const page = await notionClient.pages.retrieve({ page_id: rawId });
     if (!('properties' in page)) return undefined;
 
-    const props = page.properties as Record<string, { type: string; [key: string]: unknown }>;
+    const props = page.properties as Record<string, any>;
 
     const name =
       props['제목']?.type === 'title'
-        ? extractText((props['제목'] as { title: { plain_text: string }[] }).title)
+        ? extractText(
+            (props['제목'] as unknown as { title: { plain_text: string }[] })
+              .title,
+          )
         : '제목 없음';
 
     const category =
       props['카테고리']?.type === 'select'
-        ? ((props['카테고리'] as { select: { name: string } | null }).select?.name ?? '기타')
+        ? ((props['카테고리'] as { select: { name: string } | null }).select
+            ?.name ?? '기타')
         : '기타';
 
     const role =
       props['역할']?.type === 'select'
-        ? ((props['역할'] as { select: { name: string } | null }).select?.name ?? '')
+        ? ((props['역할'] as { select: { name: string } | null }).select
+            ?.name ?? '')
         : props['역할']?.type === 'rich_text'
-          ? extractText((props['역할'] as { rich_text: { plain_text: string }[] }).rich_text)
+          ? extractText(
+              (props['역할'] as { rich_text: { plain_text: string }[] })
+                .rich_text,
+            )
           : '';
 
     const rawDate =
       props['날짜']?.type === 'date'
-        ? ((props['날짜'] as { date: { start: string } | null }).date?.start ?? null)
+        ? ((props['날짜'] as { date: { start: string } | null }).date?.start ??
+          null)
         : null;
-    const date = rawDate ? format(new Date(rawDate), 'yyyy.MM.dd') : format(new Date(), 'yyyy.MM.dd');
+    const date = rawDate
+      ? format(new Date(rawDate), 'yyyy.MM.dd')
+      : format(new Date(), 'yyyy.MM.dd');
 
     const tags =
       props['태그']?.type === 'multi_select'
-        ? ((props['태그'] as { multi_select: { name: string }[] }).multi_select ?? []).map((t) => t.name)
+        ? (
+            (props['태그'] as { multi_select: { name: string }[] })
+              .multi_select ?? []
+          ).map((t) => t.name)
         : [];
 
     const contentPreview =
       props['설명']?.type === 'rich_text'
-        ? extractText((props['설명'] as { rich_text: { plain_text: string }[] }).rich_text) || ''
+        ? extractText(
+            (props['설명'] as { rich_text: { plain_text: string }[] })
+              .rich_text,
+          ) || ''
         : '';
 
     const views =
@@ -523,13 +633,23 @@ const _getProjectMetaById = async (projectId: string): Promise<Project | undefin
 
     const status =
       props['상태']?.type === 'status'
-        ? ((props['상태'] as { status: { name: string } | null }).status?.name as Project['status']) ?? '백로그'
+        ? (((props['상태'] as { status: { name: string } | null }).status
+            ?.name as Project['status']) ?? '백로그')
         : props['상태']?.type === 'select'
-          ? ((props['상태'] as { select: { name: string } | null }).select?.name as Project['status']) ?? '백로그'
+          ? (((props['상태'] as { select: { name: string } | null }).select
+              ?.name as Project['status']) ?? '백로그')
           : '백로그';
 
     const thumbnailUrl = extractCoverUrl(
-      (page as { cover?: { type: string; external?: { url: string }; file?: { url: string } } | null }).cover ?? null,
+      (
+        page as {
+          cover?: {
+            type: string;
+            external?: { url: string };
+            file?: { url: string };
+          } | null;
+        }
+      ).cover ?? null,
       'https://picsum.photos/500/400',
     );
 

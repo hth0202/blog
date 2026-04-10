@@ -14,7 +14,6 @@ export const getPosts = async (): Promise<Post[]> => {
   }
 };
 
-
 export const getCategories = async (): Promise<Category[]> => {
   try {
     return await getCategoriesFromNotion();
@@ -32,7 +31,6 @@ export const getProjects = async (): Promise<Project[]> => {
     return [];
   }
 };
-
 
 export const getProjectCategories = async (): Promise<ProjectCategory[]> => {
   try {

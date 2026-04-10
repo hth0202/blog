@@ -3,8 +3,8 @@ export interface Post {
   rawId: string;
   category: string;
   title: string;
-  date: string;     // 표시용: yyyy.MM.dd
-  isoDate: string;  // 정렬용: ISO 8601
+  date: string; // 표시용: yyyy.MM.dd
+  isoDate: string; // 정렬용: ISO 8601
   contentPreview: string;
   tags: string[];
   thumbnailUrl: string;
