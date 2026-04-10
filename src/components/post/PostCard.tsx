@@ -30,7 +30,9 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
             )}
           </span>
 
-          <h3 className="my-1 text-xl font-bold text-gray-900 dark:text-white">{post.title}</h3>
+          <h3 className="my-1 text-xl font-bold text-gray-900 dark:text-white">
+            {post.title}
+          </h3>
           <span className="mb-2 text-xs text-gray-500 dark:text-gray-400">
             {post.date}
           </span>

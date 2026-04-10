@@ -19,7 +19,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
           />
         </div>
         <div className="flex flex-grow flex-col p-4">
-          <h3 className="text-base font-bold text-gray-900 dark:text-white">{project.name}</h3>
+          <h3 className="text-base font-bold text-gray-900 dark:text-white">
+            {project.name}
+          </h3>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             {project.contentPreview}
           </p>

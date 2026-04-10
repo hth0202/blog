@@ -1,11 +1,19 @@
-import { Suspense } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
 
 import { ReactionSection } from '@/components/post';
-import { CommentSection, NotionContent, ShareButton, ViewTracker } from '@/components/post/article';
+import {
+  CommentSection,
+  NotionContent,
+  ShareButton,
+  ViewTracker,
+} from '@/components/post/article';
 
-import { getProjectMetaById, getProjectsFromNotion } from '@/services/notion-api';
+import {
+  getProjectMetaById,
+  getProjectsFromNotion,
+} from '@/services/notion-api';
 
 export const revalidate = 300;
 
@@ -33,7 +41,9 @@ function ProjectArticleSkeleton() {
   );
 }
 
-export default async function ProjectDetailPage({ params }: ProjectDetailPageProps) {
+export default async function ProjectDetailPage({
+  params,
+}: ProjectDetailPageProps) {
   const { projectId } = await params;
 
   const project = await getProjectMetaById(projectId);

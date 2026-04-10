@@ -74,7 +74,13 @@ export function PostContent({
     }
 
     return filtered;
-  }, [activeCategory, activeTags, initialPosts, initialCategories, searchQuery]);
+  }, [
+    activeCategory,
+    activeTags,
+    initialPosts,
+    initialCategories,
+    searchQuery,
+  ]);
 
   const sortedPosts = useMemo(() => {
     return [...filteredPosts].sort((a, b) => {
@@ -155,8 +161,8 @@ export function PostContent({
           </div>
 
           {/* Mobile: category horizontal scroll tabs */}
-          <div className="mb-3 -mx-4 px-4 md:hidden">
-            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+          <div className="-mx-4 mb-3 px-4 md:hidden">
+            <div className="scrollbar-none flex gap-2 overflow-x-auto pb-2">
               {initialCategories.map((category) => (
                 <button
                   key={category.id}

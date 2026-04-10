@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
 import { Client } from '@notionhq/client';
+import { NextResponse } from 'next/server';
 
 export async function GET() {
   const notionClient = new Client({ auth: process.env.NOTION_AUTH_TOKEN });
@@ -18,10 +18,13 @@ export async function GET() {
       })),
     });
   } catch (error: any) {
-    return NextResponse.json({
-      dbId,
-      error: error?.message,
-      code: error?.code,
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        dbId,
+        error: error?.message,
+        code: error?.code,
+      },
+      { status: 500 },
+    );
   }
 }

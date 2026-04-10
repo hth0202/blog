@@ -119,7 +119,7 @@ export function ProjectsContent({
 
           {/* Mobile: category horizontal scroll tabs */}
           <div className="-mx-4 mb-3 px-4 md:hidden">
-            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+            <div className="scrollbar-none flex gap-2 overflow-x-auto pb-2">
               {initialCategories.map((category) => (
                 <button
                   key={category.id}

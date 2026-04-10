@@ -36,5 +36,10 @@ async function getProjectsData() {
 export default async function ProjectsPage() {
   const { projects, categories } = await getProjectsData();
 
-  return <ProjectsContent initialProjects={projects} initialCategories={categories} />;
+  return (
+    <ProjectsContent
+      initialProjects={projects}
+      initialCategories={categories}
+    />
+  );
 }

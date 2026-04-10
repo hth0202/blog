@@ -1,6 +1,6 @@
+import { Client } from '@notionhq/client';
 import { unstable_cache } from 'next/cache';
 import { NextResponse } from 'next/server';
-import { Client } from '@notionhq/client';
 
 const notionClient = new Client({ auth: process.env.NOTION_AUTH_TOKEN });
 
@@ -12,10 +12,17 @@ const getSkillTextBlocks = unstable_cache(
     });
 
     return response.results
-      .filter((block): block is typeof block & { type: string } => 'type' in block)
+      .filter(
+        (block): block is typeof block & { type: string } => 'type' in block,
+      )
       .flatMap((block: any) => {
         const type: string = block.type;
-        if (!['bulleted_list_item', 'numbered_list_item', 'paragraph'].includes(type)) return [];
+        if (
+          !['bulleted_list_item', 'numbered_list_item', 'paragraph'].includes(
+            type,
+          )
+        )
+          return [];
         const richText = block[type]?.rich_text ?? [];
         const text: string = richText.map((t: any) => t.plain_text).join('');
         return text ? [text] : [];

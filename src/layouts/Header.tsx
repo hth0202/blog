@@ -20,7 +20,9 @@ export const Header: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isActive = (path: string) =>
-    path === '/' ? pathname === '/' : pathname === path || pathname.startsWith(path + '/');
+    path === '/'
+      ? pathname === '/'
+      : pathname === path || pathname.startsWith(`${path}/`);
 
   const navLinkClass = (path: string) =>
     `text-sm transition-colors ${
@@ -40,7 +42,10 @@ export const Header: React.FC = () => {
     <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-sm dark:bg-[#1a1a1a]/80">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between border-b border-gray-200 dark:border-neutral-600">
-          <Link href="/" className="text-xl font-bold text-gray-900 dark:text-white">
+          <Link
+            href="/"
+            className="text-xl font-bold text-gray-900 dark:text-white"
+          >
             태피스토리
           </Link>
 
@@ -70,16 +75,36 @@ export const Header: React.FC = () => {
             {/* Hamburger button (mobile only) */}
             <button
               onClick={() => setMobileOpen((prev) => !prev)}
-              className="rounded-md p-2 text-gray-500 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-neutral-800 md:hidden"
+              className="rounded-md p-2 text-gray-500 transition-colors hover:bg-gray-100 md:hidden dark:text-gray-400 dark:hover:bg-neutral-800"
               aria-label="메뉴 열기/닫기"
             >
               {mobileOpen ? (
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               ) : (
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
                 </svg>
               )}
             </button>
@@ -89,11 +114,11 @@ export const Header: React.FC = () => {
 
       {/* Mobile menu */}
       <div
-        className={`overflow-hidden border-gray-200 bg-white/95 backdrop-blur-sm transition-all duration-300 ease-in-out dark:border-neutral-600 dark:bg-[#1a1a1a]/95 md:hidden ${
+        className={`overflow-hidden border-gray-200 bg-white/95 backdrop-blur-sm transition-all duration-300 ease-in-out md:hidden dark:border-neutral-600 dark:bg-[#1a1a1a]/95 ${
           mobileOpen ? 'max-h-64 border-b opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
-        <nav className="space-y-1 px-4 pb-3 pt-2">
+        <nav className="space-y-1 px-4 pt-2 pb-3">
           {NAV_LINKS.map(({ href, label }) => (
             <Link
               key={href}

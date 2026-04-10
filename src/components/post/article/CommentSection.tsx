@@ -55,7 +55,11 @@ export function CommentSection({ postId }: CommentSectionProps) {
       const res = await fetch(`/api/comments/${postId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ author, content, website: honeypotRef.current?.value ?? '' }),
+        body: JSON.stringify({
+          author,
+          content,
+          website: honeypotRef.current?.value ?? '',
+        }),
       });
 
       const data = await res.json();
@@ -113,7 +117,7 @@ export function CommentSection({ postId }: CommentSectionProps) {
                 <div className="font-semibold text-gray-900 dark:text-white">
                   {comment.author}
                 </div>
-                <p className="whitespace-pre-wrap text-sm text-gray-600 dark:text-gray-300">
+                <p className="text-sm whitespace-pre-wrap text-gray-600 dark:text-gray-300">
                   {comment.content}
                 </p>
                 <div className="mt-1 text-xs text-gray-400 dark:text-gray-500">
@@ -143,7 +147,7 @@ export function CommentSection({ postId }: CommentSectionProps) {
           type="text"
           placeholder="이름"
           maxLength={50}
-          className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 transition-all focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:border-neutral-600 dark:bg-neutral-800 dark:text-white dark:placeholder:text-gray-500"
+          className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:border-neutral-600 dark:bg-neutral-800 dark:text-white dark:placeholder:text-gray-500"
           aria-label="이름"
         />
         <textarea
@@ -151,7 +155,7 @@ export function CommentSection({ postId }: CommentSectionProps) {
           rows={4}
           placeholder="댓글을 입력하세요..."
           maxLength={1000}
-          className="w-full rounded-md border border-gray-300 bg-white p-3 text-sm text-gray-900 placeholder:text-gray-400 transition-all focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:border-neutral-600 dark:bg-neutral-800 dark:text-white dark:placeholder:text-gray-500"
+          className="w-full rounded-md border border-gray-300 bg-white p-3 text-sm text-gray-900 transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:border-neutral-600 dark:bg-neutral-800 dark:text-white dark:placeholder:text-gray-500"
           aria-label="댓글 작성"
         />
         {error && (

@@ -1,9 +1,14 @@
-import { Suspense } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
 
 import { ReactionSection } from '@/components/post';
-import { CommentSection, NotionContent, ShareButton, ViewTracker } from '@/components/post/article';
+import {
+  CommentSection,
+  NotionContent,
+  ShareButton,
+  ViewTracker,
+} from '@/components/post/article';
 
 import { getPostMetaById, getPostsFromNotion } from '@/services/notion-api';
 

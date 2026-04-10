@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
 import { Client } from '@notionhq/client';
+import { NextResponse } from 'next/server';
 
 const notionClient = new Client({ auth: process.env.NOTION_AUTH_TOKEN });
 
@@ -24,12 +24,16 @@ export async function GET(
         const props = page.properties as Record<string, any>;
 
         // 제목 프로퍼티 (type === 'title')
-        const titleProp = Object.values(props).find((p: any) => p.type === 'title');
+        const titleProp = Object.values(props).find(
+          (p: any) => p.type === 'title',
+        );
         const title: string =
           titleProp?.title?.map((t: any) => t.plain_text).join('') ?? '';
 
         // 카테고리 프로퍼티 (type === 'select')
-        const selectProp = Object.values(props).find((p: any) => p.type === 'select');
+        const selectProp = Object.values(props).find(
+          (p: any) => p.type === 'select',
+        );
         const category: string = selectProp?.select?.name ?? '';
 
         // 아이콘

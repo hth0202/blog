@@ -18,7 +18,8 @@ function AboutSkeleton() {
 
 async function AboutContent() {
   const pageId = process.env.NOTION_ABOUT_PAGE_ID;
-  if (!pageId) return <p className="text-gray-500">소개 페이지가 준비 중입니다.</p>;
+  if (!pageId)
+    return <p className="text-gray-500">소개 페이지가 준비 중입니다.</p>;
   return <NotionContent rawId={pageId} />;
 }
 
@@ -26,7 +27,9 @@ export default function AboutPage() {
   return (
     <div className="animate-fade-in mx-auto max-w-5xl">
       <div className="mb-8 border-b border-gray-200 pb-4 dark:border-neutral-600">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">소개</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          소개
+        </h1>
       </div>
 
       <Suspense fallback={<AboutSkeleton />}>

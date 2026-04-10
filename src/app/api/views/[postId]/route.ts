@@ -20,13 +20,17 @@ export async function POST(
       return NextResponse.json({ error: 'Page not found' }, { status: 404 });
     }
 
-    const props = page.properties as Record<string, { type: string; number?: number | null }>;
-    const currentViews = props['조회수']?.type === 'number' ? (props['조회수'].number ?? 0) : 0;
+    const props = page.properties as Record<
+      string,
+      { type: string; number?: number | null }
+    >;
+    const currentViews =
+      props['조회수']?.type === 'number' ? (props['조회수'].number ?? 0) : 0;
 
     await notionClient.pages.update({
       page_id: rawId,
       properties: {
-        '조회수': { number: currentViews + 1 },
+        조회수: { number: currentViews + 1 },
       },
     });
 

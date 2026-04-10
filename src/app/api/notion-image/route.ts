@@ -16,7 +16,11 @@ export async function GET(request: NextRequest) {
   try {
     decodedUrl = decodeURIComponent(url);
     const hostname = new URL(decodedUrl).hostname;
-    if (!ALLOWED_HOSTNAMES.some((h) => hostname === h || hostname.endsWith('.' + h))) {
+    if (
+      !ALLOWED_HOSTNAMES.some(
+        (h) => hostname === h || hostname.endsWith(`.${h}`),
+      )
+    ) {
       return new NextResponse('Forbidden', { status: 403 });
     }
   } catch {

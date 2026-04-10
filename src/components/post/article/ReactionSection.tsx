@@ -9,13 +9,18 @@ interface ReactionSectionProps {
   initialLikes: number;
 }
 
-export function ReactionSection({ postId, initialLikes }: ReactionSectionProps) {
+export function ReactionSection({
+  postId,
+  initialLikes,
+}: ReactionSectionProps) {
   const [hasReacted, setHasReacted] = useState(false);
   const [likes, setLikes] = useState(initialLikes);
   const pendingRef = useRef(false);
 
   useEffect(() => {
-    const reactedPosts: string[] = JSON.parse(localStorage.getItem('reacted_posts') || '[]');
+    const reactedPosts: string[] = JSON.parse(
+      localStorage.getItem('reacted_posts') || '[]',
+    );
     setHasReacted(reactedPosts.includes(postId));
   }, [postId]);
 
@@ -31,10 +36,13 @@ export function ReactionSection({ postId, initialLikes }: ReactionSectionProps) 
     setLikes(nextLikes);
 
     // localStorage 즉시 반영
-    const reactedPosts: string[] = JSON.parse(localStorage.getItem('reacted_posts') || '[]');
-    const updated = action === 'add'
-      ? [...reactedPosts, postId]
-      : reactedPosts.filter((id) => id !== postId);
+    const reactedPosts: string[] = JSON.parse(
+      localStorage.getItem('reacted_posts') || '[]',
+    );
+    const updated =
+      action === 'add'
+        ? [...reactedPosts, postId]
+        : reactedPosts.filter((id) => id !== postId);
     localStorage.setItem('reacted_posts', JSON.stringify(updated));
 
     // 백그라운드로 API 호출 (UI 블로킹 없음)
@@ -45,19 +53,25 @@ export function ReactionSection({ postId, initialLikes }: ReactionSectionProps) 
       body: JSON.stringify({ action }),
     })
       .then((res) => res.json())
-      .then(({ likes: serverLikes }) => { if (typeof serverLikes === 'number') setLikes(serverLikes); })
+      .then(({ likes: serverLikes }) => {
+        if (typeof serverLikes === 'number') setLikes(serverLikes);
+      })
       .catch(() => {
         // 실패 시 롤백
         setHasReacted(hasReacted);
         setLikes(likes);
         localStorage.setItem('reacted_posts', JSON.stringify(reactedPosts));
       })
-      .finally(() => { pendingRef.current = false; });
+      .finally(() => {
+        pendingRef.current = false;
+      });
   };
 
   return (
     <div className="mb-8 flex flex-col items-center gap-2">
-      <h3 className="font-semibold text-gray-900 dark:text-white">반응 {likes}개</h3>
+      <h3 className="font-semibold text-gray-900 dark:text-white">
+        반응 {likes}개
+      </h3>
       <button
         onClick={handleReactionClick}
         className={`rounded-full border p-3 ${

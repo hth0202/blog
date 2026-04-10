@@ -30,13 +30,15 @@ export function NotionRichText({ items }: { items: RichTextItemResponse[] }) {
   return (
     <>
       {items.map((item, i) => {
-        const { bold, italic, strikethrough, underline, code, color } = item.annotations;
+        const { bold, italic, strikethrough, underline, code, color } =
+          item.annotations;
         const text = item.plain_text;
         const href = item.href;
 
         const isBgColor = color.endsWith('_background');
         const bgClass = isBgColor ? (BG_CLASS[color] ?? '') : '';
-        const textColorClass = !isBgColor && color !== 'default' ? (TEXT_COLOR[color] ?? '') : '';
+        const textColorClass =
+          !isBgColor && color !== 'default' ? (TEXT_COLOR[color] ?? '') : '';
 
         if (code) {
           return (

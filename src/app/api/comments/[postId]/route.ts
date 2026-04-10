@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import {
-  createPageComment,
-  getPageComments,
-} from '@/services/notion-api';
+import { createPageComment, getPageComments } from '@/services/notion-api';
 
 // ─── Rate Limiting ────────────────────────────────────────────────────────────
 // IP당 WINDOW_MS 내 MAX_REQUESTS회 초과 시 차단
@@ -38,10 +35,7 @@ function getClientIp(request: NextRequest): string {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function resolveRawId(postId: string): string {
-  return postId.replace(
-    /^(.{8})(.{4})(.{4})(.{4})(.{12})$/,
-    '$1-$2-$3-$4-$5',
-  );
+  return postId.replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/, '$1-$2-$3-$4-$5');
 }
 
 // ─── GET /api/comments/[postId] ───────────────────────────────────────────────
@@ -88,10 +82,16 @@ export async function POST(
     );
   }
   if (author.length > 50) {
-    return NextResponse.json({ error: '이름은 50자 이하로 입력해주세요.' }, { status: 400 });
+    return NextResponse.json(
+      { error: '이름은 50자 이하로 입력해주세요.' },
+      { status: 400 },
+    );
   }
   if (content.length > 1000) {
-    return NextResponse.json({ error: '댓글은 1000자 이하로 입력해주세요.' }, { status: 400 });
+    return NextResponse.json(
+      { error: '댓글은 1000자 이하로 입력해주세요.' },
+      { status: 400 },
+    );
   }
 
   const { postId } = await params;

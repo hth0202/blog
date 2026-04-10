@@ -9,7 +9,7 @@ export async function POST(
 ) {
   try {
     const { postId } = await params;
-    const { action } = await request.json() as { action: 'add' | 'remove' };
+    const { action } = (await request.json()) as { action: 'add' | 'remove' };
 
     // postId(32자리 hex) → UUID 복원
     const rawId = postId.replace(
@@ -23,16 +23,19 @@ export async function POST(
       return NextResponse.json({ error: 'Page not found' }, { status: 404 });
     }
 
-    const props = page.properties as Record<string, { type: string; number?: number | null }>;
-    const currentLikes = props['좋아요']?.type === 'number' ? (props['좋아요'].number ?? 0) : 0;
-    const newLikes = action === 'add'
-      ? currentLikes + 1
-      : Math.max(0, currentLikes - 1);
+    const props = page.properties as Record<
+      string,
+      { type: string; number?: number | null }
+    >;
+    const currentLikes =
+      props['좋아요']?.type === 'number' ? (props['좋아요'].number ?? 0) : 0;
+    const newLikes =
+      action === 'add' ? currentLikes + 1 : Math.max(0, currentLikes - 1);
 
     await notionClient.pages.update({
       page_id: rawId,
       properties: {
-        '좋아요': { number: newLikes },
+        좋아요: { number: newLikes },
       },
     });
 

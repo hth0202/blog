@@ -1,5 +1,6 @@
-import { getPageBlocks } from '@/services/notion-api';
 import { NotionRenderer } from '@/components/notion/NotionRenderer';
+
+import { getPageBlocks } from '@/services/notion-api';
 
 interface NotionContentProps {
   rawId: string;
