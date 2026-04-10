@@ -1,31 +1,18 @@
-'use client';
-
-import { NotionRenderer } from 'react-notion-x';
-
-import type { ExtendedRecordMap } from 'notion-types';
+import { getPageBlocks } from '@/services/notion-api';
+import { NotionRenderer } from '@/components/notion/NotionRenderer';
 
 interface NotionContentProps {
-  recordMap: ExtendedRecordMap;
-  rootPageId?: string;
+  rawId: string;
 }
 
-export function NotionContent({ recordMap, rootPageId }: NotionContentProps) {
-  return (
-    <div className="notion-content">
-      <NotionRenderer
-        recordMap={recordMap}
-        fullPage={false}
-        darkMode={false}
-        rootPageId={rootPageId}
-        previewImages={true}
-        showCollectionViewDropdown={false}
-        showTableOfContents={false}
-        minTableOfContentsItems={3}
-        defaultPageIcon="📄"
-        defaultPageCover=""
-        defaultPageCoverPosition={0.5}
-        className="notion-page"
-      />
-    </div>
-  );
+export async function NotionContent({ rawId }: NotionContentProps) {
+  const blocks = await getPageBlocks(rawId);
+  if (!blocks.length) {
+    return (
+      <p className="py-8 text-center text-gray-500 dark:text-gray-400">
+        내용을 불러올 수 없습니다.
+      </p>
+    );
+  }
+  return <NotionRenderer blocks={blocks} />;
 }
