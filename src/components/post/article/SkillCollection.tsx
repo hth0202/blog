@@ -1,0 +1,138 @@
+'use client';
+
+import { useState } from 'react';
+import type { SkillItem } from '@/services/notion-api';
+
+export function SkillCollection({ initialItems }: { initialItems: SkillItem[] }) {
+  const [openIds, setOpenIds] = useState<Set<string>>(new Set());
+  const [loadingIds, setLoadingIds] = useState<Set<string>>(new Set());
+  const [contentCache, setContentCache] = useState<Record<string, string[]>>({});
+
+  if (!initialItems.length) return null;
+
+  // 카테고리별 그룹화 (순서 유지)
+  const groups: { category: string; items: SkillItem[] }[] = [];
+  const seen = new Map<string, SkillItem[]>();
+  for (const item of initialItems) {
+    const key = item.category || '기타';
+    if (!seen.has(key)) {
+      seen.set(key, []);
+      groups.push({ category: key, items: seen.get(key)! });
+    }
+    seen.get(key)!.push(item);
+  }
+
+  async function handleToggle(itemId: string) {
+    const next = new Set(openIds);
+    if (next.has(itemId)) {
+      next.delete(itemId);
+      setOpenIds(next);
+      return;
+    }
+    next.add(itemId);
+    setOpenIds(next);
+
+    if (contentCache[itemId] !== undefined) return;
+
+    setLoadingIds((prev) => new Set(prev).add(itemId));
+    try {
+      const res = await fetch(`/api/notion-page/${itemId}`);
+      const { textBlocks } = await res.json();
+      setContentCache((prev) => ({ ...prev, [itemId]: textBlocks }));
+    } finally {
+      setLoadingIds((prev) => {
+        const s = new Set(prev);
+        s.delete(itemId);
+        return s;
+      });
+    }
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem', marginTop: '1.5rem', width: '100%' }}>
+      {groups.map(({ category, items: groupItems }) => (
+        <div key={category}>
+          {/* 카테고리 제목 */}
+          <div style={{ marginBottom: '1rem' }} className="flex items-center gap-4">
+            <span className="text-base font-bold text-gray-700 dark:text-gray-200 whitespace-nowrap">
+              {category}
+            </span>
+            <div className="flex-1 border-t border-gray-200 dark:border-neutral-700" />
+          </div>
+
+          {/* 카드 그리드 */}
+          <div className="grid grid-cols-3 items-start" style={{ gap: '1rem' }}>
+            {groupItems.map((item) => {
+              const isOpen = openIds.has(item.id);
+              const isItemLoading = loadingIds.has(item.id);
+              const bullets: string[] = contentCache[item.id] ?? [];
+
+              return (
+                <div
+                  key={item.id}
+                  onClick={() => handleToggle(item.id)}
+                  className={[
+                    'rounded-xl cursor-pointer transition-colors p-4 border-2',
+                    isOpen
+                      ? 'border-indigo-500 dark:border-indigo-400'
+                      : 'border-gray-200 dark:border-neutral-700 hover:border-indigo-300 dark:hover:border-indigo-600',
+                  ].join(' ')}
+                >
+                  {/* 아이콘 + 이름 */}
+                  <div className="flex items-center gap-2.5">
+                    {item.iconUrl && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={item.iconUrl} alt="" className="h-6 w-6 object-contain" />
+                    )}
+                    {item.iconEmoji && (
+                      <span className="text-xl leading-none">{item.iconEmoji}</span>
+                    )}
+                    <span className="text-base font-semibold text-gray-900 dark:text-white flex-1">
+                      {item.title}
+                    </span>
+                    <span
+                      className={`text-sm transition-transform duration-200 ${isOpen ? 'rotate-180' : ''} text-gray-400`}
+                    >
+                      ▾
+                    </span>
+                  </div>
+
+                  {/* 토글 콘텐츠 */}
+                  {isOpen && (
+                    <div className="mt-4 border-t border-gray-100 pt-4 dark:border-neutral-700">
+                      {isItemLoading ? (
+                        <div className="space-y-2.5">
+                          {[1, 2].map((i) => (
+                            <div
+                              key={i}
+                              className="h-3.5 rounded bg-gray-200 dark:bg-neutral-700 animate-pulse"
+                              style={{ width: `${60 + i * 15}%` }}
+                            />
+                          ))}
+                        </div>
+                      ) : bullets.length > 0 ? (
+                        <ul className="space-y-2">
+                          {bullets.map((text, i) => (
+                            <li
+                              key={i}
+                              className="flex items-baseline gap-2 text-sm text-gray-600 dark:text-gray-400"
+                            >
+                              <span className="shrink-0 text-indigo-500">•</span>
+                              <span>{text}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-sm text-gray-400 dark:text-gray-500">내용이 없습니다.</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
