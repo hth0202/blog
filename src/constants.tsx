@@ -21,6 +21,8 @@ export const MOCK_PROJECTS: Project[] = [
     thumbnailUrl: 'https://picsum.photos/seed/proj1/500/400',
     date: '2024.06.15',
     views: 450,
+    likes: 0,
+    status: '발행',
   },
   {
     id: '2',
@@ -33,6 +35,8 @@ export const MOCK_PROJECTS: Project[] = [
     thumbnailUrl: 'https://picsum.photos/seed/proj2/500/400',
     date: '2024.05.20',
     views: 620,
+    likes: 0,
+    status: '발행',
   },
   {
     id: '3',
@@ -45,6 +49,8 @@ export const MOCK_PROJECTS: Project[] = [
     thumbnailUrl: 'https://picsum.photos/seed/proj3/500/400',
     date: '2024.04.10',
     views: 310,
+    likes: 0,
+    status: '발행',
   },
   {
     id: '4',
@@ -57,6 +63,8 @@ export const MOCK_PROJECTS: Project[] = [
     thumbnailUrl: 'https://picsum.photos/seed/proj4/500/400',
     date: '2024.03.18',
     views: 580,
+    likes: 0,
+    status: '발행',
   },
   {
     id: '5',
@@ -69,6 +77,8 @@ export const MOCK_PROJECTS: Project[] = [
     thumbnailUrl: 'https://picsum.photos/seed/proj5/500/400',
     date: '2024.02.25',
     views: 750,
+    likes: 0,
+    status: '발행',
   },
   {
     id: '6',
@@ -81,6 +91,8 @@ export const MOCK_PROJECTS: Project[] = [
     thumbnailUrl: 'https://picsum.photos/seed/proj6/500/400',
     date: '2024.01.30',
     views: 490,
+    likes: 0,
+    status: '발행',
   },
 ];
 

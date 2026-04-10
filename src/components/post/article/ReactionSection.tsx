@@ -1,71 +1,71 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import { HeartIcon, HeartIconFilled } from '@/constants';
 
 interface ReactionSectionProps {
   postId: string;
+  initialLikes: number;
 }
 
-export function ReactionSection({ postId }: ReactionSectionProps) {
+export function ReactionSection({ postId, initialLikes }: ReactionSectionProps) {
   const [hasReacted, setHasReacted] = useState(false);
-  const [reactionCount, setReactionCount] = useState(0);
+  const [likes, setLikes] = useState(initialLikes);
+  const pendingRef = useRef(false);
 
   useEffect(() => {
-    // Check reaction status from localStorage
-    const reactedPosts = JSON.parse(
-      localStorage.getItem('reacted_posts') || '[]',
-    );
-    if (reactedPosts.includes(postId)) {
-      setHasReacted(true);
-    }
-
-    // Get reaction count from localStorage or initialize it
-    const allReactionCounts = JSON.parse(
-      localStorage.getItem('reaction_counts') || '{}',
-    );
-    const currentCount = allReactionCounts[`post_${postId}`];
-    const initialCount = 12; // Default mock count
-
-    setReactionCount(currentCount !== undefined ? currentCount : initialCount);
+    const reactedPosts: string[] = JSON.parse(localStorage.getItem('reacted_posts') || '[]');
+    setHasReacted(reactedPosts.includes(postId));
   }, [postId]);
 
   const handleReactionClick = () => {
-    const newReactionCount = hasReacted ? reactionCount - 1 : reactionCount + 1;
-    setReactionCount(newReactionCount);
+    if (pendingRef.current) return;
 
-    const newHasReacted = !hasReacted;
-    setHasReacted(newHasReacted);
+    const action = hasReacted ? 'remove' : 'add';
+    const nextReacted = !hasReacted;
+    const nextLikes = action === 'add' ? likes + 1 : Math.max(0, likes - 1);
 
-    // Update reaction status in localStorage
-    const reactedPosts = JSON.parse(
-      localStorage.getItem('reacted_posts') || '[]',
-    );
-    const updatedReactedPosts = newHasReacted
+    // 즉시 UI 반영
+    setHasReacted(nextReacted);
+    setLikes(nextLikes);
+
+    // localStorage 즉시 반영
+    const reactedPosts: string[] = JSON.parse(localStorage.getItem('reacted_posts') || '[]');
+    const updated = action === 'add'
       ? [...reactedPosts, postId]
-      : reactedPosts.filter((id: string) => id !== postId);
-    localStorage.setItem('reacted_posts', JSON.stringify(updatedReactedPosts));
+      : reactedPosts.filter((id) => id !== postId);
+    localStorage.setItem('reacted_posts', JSON.stringify(updated));
 
-    // Update reaction count in localStorage
-    const allReactionCounts = JSON.parse(
-      localStorage.getItem('reaction_counts') || '{}',
-    );
-    allReactionCounts[`post_${postId}`] = newReactionCount;
-    localStorage.setItem('reaction_counts', JSON.stringify(allReactionCounts));
+    // 백그라운드로 API 호출 (UI 블로킹 없음)
+    pendingRef.current = true;
+    fetch(`/api/reactions/${postId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action }),
+    })
+      .then((res) => res.json())
+      .then(({ likes: serverLikes }) => { if (typeof serverLikes === 'number') setLikes(serverLikes); })
+      .catch(() => {
+        // 실패 시 롤백
+        setHasReacted(hasReacted);
+        setLikes(likes);
+        localStorage.setItem('reacted_posts', JSON.stringify(reactedPosts));
+      })
+      .finally(() => { pendingRef.current = false; });
   };
 
   return (
     <div className="mb-8 flex flex-col items-center gap-2">
-      <h3 className="font-semibold">반응 {reactionCount}개</h3>
+      <h3 className="font-semibold text-gray-900 dark:text-white">반응 {likes}개</h3>
       <button
         onClick={handleReactionClick}
-        className={`rounded-full border p-3 transition-colors ${
+        className={`rounded-full border p-3 ${
           hasReacted
-            ? 'border-violet-500 text-violet-500'
-            : 'border-gray-300 text-gray-400 hover:border-violet-500 hover:text-violet-500 dark:border-gray-600 dark:text-gray-500 dark:hover:border-violet-400 dark:hover:text-violet-400'
+            ? 'border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400'
+            : 'border-gray-300 text-gray-400 hover:border-indigo-400 hover:text-indigo-400 dark:border-neutral-600 dark:text-gray-500 dark:hover:border-indigo-400 dark:hover:text-indigo-400'
         }`}
-        aria-label={hasReacted ? 'Undo reaction' : 'Give a reaction'}
+        aria-label={hasReacted ? '반응 취소' : '반응하기'}
       >
         {hasReacted ? (
           <HeartIconFilled className="h-6 w-6" />
