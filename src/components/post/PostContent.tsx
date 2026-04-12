@@ -156,7 +156,7 @@ export function PostContent({
               기록
             </h1>
             <p className="mt-2 text-gray-500 dark:text-gray-400">
-              {activeCategoryName} 카테고리에 대한 설명
+              PM으로서 배우고 느낀 점을 사유하는 공간입니다
             </p>
           </div>
 
