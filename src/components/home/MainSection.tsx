@@ -89,7 +89,7 @@ export function MainSection() {
           <div className="animate-fade-in" style={{ opacity: 1 }}>
             <svg
               viewBox="0 0 1200 300"
-              className="title-svg mx-auto w-full max-w-sm md:max-w-3xl xl:max-w-6xl"
+              className="title-svg mx-auto w-full max-w-xl md:max-w-6xl xl:max-w-[98vw]"
               aria-label="태피스토리"
             >
               <text
@@ -99,8 +99,6 @@ export function MainSection() {
                 y="50%"
                 dominantBaseline="middle"
                 textAnchor="middle"
-                textLength="1100"
-                lengthAdjust="spacing"
               >
                 태피스토리
               </text>
