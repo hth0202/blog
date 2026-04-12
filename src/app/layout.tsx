@@ -6,6 +6,23 @@ import { Header, Footer } from '@/layouts';
 import './globals.css';
 import 'react-notion-x/src/styles.css';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '태피스토리',
+  description: '서비스 기획자 겸 PM 태피가 엮어가는 성장 기록',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+    ],
+    apple: '/apple-touch-icon.png',
+    shortcut: '/favicon.ico',
+  },
+  manifest: '/site.webmanifest',
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -14,27 +31,6 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <head>
-        <title>태피스토리</title>
-        <meta
-          name="description"
-          content="서비스 기획자 겸 PM 태피가 엮어가는 성장 기록"
-        />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link
-          rel="icon"
-          type="image/png"
-          sizes="32x32"
-          href="/favicon-32x32.png"
-        />
-        <link
-          rel="icon"
-          type="image/png"
-          sizes="16x16"
-          href="/favicon-16x16.png"
-        />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <link rel="manifest" href="/site.webmanifest" />
         <link
           rel="stylesheet"
           as="style"
@@ -55,7 +51,6 @@ export default function RootLayout({
                     root.classList.add('dark');
                     root.style.colorScheme = 'dark';
                   } else {
-                    // light 또는 system 모드: CSS prefers-color-scheme이 자동 처리
                     root.style.colorScheme = 'light dark';
                   }
                 } catch (e) {}
