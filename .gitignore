@@ -47,3 +47,6 @@ next-env.d.ts
 
 # vscode
 .vscode/
+
+# claude code local settings (personal, not for repo)
+.claude/settings.local.json
