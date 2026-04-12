@@ -1,3 +1,4 @@
+import { Client } from '@notionhq/client';
 import { NextRequest, NextResponse } from 'next/server';
 
 const ALLOWED_HOSTNAMES = [
@@ -7,29 +8,61 @@ const ALLOWED_HOSTNAMES = [
   'www.notion.so',
 ];
 
-export async function GET(request: NextRequest) {
-  const url = request.nextUrl.searchParams.get('url');
-  if (!url) {
-    return new NextResponse('Missing url parameter', { status: 400 });
-  }
+const notionClient = new Client({ auth: process.env.NOTION_AUTH_TOKEN });
 
-  let decodedUrl: string;
+// blockId로 Notion에서 현재 유효한 S3 URL을 실시간 조회
+async function resolveBlockImageUrl(blockId: string): Promise<string | null> {
   try {
-    decodedUrl = decodeURIComponent(url);
-    const hostname = new URL(decodedUrl).hostname;
-    if (
-      !ALLOWED_HOSTNAMES.some(
-        (h) => hostname === h || hostname.endsWith(`.${h}`),
-      )
-    ) {
-      return new NextResponse('Forbidden', { status: 403 });
+    const block = await notionClient.blocks.retrieve({ block_id: blockId });
+    if (!('type' in block)) return null;
+    if (block.type === 'image' && block.image.type === 'file') {
+      return block.image.file.url;
     }
+    return null;
   } catch {
-    return new NextResponse('Invalid url', { status: 400 });
+    return null;
+  }
+}
+
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
+  const blockId = searchParams.get('blockId');
+  const url = searchParams.get('url');
+
+  let imageUrl: string | null = null;
+
+  if (blockId) {
+    // blockId 방식: 요청 시점에 Notion에서 신선한 URL을 가져옴 → S3 만료 문제 없음
+    imageUrl = await resolveBlockImageUrl(blockId);
+    if (!imageUrl) {
+      return new NextResponse('Block not found or not a file image', {
+        status: 404,
+      });
+    }
+  } else if (url) {
+    // url 방식: external 이미지 또는 레거시 호환용
+    try {
+      const decoded = decodeURIComponent(url);
+      const hostname = new URL(decoded).hostname;
+      if (
+        !ALLOWED_HOSTNAMES.some(
+          (h) => hostname === h || hostname.endsWith(`.${h}`),
+        )
+      ) {
+        return new NextResponse('Forbidden', { status: 403 });
+      }
+      imageUrl = decoded;
+    } catch {
+      return new NextResponse('Invalid url', { status: 400 });
+    }
+  } else {
+    return new NextResponse('Missing blockId or url parameter', {
+      status: 400,
+    });
   }
 
   try {
-    const res = await fetch(decodedUrl);
+    const res = await fetch(imageUrl);
     if (!res.ok) {
       return new NextResponse('Upstream error', { status: 502 });
     }
@@ -37,7 +70,7 @@ export async function GET(request: NextRequest) {
     return new NextResponse(res.body, {
       headers: {
         'Content-Type': res.headers.get('Content-Type') || 'image/jpeg',
-        // S3 pre-signed URL 만료(1h) 전에 캐시를 비움 — 50분
+        // S3 pre-signed URL 만료(1h) 전에 CDN 캐시를 비움 — 50분
         'Cache-Control': 'public, max-age=3000, s-maxage=3000',
       },
     });

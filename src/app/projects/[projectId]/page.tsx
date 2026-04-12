@@ -54,7 +54,7 @@ export default async function ProjectDetailPage({
   const { projectId } = await params;
 
   const project = await getProjectMetaById(projectId);
-  if (!project) notFound();
+  if (!project || project.status !== '발행') notFound();
 
   const blocks = await getPageBlocks(project.rawId);
 

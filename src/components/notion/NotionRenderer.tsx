@@ -73,15 +73,12 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
       );
 
     case 'image': {
-      const rawSrc =
-        block.image.type === 'external'
-          ? block.image.external.url
-          : block.image.file.url;
-      // S3 pre-signed URL은 1시간 후 만료 — 프록시를 경유해 캐시 유지
+      // file 타입: blockId 전달 → proxy가 요청 시점에 Notion에서 신선한 URL 조회
+      // external 타입: URL 직접 사용 (만료 없음)
       const imgSrc =
         block.image.type === 'file'
-          ? `/api/notion-image?url=${encodeURIComponent(rawSrc)}`
-          : rawSrc;
+          ? `/api/notion-image?blockId=${block.id}`
+          : block.image.external.url;
       const caption = block.image.caption;
       const captionText = caption?.map((c) => c.plain_text).join('') || '';
 

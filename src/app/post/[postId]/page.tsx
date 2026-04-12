@@ -52,7 +52,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
   const { postId } = await params;
 
   const post = await getPostMetaById(postId);
-  if (!post) notFound();
+  if (!post || post.status !== '발행') notFound();
 
   const blocks = await getPageBlocks(post.rawId);
 
