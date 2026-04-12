@@ -19,7 +19,7 @@ const useAnimateText = () => {
 
   useEffect(() => {
     const animationTriggerScroll = 450; // Animation completes over this scroll distance
-    const initialDashOffset = 8000;
+    const initialDashOffset = 5000;
     const textEl = textRef.current;
     if (!textEl) return;
 
@@ -89,7 +89,8 @@ export function MainSection() {
           <div className="animate-fade-in" style={{ opacity: 1 }}>
             <svg
               viewBox="0 0 1200 300"
-              className="title-svg mx-auto w-full max-w-xl md:max-w-6xl xl:max-w-[98vw]"
+              fontSize={200}
+              className="title-svg mx-auto w-full max-w-xl md:max-w-[1152px]"
               aria-label="태피스토리"
             >
               <text
