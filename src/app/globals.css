@@ -191,13 +191,13 @@
 
 @media (min-width: 768px) {
   .title-stroke {
-    font-size: 12rem;
+    font-size: 14rem;
   }
 }
 
 @media (min-width: 1280px) {
   .title-stroke {
-    font-size: 22rem;
+    font-size: 18rem;
   }
 }
 
