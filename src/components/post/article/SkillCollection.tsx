@@ -6,14 +6,13 @@ import type { SkillItem } from '@/services/notion-api';
 
 export function SkillCollection({
   initialItems,
+  initialContent = {},
 }: {
   initialItems: SkillItem[];
+  initialContent?: Record<string, string[]>;
 }) {
   const [openIds, setOpenIds] = useState<Set<string>>(new Set());
-  const [loadingIds, setLoadingIds] = useState<Set<string>>(new Set());
-  const [contentCache, setContentCache] = useState<Record<string, string[]>>(
-    {},
-  );
+  const contentCache = initialContent;
 
   if (!initialItems.length) return null;
 
@@ -29,30 +28,14 @@ export function SkillCollection({
     seen.get(key)!.push(item);
   }
 
-  async function handleToggle(itemId: string) {
+  function handleToggle(itemId: string) {
     const next = new Set(openIds);
     if (next.has(itemId)) {
       next.delete(itemId);
-      setOpenIds(next);
-      return;
+    } else {
+      next.add(itemId);
     }
-    next.add(itemId);
     setOpenIds(next);
-
-    if (contentCache[itemId] !== undefined) return;
-
-    setLoadingIds((prev) => new Set(prev).add(itemId));
-    try {
-      const res = await fetch(`/api/notion-page/${itemId}`);
-      const { textBlocks } = await res.json();
-      setContentCache((prev) => ({ ...prev, [itemId]: textBlocks }));
-    } finally {
-      setLoadingIds((prev) => {
-        const s = new Set(prev);
-        s.delete(itemId);
-        return s;
-      });
-    }
   }
 
   return (
@@ -82,7 +65,6 @@ export function SkillCollection({
           <div className="grid grid-cols-3 items-start" style={{ gap: '1rem' }}>
             {groupItems.map((item) => {
               const isOpen = openIds.has(item.id);
-              const isItemLoading = loadingIds.has(item.id);
               const bullets: string[] = contentCache[item.id] ?? [];
 
               return (
@@ -123,17 +105,7 @@ export function SkillCollection({
                   {/* 토글 콘텐츠 */}
                   {isOpen && (
                     <div className="mt-4 border-t border-gray-100 pt-4 dark:border-neutral-700">
-                      {isItemLoading ? (
-                        <div className="space-y-2.5">
-                          {[1, 2].map((i) => (
-                            <div
-                              key={i}
-                              className="h-3.5 animate-pulse rounded bg-gray-200 dark:bg-neutral-700"
-                              style={{ width: `${60 + i * 15}%` }}
-                            />
-                          ))}
-                        </div>
-                      ) : bullets.length > 0 ? (
+                      {bullets.length > 0 ? (
                         <ul className="space-y-2">
                           {bullets.map((text, i) => (
                             <li

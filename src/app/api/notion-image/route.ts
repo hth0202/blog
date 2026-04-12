@@ -4,6 +4,7 @@ const ALLOWED_HOSTNAMES = [
   's3.us-west-2.amazonaws.com',
   'prod-files-secure.s3.us-west-2.amazonaws.com',
   's3-us-west-2.amazonaws.com',
+  'www.notion.so',
 ];
 
 export async function GET(request: NextRequest) {

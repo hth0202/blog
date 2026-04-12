@@ -9,7 +9,11 @@ export async function POST(
 ) {
   try {
     const { postId } = await params;
-    const { action } = (await request.json()) as { action: 'add' | 'remove' };
+    const body = (await request.json()) as Record<string, unknown>;
+    const action = body?.action;
+    if (action !== 'add' && action !== 'remove') {
+      return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+    }
 
     // postId(32자리 hex) → UUID 복원
     const rawId = postId.replace(

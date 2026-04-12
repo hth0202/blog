@@ -1,16 +1,16 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Suspense } from 'react';
 
+import { NotionRenderer } from '@/components/notion/NotionRenderer';
 import { ReactionSection } from '@/components/post';
 import {
   CommentSection,
-  NotionContent,
   ShareButton,
   ViewTracker,
 } from '@/components/post/article';
 
 import {
+  getPageBlocks,
   getProjectMetaById,
   getProjectsFromNotion,
 } from '@/services/notion-api';
@@ -28,19 +28,6 @@ interface ProjectDetailPageProps {
   params: Promise<{ projectId: string }>;
 }
 
-function ProjectArticleSkeleton() {
-  return (
-    <div className="animate-pulse space-y-3">
-      <div className="h-4 w-full rounded bg-gray-200 dark:bg-neutral-700" />
-      <div className="h-4 w-5/6 rounded bg-gray-200 dark:bg-neutral-700" />
-      <div className="h-4 w-4/6 rounded bg-gray-200 dark:bg-neutral-700" />
-      <div className="mt-6 h-4 w-full rounded bg-gray-200 dark:bg-neutral-700" />
-      <div className="h-4 w-5/6 rounded bg-gray-200 dark:bg-neutral-700" />
-      <div className="h-4 w-3/4 rounded bg-gray-200 dark:bg-neutral-700" />
-    </div>
-  );
-}
-
 export default async function ProjectDetailPage({
   params,
 }: ProjectDetailPageProps) {
@@ -48,6 +35,8 @@ export default async function ProjectDetailPage({
 
   const project = await getProjectMetaById(projectId);
   if (!project) notFound();
+
+  const blocks = await getPageBlocks(project.rawId);
 
   return (
     <>
@@ -74,9 +63,13 @@ export default async function ProjectDetailPage({
         </header>
 
         <div className="mb-12 max-w-none">
-          <Suspense fallback={<ProjectArticleSkeleton />}>
-            <NotionContent rawId={project.rawId} />
-          </Suspense>
+          {blocks.length > 0 ? (
+            <NotionRenderer blocks={blocks} />
+          ) : (
+            <p className="py-8 text-center text-gray-500 dark:text-gray-400">
+              내용을 불러올 수 없습니다.
+            </p>
+          )}
         </div>
 
         <div className="mb-8 flex flex-wrap gap-2">

@@ -159,6 +159,40 @@ export const querySkillDatabase = unstable_cache(
   { revalidate: TTL(300), tags: ['notion-blocks'] },
 );
 
+const _getSkillTextBlocks = async (pageId: string): Promise<string[]> => {
+  try {
+    const response = await notionClient.blocks.children.list({
+      block_id: pageId,
+      page_size: 100,
+    });
+    return response.results
+      .filter(
+        (block): block is typeof block & { type: string } => 'type' in block,
+      )
+      .flatMap((block: any) => {
+        const type: string = block.type;
+        if (
+          !['bulleted_list_item', 'numbered_list_item', 'paragraph'].includes(
+            type,
+          )
+        )
+          return [];
+        const text: string = (block[type]?.rich_text ?? [])
+          .map((t: any) => t.plain_text)
+          .join('');
+        return text ? [text] : [];
+      });
+  } catch {
+    return [];
+  }
+};
+
+export const getSkillTextBlocks = unstable_cache(
+  _getSkillTextBlocks,
+  ['notion-skill-text'],
+  { revalidate: TTL(600), tags: ['notion-blocks'] },
+);
+
 // ─── 페이지 본문 (공식 API → 마크다운 변환) ──────────────────────────────────
 
 const _getPageMarkdown = async (pageId: string): Promise<string | null> => {

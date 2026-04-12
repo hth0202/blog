@@ -31,6 +31,10 @@ export function ReactionSection({
     const nextReacted = !hasReacted;
     const nextLikes = action === 'add' ? likes + 1 : Math.max(0, likes - 1);
 
+    // 롤백용으로 현재 값 캡처 (stale closure 방지)
+    const prevReacted = hasReacted;
+    const prevLikes = likes;
+
     // 즉시 UI 반영
     setHasReacted(nextReacted);
     setLikes(nextLikes);
@@ -57,9 +61,9 @@ export function ReactionSection({
         if (typeof serverLikes === 'number') setLikes(serverLikes);
       })
       .catch(() => {
-        // 실패 시 롤백
-        setHasReacted(hasReacted);
-        setLikes(likes);
+        // 실패 시 롤백 — 캡처한 이전 값 사용
+        setHasReacted(prevReacted);
+        setLikes(prevLikes);
         localStorage.setItem('reacted_posts', JSON.stringify(reactedPosts));
       })
       .finally(() => {

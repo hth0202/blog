@@ -1,16 +1,19 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Suspense } from 'react';
 
+import { NotionRenderer } from '@/components/notion/NotionRenderer';
 import { ReactionSection } from '@/components/post';
 import {
   CommentSection,
-  NotionContent,
   ShareButton,
   ViewTracker,
 } from '@/components/post/article';
 
-import { getPostMetaById, getPostsFromNotion } from '@/services/notion-api';
+import {
+  getPageBlocks,
+  getPostMetaById,
+  getPostsFromNotion,
+} from '@/services/notion-api';
 
 export const revalidate = 300;
 
@@ -25,24 +28,13 @@ interface PostDetailPageProps {
   params: Promise<{ postId: string }>;
 }
 
-function PostArticleSkeleton() {
-  return (
-    <div className="animate-pulse space-y-3">
-      <div className="h-4 w-full rounded bg-gray-200 dark:bg-neutral-700" />
-      <div className="h-4 w-5/6 rounded bg-gray-200 dark:bg-neutral-700" />
-      <div className="h-4 w-4/6 rounded bg-gray-200 dark:bg-neutral-700" />
-      <div className="mt-6 h-4 w-full rounded bg-gray-200 dark:bg-neutral-700" />
-      <div className="h-4 w-5/6 rounded bg-gray-200 dark:bg-neutral-700" />
-      <div className="h-4 w-3/4 rounded bg-gray-200 dark:bg-neutral-700" />
-    </div>
-  );
-}
-
 export default async function PostDetailPage({ params }: PostDetailPageProps) {
   const { postId } = await params;
 
   const post = await getPostMetaById(postId);
   if (!post) notFound();
+
+  const blocks = await getPageBlocks(post.rawId);
 
   return (
     <>
@@ -69,9 +61,13 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
         </header>
 
         <div className="mb-12 max-w-none">
-          <Suspense fallback={<PostArticleSkeleton />}>
-            <NotionContent rawId={post.rawId} />
-          </Suspense>
+          {blocks.length > 0 ? (
+            <NotionRenderer blocks={blocks} />
+          ) : (
+            <p className="py-8 text-center text-gray-500 dark:text-gray-400">
+              내용을 불러올 수 없습니다.
+            </p>
+          )}
         </div>
 
         <div className="mb-8 flex flex-wrap gap-2">

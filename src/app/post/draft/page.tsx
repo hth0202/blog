@@ -1,10 +1,16 @@
+import { notFound } from 'next/navigation';
+
 import { PostContent } from '@/components/post';
 
 import { getPostsFromNotion } from '@/services/notion-api';
 
 import { Post, Category } from '@/types/blog';
 
-export const revalidate = 10; // 10초마다 재생성 (ISR)
+export const revalidate = 10;
+
+interface DraftPageProps {
+  searchParams: Promise<{ secret?: string }>;
+}
 
 async function getPosts(): Promise<{
   posts: Post[];
@@ -13,7 +19,6 @@ async function getPosts(): Promise<{
   try {
     const notionPosts = await getPostsFromNotion();
 
-    // 카테고리 추출
     const categorySet = new Set<string>();
     notionPosts.forEach((post) => {
       if (post.category) {
@@ -36,7 +41,13 @@ async function getPosts(): Promise<{
   }
 }
 
-export default async function PostDraftPage() {
+export default async function PostDraftPage({ searchParams }: DraftPageProps) {
+  const { secret } = await searchParams;
+
+  if (!process.env.DRAFT_SECRET || secret !== process.env.DRAFT_SECRET) {
+    notFound();
+  }
+
   const { posts, categories } = await getPosts();
 
   return <PostContent initialPosts={posts} initialCategories={categories} />;

@@ -2,7 +2,7 @@
 
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import type { Comment } from '@/types/blog';
 
@@ -20,7 +20,7 @@ export function CommentSection({ postId }: CommentSectionProps) {
   const contentRef = useRef<HTMLTextAreaElement>(null);
   const honeypotRef = useRef<HTMLInputElement>(null);
 
-  const fetchComments = useCallback(async () => {
+  const fetchComments = async () => {
     try {
       setLoading(true);
       const res = await fetch(`/api/comments/${postId}`);
@@ -32,11 +32,31 @@ export function CommentSection({ postId }: CommentSectionProps) {
     } finally {
       setLoading(false);
     }
-  }, [postId]);
+  };
 
   useEffect(() => {
-    fetchComments();
-  }, [fetchComments]);
+    let cancelled = false;
+
+    const load = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/comments/${postId}`);
+        if (cancelled) return;
+        if (!res.ok) throw new Error('댓글을 불러오지 못했습니다.');
+        const data: Comment[] = await res.json();
+        if (!cancelled) setComments(data);
+      } catch {
+        if (!cancelled) setError('댓글을 불러오지 못했습니다.');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [postId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

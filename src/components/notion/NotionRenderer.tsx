@@ -73,10 +73,15 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
       );
 
     case 'image': {
-      const imgSrc =
+      const rawSrc =
         block.image.type === 'external'
           ? block.image.external.url
           : block.image.file.url;
+      // S3 pre-signed URL은 1시간 후 만료 — 프록시를 경유해 캐시 유지
+      const imgSrc =
+        block.image.type === 'file'
+          ? `/api/notion-image?url=${encodeURIComponent(rawSrc)}`
+          : rawSrc;
       const caption = block.image.caption;
       const captionText = caption?.map((c) => c.plain_text).join('') || '';
 
@@ -252,8 +257,12 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
         </li>
       );
 
-    default:
+    default: {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[NotionRenderer] 미지원 블록 타입:', block.type);
+      }
       return null;
+    }
   }
 }
 

@@ -1,29 +1,14 @@
-import { Suspense } from 'react';
+import { NotionRenderer } from '@/components/notion/NotionRenderer';
 
-import { NotionContent } from '@/components/post/article';
+import { getPageBlocks } from '@/services/notion-api';
 
 export const revalidate = 300;
 
-function AboutSkeleton() {
-  return (
-    <div className="animate-pulse space-y-4">
-      <div className="h-4 w-full rounded bg-gray-200 dark:bg-neutral-700" />
-      <div className="h-4 w-5/6 rounded bg-gray-200 dark:bg-neutral-700" />
-      <div className="h-4 w-4/6 rounded bg-gray-200 dark:bg-neutral-700" />
-      <div className="mt-6 h-4 w-full rounded bg-gray-200 dark:bg-neutral-700" />
-      <div className="h-4 w-5/6 rounded bg-gray-200 dark:bg-neutral-700" />
-    </div>
-  );
-}
-
-async function AboutContent() {
+export default async function AboutPage() {
   const pageId = process.env.NOTION_ABOUT_PAGE_ID;
-  if (!pageId)
-    return <p className="text-gray-500">소개 페이지가 준비 중입니다.</p>;
-  return <NotionContent rawId={pageId} />;
-}
 
-export default function AboutPage() {
+  const blocks = pageId ? await getPageBlocks(pageId) : [];
+
   return (
     <div className="animate-fade-in mx-auto max-w-5xl">
       <div className="mb-8 border-b border-gray-200 pb-4 dark:border-neutral-600">
@@ -32,9 +17,11 @@ export default function AboutPage() {
         </h1>
       </div>
 
-      <Suspense fallback={<AboutSkeleton />}>
-        <AboutContent />
-      </Suspense>
+      {blocks.length > 0 ? (
+        <NotionRenderer blocks={blocks} />
+      ) : (
+        <p className="text-gray-500">소개 페이지가 준비 중입니다.</p>
+      )}
     </div>
   );
 }
