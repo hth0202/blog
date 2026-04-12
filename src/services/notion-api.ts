@@ -140,8 +140,9 @@ const _querySkillDatabase = async (dbId: string): Promise<SkillItem[]> => {
           } else if (pageObj.icon.type === 'external') {
             iconUrl = pageObj.icon.external.url;
           } else if (pageObj.icon.type === 'file') {
+            // S3 pre-signed URL — 프록시 경유로 만료 방지
             const raw: string = pageObj.icon.file.url;
-            iconUrl = `https://www.notion.so/image/${encodeURIComponent(raw)}?table=block&id=${page.id}`;
+            iconUrl = `/api/notion-image?url=${encodeURIComponent(raw)}`;
           }
         }
 
