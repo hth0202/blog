@@ -15,7 +15,27 @@ import {
   getProjectsFromNotion,
 } from '@/services/notion-api';
 
+import type { Metadata } from 'next';
+
 export const revalidate = 300;
+
+export async function generateMetadata({
+  params,
+}: ProjectDetailPageProps): Promise<Metadata> {
+  const { projectId } = await params;
+  const project = await getProjectMetaById(projectId);
+  if (!project) return {};
+  return {
+    title: `${project.name} | 태피스토리`,
+    description: project.contentPreview,
+    openGraph: {
+      title: project.name,
+      description: project.contentPreview,
+      images: project.thumbnailUrl ? [{ url: project.thumbnailUrl }] : [],
+      type: 'article',
+    },
+  };
+}
 
 export async function generateStaticParams() {
   const projects = await getProjectsFromNotion();

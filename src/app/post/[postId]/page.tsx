@@ -15,7 +15,27 @@ import {
   getPostsFromNotion,
 } from '@/services/notion-api';
 
+import type { Metadata } from 'next';
+
 export const revalidate = 300;
+
+export async function generateMetadata({
+  params,
+}: PostDetailPageProps): Promise<Metadata> {
+  const { postId } = await params;
+  const post = await getPostMetaById(postId);
+  if (!post) return {};
+  return {
+    title: `${post.title} | 태피스토리`,
+    description: post.contentPreview,
+    openGraph: {
+      title: post.title,
+      description: post.contentPreview,
+      images: post.thumbnailUrl ? [{ url: post.thumbnailUrl }] : [],
+      type: 'article',
+    },
+  };
+}
 
 export async function generateStaticParams() {
   const posts = await getPostsFromNotion();

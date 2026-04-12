@@ -18,10 +18,14 @@ export function ReactionSection({
   const pendingRef = useRef(false);
 
   useEffect(() => {
-    const reactedPosts: string[] = JSON.parse(
-      localStorage.getItem('reacted_posts') || '[]',
-    );
-    setHasReacted(reactedPosts.includes(postId));
+    try {
+      const reactedPosts: string[] = JSON.parse(
+        localStorage.getItem('reacted_posts') || '[]',
+      );
+      setHasReacted(reactedPosts.includes(postId));
+    } catch {
+      // localStorage 접근 불가 환경 (Safari 사생활 보호 모드 등)
+    }
   }, [postId]);
 
   const handleReactionClick = () => {
@@ -40,14 +44,17 @@ export function ReactionSection({
     setLikes(nextLikes);
 
     // localStorage 즉시 반영
-    const reactedPosts: string[] = JSON.parse(
-      localStorage.getItem('reacted_posts') || '[]',
-    );
-    const updated =
-      action === 'add'
-        ? [...reactedPosts, postId]
-        : reactedPosts.filter((id) => id !== postId);
-    localStorage.setItem('reacted_posts', JSON.stringify(updated));
+    let reactedPosts: string[] = [];
+    try {
+      reactedPosts = JSON.parse(localStorage.getItem('reacted_posts') || '[]');
+      const updated =
+        action === 'add'
+          ? [...reactedPosts, postId]
+          : reactedPosts.filter((id) => id !== postId);
+      localStorage.setItem('reacted_posts', JSON.stringify(updated));
+    } catch {
+      // localStorage 접근 불가 환경 무시
+    }
 
     // 백그라운드로 API 호출 (UI 블로킹 없음)
     pendingRef.current = true;
@@ -64,7 +71,11 @@ export function ReactionSection({
         // 실패 시 롤백 — 캡처한 이전 값 사용
         setHasReacted(prevReacted);
         setLikes(prevLikes);
-        localStorage.setItem('reacted_posts', JSON.stringify(reactedPosts));
+        try {
+          localStorage.setItem('reacted_posts', JSON.stringify(reactedPosts));
+        } catch {
+          // ignore
+        }
       })
       .finally(() => {
         pendingRef.current = false;
