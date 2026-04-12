@@ -173,20 +173,21 @@
     height: auto;
   }
 
-  @media (min-width: 768px) {
-    .title-stroke {
-      font-size: 12rem;
-    }
-  }
-
-  @media (min-width: 1280px) {
-    .title-stroke {
-      font-size: 22rem;
-    }
-  }
 }
 
 /* title-stroke: @layer 밖에서 정의해야 Tailwind v4에서 덮어씌워지지 않음 */
+@media (min-width: 768px) {
+  .title-stroke {
+    font-size: 12rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .title-stroke {
+    font-size: 22rem;
+  }
+}
+
 .title-stroke {
   font-family: 'Pretendard', sans-serif;
   font-size: 10rem;
