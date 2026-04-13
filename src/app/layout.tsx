@@ -2,13 +2,14 @@ import React from 'react';
 
 import { ThemeProvider } from '@/layouts/ThemeProvider';
 
-import { Header, Footer } from '@/layouts';
+import { Header, Footer, BottomNav } from '@/layouts';
 import './globals.css';
 import 'react-notion-x/src/styles.css';
 
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'),
   title: '태피스토리',
   description: '서비스 기획자 겸 PM 태피가 엮어가는 성장 기록',
   icons: {
@@ -63,10 +64,11 @@ export default function RootLayout({
         <ThemeProvider>
           <div className="flex min-h-screen flex-col">
             <Header />
-            <main className="container mx-auto flex-grow px-4 py-8 sm:px-6 lg:px-8">
+            <main className="container mx-auto flex-grow px-4 pt-16 pb-24 sm:px-6 sm:pb-8 lg:px-8">
               {children}
             </main>
             <Footer />
+            <BottomNav />
           </div>
         </ThemeProvider>
       </body>

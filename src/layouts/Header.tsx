@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import React, { useState } from 'react';
+import React from 'react';
 
 import { SunIcon, MoonIcon } from '../constants';
 import { useThemeContext } from './ThemeProvider';
@@ -17,7 +17,6 @@ const NAV_LINKS = [
 export const Header: React.FC = () => {
   const { theme, toggleTheme } = useThemeContext();
   const pathname = usePathname();
-  const [mobileOpen, setMobileOpen] = useState(false);
 
   const isActive = (path: string) =>
     path === '/'
@@ -31,20 +30,19 @@ export const Header: React.FC = () => {
         : 'font-medium text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-300'
     }`;
 
-  const mobileLinkClass = (path: string) =>
-    `block rounded-md px-3 py-2 text-base transition-colors ${
-      isActive(path)
-        ? 'font-bold text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-400/10'
-        : 'font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-neutral-800'
-    }`;
-
   return (
-    <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-sm dark:bg-[#1a1a1a]/80">
+    <header className="fixed top-0 left-0 right-0 z-20 bg-white/80 backdrop-blur-sm dark:bg-[#1a1a1a]/80">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between border-b border-gray-200 dark:border-neutral-600">
           <Link
             href="/"
             className="text-xl font-bold text-gray-900 dark:text-white"
+            onClick={(e) => {
+              if (pathname === '/') {
+                e.preventDefault();
+                window.location.reload();
+              }
+            }}
           >
             태피스토리
           </Link>
@@ -71,65 +69,8 @@ export const Header: React.FC = () => {
                 <SunIcon className="h-5 w-5" />
               )}
             </button>
-
-            {/* Hamburger button (mobile only) */}
-            <button
-              onClick={() => setMobileOpen((prev) => !prev)}
-              className="rounded-md p-2 text-gray-500 transition-colors hover:bg-gray-100 md:hidden dark:text-gray-400 dark:hover:bg-neutral-800"
-              aria-label="메뉴 열기/닫기"
-            >
-              {mobileOpen ? (
-                <svg
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                </svg>
-              )}
-            </button>
           </div>
         </div>
-      </div>
-
-      {/* Mobile menu */}
-      <div
-        className={`overflow-hidden border-gray-200 bg-white/95 backdrop-blur-sm transition-all duration-300 ease-in-out md:hidden dark:border-neutral-600 dark:bg-[#1a1a1a]/95 ${
-          mobileOpen ? 'max-h-64 border-b opacity-100' : 'max-h-0 opacity-0'
-        }`}
-      >
-        <nav className="space-y-1 px-4 pt-2 pb-3">
-          {NAV_LINKS.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className={mobileLinkClass(href)}
-              onClick={() => setMobileOpen(false)}
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
       </div>
     </header>
   );
