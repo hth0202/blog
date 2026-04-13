@@ -1,4 +1,11 @@
+import type { Metadata } from 'next';
+
 import { ProjectsContent } from '@/components/project/ProjectsContent';
+
+export const metadata: Metadata = {
+  title: '작업 | 태피스토리',
+  description: '태피가 참여한 서비스 기획 및 PM 작업물 모음',
+};
 
 import { getProjectsFromNotion } from '@/services/notion-api';
 
