@@ -100,7 +100,7 @@ export function PostContent({
     initialCategories.find((c) => c.id === activeCategory)?.name || '전체보기';
 
   return (
-    <div className="animate-fade-in mx-auto max-w-6xl">
+    <div className="animate-fade-in mx-auto max-w-6xl pt-6 sm:pt-0">
       <div className="grid grid-cols-1 gap-8 md:grid-cols-4 lg:gap-12">
         {/* Sidebar — desktop only */}
         <aside className="hidden md:col-span-1 md:block">

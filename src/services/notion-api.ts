@@ -31,12 +31,14 @@ const extractCoverUrl = (
     external?: { url: string };
     file?: { url: string };
   } | null,
+  pageId: string,
   fallback = 'https://picsum.photos/400/300',
 ): string => {
   if (!cover) return fallback;
   if (cover.type === 'external' && cover.external?.url)
     return cover.external.url;
-  if (cover.type === 'file' && cover.file?.url) return cover.file.url;
+  // file 타입: pageId 전달 → 프록시가 요청 시점에 신선한 URL 조회 (S3 만료 없음)
+  if (cover.type === 'file') return `/api/notion-image?pageId=${pageId}&field=cover`;
   return fallback;
 };
 
@@ -140,9 +142,8 @@ const _querySkillDatabase = async (dbId: string): Promise<SkillItem[]> => {
           } else if (pageObj.icon.type === 'external') {
             iconUrl = pageObj.icon.external.url;
           } else if (pageObj.icon.type === 'file') {
-            // S3 pre-signed URL — 프록시 경유로 만료 방지
-            const raw: string = pageObj.icon.file.url;
-            iconUrl = `/api/notion-image?url=${encodeURIComponent(raw)}`;
+            // pageId 전달 → 프록시가 요청 시점에 Notion에서 신선한 URL 조회 (S3 만료 없음)
+            iconUrl = `/api/notion-image?pageId=${page.id}&field=icon`;
           }
         }
 
@@ -310,6 +311,7 @@ const _getPostsFromNotion = async (databaseId?: string): Promise<Post[]> => {
               } | null;
             }
           ).cover ?? null,
+          page.id,
         );
 
         return {
@@ -449,6 +451,7 @@ const _getProjectsFromNotion = async (
               } | null;
             }
           ).cover ?? null,
+          page.id,
           'https://picsum.photos/500/400',
         );
 
@@ -562,6 +565,7 @@ const _getPostMetaById = async (postId: string): Promise<Post | undefined> => {
           } | null;
         }
       ).cover ?? null,
+      rawId,
     );
 
     return {
@@ -685,6 +689,7 @@ const _getProjectMetaById = async (
           } | null;
         }
       ).cover ?? null,
+      rawId,
       'https://picsum.photos/500/400',
     );
 

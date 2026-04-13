@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 
@@ -11,11 +12,13 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
   return (
     <Link href={`/post/${post.id}`} className="group block">
       <div className="flex w-full flex-col items-start gap-6 rounded-lg p-4 transition-all duration-300 ease-in-out group-hover:-translate-y-1 group-hover:bg-gray-50 group-hover:shadow-lg sm:flex-row dark:group-hover:bg-neutral-800/50 dark:group-hover:shadow-neutral-800/60">
-        <div className="flex-shrink-0">
-          <img
+        <div className="relative h-48 w-full flex-shrink-0 sm:h-36 sm:w-36">
+          <Image
             src={post.thumbnailUrl}
             alt={post.title}
-            className="h-36 w-full rounded-md bg-gray-100 object-cover sm:w-36 dark:bg-neutral-700"
+            fill
+            unoptimized
+            className="rounded-md object-cover bg-gray-100 dark:bg-neutral-700"
           />
         </div>
         <div className="flex flex-grow flex-col">
@@ -57,7 +60,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
 export const PostCardSkeleton: React.FC = () => (
   <div className="flex w-full animate-pulse flex-col items-start gap-6 p-4 sm:flex-row">
-    <div className="h-36 w-full flex-shrink-0 rounded-md bg-gray-100 sm:w-36 dark:bg-neutral-700"></div>
+    <div className="h-48 w-full flex-shrink-0 rounded-md bg-gray-100 sm:h-36 sm:w-36 dark:bg-neutral-700"></div>
     <div className="flex w-full flex-grow flex-col">
       <div className="mb-2 h-4 w-1/4 rounded bg-gray-100 dark:bg-neutral-700"></div>
       <div className="mb-2 h-6 w-3/4 rounded bg-gray-100 dark:bg-neutral-700"></div>

@@ -62,7 +62,7 @@ export function SkillCollection({
           </div>
 
           {/* 카드 그리드 */}
-          <div className="grid grid-cols-3 items-start" style={{ gap: '1rem' }}>
+          <div className="grid grid-cols-2 items-start sm:grid-cols-3" style={{ gap: '1rem' }}>
             {groupItems.map((item) => {
               const isOpen = openIds.has(item.id);
               const bullets: string[] = contentCache[item.id] ?? [];

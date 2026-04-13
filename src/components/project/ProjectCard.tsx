@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 
@@ -11,11 +12,13 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   return (
     <Link href={`/projects/${project.id}`} className="group block h-full">
       <div className="flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 transition-all duration-300 ease-in-out group-hover:-translate-y-1 group-hover:shadow-lg dark:border-neutral-700 dark:group-hover:shadow-neutral-800/60">
-        <div className="aspect-square w-full overflow-hidden bg-gray-100 dark:bg-neutral-800">
-          <img
+        <div className="relative aspect-square w-full overflow-hidden bg-gray-100 dark:bg-neutral-800">
+          <Image
             src={project.thumbnailUrl}
             alt={project.name}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            fill
+            unoptimized
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
         </div>
         <div className="flex flex-grow flex-col p-4">
