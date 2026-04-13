@@ -50,3 +50,6 @@ next-env.d.ts
 
 # claude code local settings (personal, not for repo)
 .claude/settings.local.json
+
+# MCP config (contains API tokens — do not commit)
+.mcp.json
