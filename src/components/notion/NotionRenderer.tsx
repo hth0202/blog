@@ -1,5 +1,24 @@
+import { NotionImage } from './NotionImage';
 import { NotionRichText } from './NotionRichText';
 import { SkillCollectionServer } from './SkillCollectionServer';
+
+const BLOCK_BG: Record<string, string> = {
+  gray_background:   'n-bg-gray',
+  brown_background:  'n-bg-brown',
+  orange_background: 'n-bg-orange',
+  yellow_background: 'n-bg-yellow',
+  green_background:  'n-bg-green',
+  blue_background:   'n-bg-blue',
+  purple_background: 'n-bg-purple',
+  pink_background:   'n-bg-pink',
+  red_background:    'n-bg-red',
+};
+
+/** 블록 레벨 color 값 → CSS 클래스 */
+function blockColorClass(color?: string): string {
+  if (!color || color === 'default') return '';
+  return BLOCK_BG[color] ?? '';
+}
 
 import type { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 
@@ -43,34 +62,42 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
   const children = (block as any).children as BlockObjectResponse[] | undefined;
 
   switch (block.type) {
-    case 'paragraph':
+    case 'paragraph': {
       if (!block.paragraph.rich_text.length) return <br />;
+      const pBg = blockColorClass(block.paragraph.color);
       return (
-        <p className="mb-4 leading-relaxed text-gray-700 dark:text-gray-300">
+        <p className={`mb-4 leading-relaxed text-gray-700 dark:text-gray-300 ${pBg}`.trim()}>
           <NotionRichText items={block.paragraph.rich_text} />
         </p>
       );
+    }
 
-    case 'heading_1':
+    case 'heading_1': {
+      const h1Bg = blockColorClass(block.heading_1.color);
       return (
-        <h1 className="mt-10 mb-4 text-3xl font-bold text-gray-900 dark:text-white">
+        <h1 className={`mt-10 mb-4 text-3xl font-bold text-gray-900 dark:text-white ${h1Bg}`.trim()}>
           <NotionRichText items={block.heading_1.rich_text} />
         </h1>
       );
+    }
 
-    case 'heading_2':
+    case 'heading_2': {
+      const h2Bg = blockColorClass(block.heading_2.color);
       return (
-        <h2 className="mt-8 mb-3 text-2xl font-semibold text-gray-900 dark:text-white">
+        <h2 className={`mt-8 mb-3 text-2xl font-semibold text-gray-900 dark:text-white ${h2Bg}`.trim()}>
           <NotionRichText items={block.heading_2.rich_text} />
         </h2>
       );
+    }
 
-    case 'heading_3':
+    case 'heading_3': {
+      const h3Bg = blockColorClass(block.heading_3.color);
       return (
-        <h3 className="mt-6 mb-2 text-xl font-semibold text-gray-800 dark:text-gray-100">
+        <h3 className={`mt-6 mb-2 text-xl font-semibold text-gray-800 dark:text-gray-100 ${h3Bg}`.trim()}>
           <NotionRichText items={block.heading_3.rich_text} />
         </h3>
       );
+    }
 
     case 'image': {
       // file 타입: blockId 전달 → proxy가 요청 시점에 Notion에서 신선한 URL 조회
@@ -92,21 +119,12 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
         sizeHint === 'small' ? '33%' : sizeHint === 'medium' ? '60%' : '100%';
 
       return (
-        <figure
-          className="my-6 flex flex-col items-center"
-          style={{ width: widthStyle, margin: '1.5rem auto' }}
-        >
-          <img
-            src={imgSrc}
-            alt={displayCaption}
-            className="w-full rounded-lg"
-          />
-          {displayCaption && (
-            <figcaption className="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">
-              {displayCaption}
-            </figcaption>
-          )}
-        </figure>
+        <NotionImage
+          src={imgSrc}
+          alt={displayCaption}
+          caption={displayCaption || undefined}
+          widthStyle={widthStyle}
+        />
       );
     }
 
@@ -177,12 +195,14 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
     case 'child_database':
       return <SkillCollectionServer dbId={block.id} />;
 
-    case 'column_list':
+    case 'column_list': {
+      const colCount = children?.length || 2;
       return (
+        <div className="my-4 overflow-x-hidden">
         <div
-          className="my-4 grid gap-4"
+          className="grid gap-4"
           style={{
-            gridTemplateColumns: `repeat(${children?.length || 2}, 1fr)`,
+            gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))`,
           }}
         >
           {children?.map((col) => (
@@ -193,7 +213,9 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
             </div>
           ))}
         </div>
+        </div>
       );
+    }
 
     case 'column':
       // column은 column_list 안에서 처리됨
@@ -253,6 +275,121 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
           {children && <NotionRenderer blocks={children} />}
         </li>
       );
+
+    case 'bookmark':
+    case 'link_preview': {
+      const url =
+        block.type === 'bookmark' ? block.bookmark.url : block.link_preview.url;
+      return (
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="my-3 flex items-center gap-3 rounded-lg border border-gray-200 p-4 text-sm transition-colors hover:bg-gray-50 dark:border-neutral-700 dark:hover:bg-neutral-800/60"
+        >
+          <span className="min-w-0 flex-1 truncate text-indigo-600 dark:text-indigo-400">
+            {url}
+          </span>
+          <span className="shrink-0 text-gray-400">↗</span>
+        </a>
+      );
+    }
+
+    case 'embed': {
+      const url = block.embed.url;
+      const isYouTube = /youtube\.com|youtu\.be/.test(url);
+      if (isYouTube) {
+        const videoId = url.match(
+          /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([^&?/]+)/,
+        )?.[1];
+        if (videoId) {
+          return (
+            <div className="my-4 aspect-video w-full overflow-hidden rounded-lg">
+              <iframe
+                src={`https://www.youtube.com/embed/${videoId}`}
+                className="h-full w-full"
+                allowFullScreen
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              />
+            </div>
+          );
+        }
+      }
+      return (
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="my-3 flex items-center gap-3 rounded-lg border border-gray-200 p-4 text-sm transition-colors hover:bg-gray-50 dark:border-neutral-700 dark:hover:bg-neutral-800/60"
+        >
+          <span className="min-w-0 flex-1 truncate text-indigo-600 dark:text-indigo-400">
+            {url}
+          </span>
+          <span className="shrink-0 text-gray-400">↗</span>
+        </a>
+      );
+    }
+
+    case 'video': {
+      const src =
+        block.video.type === 'file'
+          ? block.video.file.url
+          : block.video.external.url;
+      const isYouTube = /youtube\.com|youtu\.be/.test(src);
+      if (isYouTube) {
+        const videoId = src.match(
+          /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([^&?/]+)/,
+        )?.[1];
+        if (videoId) {
+          return (
+            <div className="my-4 aspect-video w-full overflow-hidden rounded-lg">
+              <iframe
+                src={`https://www.youtube.com/embed/${videoId}`}
+                className="h-full w-full"
+                allowFullScreen
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              />
+            </div>
+          );
+        }
+      }
+      return (
+        <video
+          src={src}
+          controls
+          className="my-4 w-full rounded-lg"
+        />
+      );
+    }
+
+    case 'audio': {
+      const src =
+        block.audio.type === 'file'
+          ? block.audio.file.url
+          : block.audio.external.url;
+      return (
+        <audio src={src} controls className="my-4 w-full" />
+      );
+    }
+
+    case 'file': {
+      const url =
+        block.file.type === 'file'
+          ? block.file.file.url
+          : block.file.external.url;
+      const name =
+        block.file.name || url.split('/').pop() || '파일 다운로드';
+      return (
+        <a
+          href={url}
+          download
+          className="my-3 inline-flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:border-neutral-700 dark:text-gray-300 dark:hover:bg-neutral-800/60"
+        >
+          <span>📎</span>
+          <span>{name}</span>
+        </a>
+      );
+    }
 
     default: {
       if (process.env.NODE_ENV === 'development') {
