@@ -24,7 +24,7 @@ export default async function HomePage() {
   const recentPosts = await getRecentPosts();
 
   return (
-    <div className="-mt-16">
+    <div className="-mt-24">
       <MainSection />
       {/* Main Content Section */}
       <div
