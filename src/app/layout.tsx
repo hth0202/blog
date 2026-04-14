@@ -66,7 +66,7 @@ export default function RootLayout({
         <ThemeProvider>
           <div className="flex min-h-screen flex-col">
             <Header />
-            <main className="container mx-auto flex-grow px-4 pt-16 pb-24 sm:px-6 sm:pb-8 lg:px-8">
+            <main className="container mx-auto flex-grow px-4 pt-20 pb-24 sm:px-6 sm:pt-24 sm:pb-8 lg:px-8">
               {children}
             </main>
             <Footer />
