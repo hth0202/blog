@@ -1,15 +1,15 @@
-import type { Metadata } from 'next';
-
 import { PostContent } from '@/components/post';
+
+import { getPostsFromNotion } from '@/services/notion-api';
+
+import { Post, Category } from '@/types/blog';
+
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: '기록 | 태피스토리',
   description: '서비스 기획자 태피의 솔직한 고민과 인사이트를 담은 글 모음',
 };
-
-import { getPostsFromNotion } from '@/services/notion-api';
-
-import { Post, Category } from '@/types/blog';
 
 export const revalidate = 300;
 

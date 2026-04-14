@@ -9,7 +9,9 @@ import 'react-notion-x/src/styles.css';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
+  ),
   title: '태피스토리',
   description: '서비스 기획자 겸 PM 태피가 엮어가는 성장 기록',
   icons: {

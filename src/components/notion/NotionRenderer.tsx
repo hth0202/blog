@@ -2,16 +2,18 @@ import { NotionImage } from './NotionImage';
 import { NotionRichText } from './NotionRichText';
 import { SkillCollectionServer } from './SkillCollectionServer';
 
+import type { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
+
 const BLOCK_BG: Record<string, string> = {
-  gray_background:   'n-bg-gray',
-  brown_background:  'n-bg-brown',
+  gray_background: 'n-bg-gray',
+  brown_background: 'n-bg-brown',
   orange_background: 'n-bg-orange',
   yellow_background: 'n-bg-yellow',
-  green_background:  'n-bg-green',
-  blue_background:   'n-bg-blue',
+  green_background: 'n-bg-green',
+  blue_background: 'n-bg-blue',
   purple_background: 'n-bg-purple',
-  pink_background:   'n-bg-pink',
-  red_background:    'n-bg-red',
+  pink_background: 'n-bg-pink',
+  red_background: 'n-bg-red',
 };
 
 /** 블록 레벨 color 값 → CSS 클래스 */
@@ -19,8 +21,6 @@ function blockColorClass(color?: string): string {
   if (!color || color === 'default') return '';
   return BLOCK_BG[color] ?? '';
 }
-
-import type { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 
 // 연속된 리스트 항목을 그룹으로 묶기
 type GroupedBlock =
@@ -66,7 +66,9 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
       if (!block.paragraph.rich_text.length) return <br />;
       const pBg = blockColorClass(block.paragraph.color);
       return (
-        <p className={`mb-4 leading-relaxed text-gray-700 dark:text-gray-300 ${pBg}`.trim()}>
+        <p
+          className={`mb-4 leading-relaxed text-gray-700 dark:text-gray-300 ${pBg}`.trim()}
+        >
           <NotionRichText items={block.paragraph.rich_text} />
         </p>
       );
@@ -75,7 +77,9 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
     case 'heading_1': {
       const h1Bg = blockColorClass(block.heading_1.color);
       return (
-        <h1 className={`mt-10 mb-4 text-3xl font-bold text-gray-900 dark:text-white ${h1Bg}`.trim()}>
+        <h1
+          className={`mt-10 mb-4 text-3xl font-bold text-gray-900 dark:text-white ${h1Bg}`.trim()}
+        >
           <NotionRichText items={block.heading_1.rich_text} />
         </h1>
       );
@@ -84,7 +88,9 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
     case 'heading_2': {
       const h2Bg = blockColorClass(block.heading_2.color);
       return (
-        <h2 className={`mt-8 mb-3 text-2xl font-semibold text-gray-900 dark:text-white ${h2Bg}`.trim()}>
+        <h2
+          className={`mt-8 mb-3 text-2xl font-semibold text-gray-900 dark:text-white ${h2Bg}`.trim()}
+        >
           <NotionRichText items={block.heading_2.rich_text} />
         </h2>
       );
@@ -93,7 +99,9 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
     case 'heading_3': {
       const h3Bg = blockColorClass(block.heading_3.color);
       return (
-        <h3 className={`mt-6 mb-2 text-xl font-semibold text-gray-800 dark:text-gray-100 ${h3Bg}`.trim()}>
+        <h3
+          className={`mt-6 mb-2 text-xl font-semibold text-gray-800 dark:text-gray-100 ${h3Bg}`.trim()}
+        >
           <NotionRichText items={block.heading_3.rich_text} />
         </h3>
       );
@@ -199,20 +207,20 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
       const colCount = children?.length || 2;
       return (
         <div className="my-4 overflow-x-hidden">
-        <div
-          className="grid gap-4"
-          style={{
-            gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))`,
-          }}
-        >
-          {children?.map((col) => (
-            <div key={col.id}>
-              {(col as any).children && (
-                <NotionRenderer blocks={(col as any).children} />
-              )}
-            </div>
-          ))}
-        </div>
+          <div
+            className="grid gap-4"
+            style={{
+              gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))`,
+            }}
+          >
+            {children?.map((col) => (
+              <div key={col.id}>
+                {(col as any).children && (
+                  <NotionRenderer blocks={(col as any).children} />
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       );
     }
@@ -353,13 +361,7 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
           );
         }
       }
-      return (
-        <video
-          src={src}
-          controls
-          className="my-4 w-full rounded-lg"
-        />
-      );
+      return <video src={src} controls className="my-4 w-full rounded-lg" />;
     }
 
     case 'audio': {
@@ -367,9 +369,7 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
         block.audio.type === 'file'
           ? block.audio.file.url
           : block.audio.external.url;
-      return (
-        <audio src={src} controls className="my-4 w-full" />
-      );
+      return <audio src={src} controls className="my-4 w-full" />;
     }
 
     case 'file': {
@@ -377,8 +377,7 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
         block.file.type === 'file'
           ? block.file.file.url
           : block.file.external.url;
-      const name =
-        block.file.name || url.split('/').pop() || '파일 다운로드';
+      const name = block.file.name || url.split('/').pop() || '파일 다운로드';
       return (
         <a
           href={url}

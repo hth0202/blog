@@ -18,7 +18,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
             alt={post.title}
             fill
             unoptimized
-            className="rounded-md object-cover bg-gray-100 dark:bg-neutral-700"
+            className="rounded-md bg-gray-100 object-cover dark:bg-neutral-700"
           />
         </div>
         <div className="flex flex-grow flex-col">

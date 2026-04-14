@@ -10,7 +10,12 @@ interface NotionImageProps {
   widthStyle: string;
 }
 
-export function NotionImage({ src, alt, caption, widthStyle }: NotionImageProps) {
+export function NotionImage({
+  src,
+  alt,
+  caption,
+  widthStyle,
+}: NotionImageProps) {
   const [loaded, setLoaded] = useState(false);
 
   return (

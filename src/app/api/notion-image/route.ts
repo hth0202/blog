@@ -25,7 +25,10 @@ async function resolveBlockImageUrl(blockId: string): Promise<string | null> {
 }
 
 // pageId + field('icon'|'cover')로 Notion 페이지 자산 URL을 실시간 조회
-async function resolvePageAssetUrl(pageId: string, field: string): Promise<string | null> {
+async function resolvePageAssetUrl(
+  pageId: string,
+  field: string,
+): Promise<string | null> {
   try {
     const page = await notionClient.pages.retrieve({ page_id: pageId });
     if (field === 'icon' && 'icon' in page && page.icon?.type === 'file') {
@@ -53,20 +56,28 @@ export async function GET(request: NextRequest) {
     // blockId 방식: 블로그 본문 이미지 — 요청 시점에 신선한 URL 조회
     imageUrl = await resolveBlockImageUrl(blockId);
     if (!imageUrl) {
-      return new NextResponse('Block not found or not a file image', { status: 404 });
+      return new NextResponse('Block not found or not a file image', {
+        status: 404,
+      });
     }
   } else if (pageId && field) {
     // pageId + field 방식: 페이지 아이콘·커버 — 요청 시점에 신선한 URL 조회
     imageUrl = await resolvePageAssetUrl(pageId, field);
     if (!imageUrl) {
-      return new NextResponse(`Page ${field} not found or not a file`, { status: 404 });
+      return new NextResponse(`Page ${field} not found or not a file`, {
+        status: 404,
+      });
     }
   } else if (url) {
     // url 방식: external 이미지 또는 레거시 호환용
     try {
       const decoded = decodeURIComponent(url);
       const hostname = new URL(decoded).hostname;
-      if (!ALLOWED_HOSTNAMES.some((h) => hostname === h || hostname.endsWith(`.${h}`))) {
+      if (
+        !ALLOWED_HOSTNAMES.some(
+          (h) => hostname === h || hostname.endsWith(`.${h}`),
+        )
+      ) {
         return new NextResponse('Forbidden', { status: 403 });
       }
       imageUrl = decoded;
@@ -74,7 +85,9 @@ export async function GET(request: NextRequest) {
       return new NextResponse('Invalid url', { status: 400 });
     }
   } else {
-    return new NextResponse('Missing blockId, pageId+field, or url parameter', { status: 400 });
+    return new NextResponse('Missing blockId, pageId+field, or url parameter', {
+      status: 400,
+    });
   }
 
   try {

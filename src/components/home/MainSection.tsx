@@ -8,14 +8,14 @@ import { ChevronDoubleDownIcon } from '@/constants';
  * Animation timing constants (ms)
  * -----------------------------------------------------------------------------------------------*/
 const STROKE_DURATION = 1600; // stroke draws over this many ms
-const FILL_START      = STROKE_DURATION * 0.60; // fill begins while stroke is still finishing
-const FILL_DURATION   = 1100; // fill reveals over this many ms
+const FILL_START = STROKE_DURATION * 0.6; // fill begins while stroke is still finishing
+const FILL_DURATION = 1100; // fill reveals over this many ms
 
 /* Block grid for rectangular fill reveal */
-const COLS   = 16;
-const ROWS   = 4;
-const CELL_W = 75;   // 1200 / 16 = 75
-const CELL_H = 75;   // 300  / 4  = 75
+const COLS = 16;
+const ROWS = 4;
+const CELL_W = 75; // 1200 / 16 = 75
+const CELL_H = 75; // 300  / 4  = 75
 
 /* -------------------------------------------------------------------------------------------------
  * useAnimateText
@@ -25,34 +25,34 @@ const CELL_H = 75;   // 300  / 4  = 75
  * After the subtitle appears the lock is released and the scroll indicator shows.
  * -----------------------------------------------------------------------------------------------*/
 const useAnimateText = () => {
-  const strokeTextRef   = useRef<SVGTextElement>(null);
-  const fillTextRef     = useRef<SVGTextElement>(null);
-  const maskRectsRef    = useRef<(SVGRectElement | null)[]>([]);
-  const thresholdsRef   = useRef<number[]>([]);
+  const strokeTextRef = useRef<SVGTextElement>(null);
+  const fillTextRef = useRef<SVGTextElement>(null);
+  const maskRectsRef = useRef<(SVGRectElement | null)[]>([]);
+  const thresholdsRef = useRef<number[]>([]);
   const titleWrapperRef = useRef<HTMLDivElement>(null);
-  const sectionRef      = useRef<HTMLElement>(null);
-  const rafRef          = useRef(0);
+  const sectionRef = useRef<HTMLElement>(null);
+  const rafRef = useRef(0);
 
   const [scrollIndicatorVisible, setScrollIndicatorVisible] = useState(false);
   const [subtitleReady, setSubtitleReadyState] = useState(false);
 
   useEffect(() => {
     const initialDashOffset = 5000;
-    const strokeEl  = strokeTextRef.current;
+    const strokeEl = strokeTextRef.current;
     const wrapperEl = titleWrapperRef.current;
     if (!strokeEl || !wrapperEl) return;
 
     // Initialise block reveal thresholds — left(태) → right(리) + slight noise
     thresholdsRef.current = Array.from({ length: COLS * ROWS }, (_, i) => {
-      const col   = i % COLS;
-      const base  = col / (COLS - 1);              // 0 = 왼쪽(태), 1 = 오른쪽(리)
+      const col = i % COLS;
+      const base = col / (COLS - 1); // 0 = 왼쪽(태), 1 = 오른쪽(리)
       const noise = (Math.random() - 0.5) * 0.25;
       return Math.max(0, Math.min(1, base + noise));
     });
 
     const setAllBlocks = (visible: boolean) => {
       const fill = visible ? 'white' : 'black';
-      maskRectsRef.current.forEach(r => r?.setAttribute('fill', fill));
+      maskRectsRef.current.forEach((r) => r?.setAttribute('fill', fill));
     };
 
     // Lock scroll by blocking events only — no CSS manipulation,
@@ -60,7 +60,17 @@ const useAnimateText = () => {
     const preventWheel = (e: Event) => e.preventDefault();
     const preventTouch = (e: TouchEvent) => e.preventDefault();
     const preventKeys = (e: KeyboardEvent) => {
-      if ([' ', 'ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End'].includes(e.key)) {
+      if (
+        [
+          ' ',
+          'ArrowDown',
+          'ArrowUp',
+          'PageDown',
+          'PageUp',
+          'Home',
+          'End',
+        ].includes(e.key)
+      ) {
         e.preventDefault();
       }
     };
@@ -86,11 +96,14 @@ const useAnimateText = () => {
       const elapsed = now - startTime;
 
       // Phase 1: stroke draws
-      const strokeP    = Math.min(elapsed / STROKE_DURATION, 1);
+      const strokeP = Math.min(elapsed / STROKE_DURATION, 1);
       const strokeFill = Math.pow(strokeP, 1.5);
 
       // Phase 2: fill reveals block by block (starts while stroke is still finishing)
-      const fillP     = Math.min(Math.max(elapsed - FILL_START, 0) / FILL_DURATION, 1);
+      const fillP = Math.min(
+        Math.max(elapsed - FILL_START, 0) / FILL_DURATION,
+        1,
+      );
       const colorFill = Math.pow(fillP, 1.5);
 
       if (strokeTextRef.current) {
@@ -100,7 +113,10 @@ const useAnimateText = () => {
       }
       const thresholds = thresholdsRef.current;
       maskRectsRef.current.forEach((rect, i) => {
-        rect?.setAttribute('fill', thresholds[i] <= colorFill ? 'white' : 'black');
+        rect?.setAttribute(
+          'fill',
+          thresholds[i] <= colorFill ? 'white' : 'black',
+        );
       });
 
       if (elapsed < TOTAL) {
@@ -186,7 +202,9 @@ export function MainSection() {
                     return (
                       <rect
                         key={i}
-                        ref={el => { maskRectsRef.current[i] = el; }}
+                        ref={(el) => {
+                          maskRectsRef.current[i] = el;
+                        }}
                         x={col * CELL_W}
                         y={row * CELL_H}
                         width={CELL_W}
@@ -201,11 +219,13 @@ export function MainSection() {
               {/* Layer 1 (bottom): solid fill, revealed block-by-block via rect mask */}
               <text
                 ref={fillTextRef}
-                x="50%" y="50%"
+                x="50%"
+                y="50%"
                 dominantBaseline="middle"
                 textAnchor="middle"
                 mask="url(#tapestory-block-mask)"
                 style={{
+                  // eslint-disable-next-line quotes
                   fontFamily: "'Pretendard', sans-serif",
                   fontWeight: 800,
                   letterSpacing: '-0.025em',
@@ -220,7 +240,8 @@ export function MainSection() {
               <text
                 ref={strokeTextRef}
                 className="title-stroke"
-                x="50%" y="50%"
+                x="50%"
+                y="50%"
                 dominantBaseline="middle"
                 textAnchor="middle"
               >
@@ -232,8 +253,7 @@ export function MainSection() {
           <div className={subtitleReady ? 'animate-fade-in-up' : 'opacity-0'}>
             <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600 dark:text-gray-300">
               서비스 기획자 겸 PM 태피가
-              <br className="sm:hidden" />
-              {' '}엮어가는 성장 기록
+              <br className="sm:hidden" /> 엮어가는 성장 기록
               <br />
               솔직한 고민과 인사이트를 나눕니다.
             </p>
@@ -241,7 +261,7 @@ export function MainSection() {
         </div>
 
         <div
-          className={`absolute bottom-20 md:bottom-36 left-1/2 z-20 -translate-x-1/2 transition-opacity duration-1000 ${scrollIndicatorVisible ? 'opacity-100' : 'opacity-0'}`}
+          className={`absolute bottom-20 left-1/2 z-20 -translate-x-1/2 transition-opacity duration-1000 md:bottom-36 ${scrollIndicatorVisible ? 'opacity-100' : 'opacity-0'}`}
           aria-hidden="true"
         >
           <div className="animate-bounce-slow text-indigo-300 dark:text-indigo-300">

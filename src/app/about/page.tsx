@@ -1,13 +1,13 @@
-import type { Metadata } from 'next';
-
 import { NotionRenderer } from '@/components/notion/NotionRenderer';
+
+import { getPageBlocks } from '@/services/notion-api';
+
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: '소개 | 태피스토리',
   description: '서비스 기획자 겸 PM 태피를 소개합니다',
 };
-
-import { getPageBlocks } from '@/services/notion-api';
 
 export const revalidate = 300;
 

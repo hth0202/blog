@@ -1,13 +1,18 @@
-import { ImageResponse } from 'next/og';
 import { readFileSync } from 'fs';
 import path from 'path';
+
+import { ImageResponse } from 'next/og';
 
 export const alt = '태피스토리';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
 export default function OGImage() {
-  const faviconPath = path.join(process.cwd(), 'public', 'android-chrome-512x512.png');
+  const faviconPath = path.join(
+    process.cwd(),
+    'public',
+    'android-chrome-512x512.png',
+  );
   const faviconBase64 = `data:image/png;base64,${readFileSync(faviconPath).toString('base64')}`;
 
   return new ImageResponse(
@@ -20,7 +25,8 @@ export default function OGImage() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'linear-gradient(135deg, #1a1040 0%, #111111 60%, #1a1040 100%)',
+          background:
+            'linear-gradient(135deg, #1a1040 0%, #111111 60%, #1a1040 100%)',
           fontFamily: 'sans-serif',
         }}
       >

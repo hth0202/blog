@@ -31,7 +31,7 @@ export const Header: React.FC = () => {
     }`;
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-20 bg-white/80 backdrop-blur-sm dark:bg-[#1a1a1a]/80">
+    <header className="fixed top-0 right-0 left-0 z-20 bg-white/80 backdrop-blur-sm dark:bg-[#1a1a1a]/80">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between border-b border-gray-200 dark:border-neutral-600">
           <Link

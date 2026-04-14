@@ -38,7 +38,8 @@ const extractCoverUrl = (
   if (cover.type === 'external' && cover.external?.url)
     return cover.external.url;
   // file 타입: pageId 전달 → 프록시가 요청 시점에 신선한 URL 조회 (S3 만료 없음)
-  if (cover.type === 'file') return `/api/notion-image?pageId=${pageId}&field=cover`;
+  if (cover.type === 'file')
+    return `/api/notion-image?pageId=${pageId}&field=cover`;
   return fallback;
 };
 
