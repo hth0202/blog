@@ -286,7 +286,9 @@ export function PostContent({
 
           <div className="space-y-8">
             {sortedPosts.length > 0 ? (
-              sortedPosts.map((post) => <PostCard key={post.id} post={post} secret={secret} />)
+              sortedPosts.map((post) => (
+                <PostCard key={post.id} post={post} secret={secret} />
+              ))
             ) : (
               <div className="py-16 text-center">
                 <p className="text-gray-500 dark:text-gray-400">

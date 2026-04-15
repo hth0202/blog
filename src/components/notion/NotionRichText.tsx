@@ -35,7 +35,8 @@ function renderWithLineBreaks(text: string, className?: string) {
     const nbsp = '\u00A0'.repeat(leading.length);
     return (
       <span key={idx} className={className}>
-        {nbsp}{rest}
+        {nbsp}
+        {rest}
         {idx < parts.length - 1 && <br />}
       </span>
     );

@@ -52,7 +52,6 @@
     overflow-x: hidden;
   }
 
-
   html.dark {
     background-color: #111111;
   }
@@ -177,7 +176,6 @@
   .title-svg {
     height: auto;
   }
-
 }
 
 /* title-stroke: @layer 밖에서 정의해야 Tailwind v4에서 덮어씌워지지 않음 */
@@ -311,40 +309,122 @@
 .notion pre,
 .notion-code,
 .notion-code * {
-  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier,
-    monospace !important;
+  font-family:
+    'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace !important;
 }
 
 /* ─── Notion 블록 레벨 배경색: 인라인 패딩보다 넉넉하게 ───────────────────── */
-p.n-bg-gray, p.n-bg-brown, p.n-bg-orange, p.n-bg-yellow,
-p.n-bg-green, p.n-bg-blue, p.n-bg-purple, p.n-bg-pink, p.n-bg-red,
-h1.n-bg-gray, h1.n-bg-brown, h1.n-bg-orange, h1.n-bg-yellow,
-h1.n-bg-green, h1.n-bg-blue, h1.n-bg-purple, h1.n-bg-pink, h1.n-bg-red,
-h2.n-bg-gray, h2.n-bg-brown, h2.n-bg-orange, h2.n-bg-yellow,
-h2.n-bg-green, h2.n-bg-blue, h2.n-bg-purple, h2.n-bg-pink, h2.n-bg-red,
-h3.n-bg-gray, h3.n-bg-brown, h3.n-bg-orange, h3.n-bg-yellow,
-h3.n-bg-green, h3.n-bg-blue, h3.n-bg-purple, h3.n-bg-pink, h3.n-bg-red {
+p.n-bg-gray,
+p.n-bg-brown,
+p.n-bg-orange,
+p.n-bg-yellow,
+p.n-bg-green,
+p.n-bg-blue,
+p.n-bg-purple,
+p.n-bg-pink,
+p.n-bg-red,
+h1.n-bg-gray,
+h1.n-bg-brown,
+h1.n-bg-orange,
+h1.n-bg-yellow,
+h1.n-bg-green,
+h1.n-bg-blue,
+h1.n-bg-purple,
+h1.n-bg-pink,
+h1.n-bg-red,
+h2.n-bg-gray,
+h2.n-bg-brown,
+h2.n-bg-orange,
+h2.n-bg-yellow,
+h2.n-bg-green,
+h2.n-bg-blue,
+h2.n-bg-purple,
+h2.n-bg-pink,
+h2.n-bg-red,
+h3.n-bg-gray,
+h3.n-bg-brown,
+h3.n-bg-orange,
+h3.n-bg-yellow,
+h3.n-bg-green,
+h3.n-bg-blue,
+h3.n-bg-purple,
+h3.n-bg-pink,
+h3.n-bg-red {
   padding: 0.2em 0.4em;
   border-radius: 4px;
 }
 
 /* ─── Notion 텍스트 배경 색상 (light / dark) ─────────────────────────────── */
-.n-bg-gray       { background-color: #efefec; border-radius: 3px; padding: 0.1em 0.2em; }
-.n-bg-brown      { background-color: #f3e8e3; border-radius: 3px; padding: 0.1em 0.2em; }
-.n-bg-orange     { background-color: #fbe8d2; border-radius: 3px; padding: 0.1em 0.2em; }
-.n-bg-yellow     { background-color: #faf2cc; border-radius: 3px; padding: 0.1em 0.2em; }
-.n-bg-green      { background-color: #e4f2e2; border-radius: 3px; padding: 0.1em 0.2em; }
-.n-bg-blue       { background-color: #dceef8; border-radius: 3px; padding: 0.1em 0.2em; }
-.n-bg-purple     { background-color: #ede7f8; border-radius: 3px; padding: 0.1em 0.2em; }
-.n-bg-pink       { background-color: #f8e4f3; border-radius: 3px; padding: 0.1em 0.2em; }
-.n-bg-red        { background-color: #fae3e2; border-radius: 3px; padding: 0.1em 0.2em; }
+.n-bg-gray {
+  background-color: #efefec;
+  border-radius: 3px;
+  padding: 0.1em 0.2em;
+}
+.n-bg-brown {
+  background-color: #f3e8e3;
+  border-radius: 3px;
+  padding: 0.1em 0.2em;
+}
+.n-bg-orange {
+  background-color: #fbe8d2;
+  border-radius: 3px;
+  padding: 0.1em 0.2em;
+}
+.n-bg-yellow {
+  background-color: #faf2cc;
+  border-radius: 3px;
+  padding: 0.1em 0.2em;
+}
+.n-bg-green {
+  background-color: #e4f2e2;
+  border-radius: 3px;
+  padding: 0.1em 0.2em;
+}
+.n-bg-blue {
+  background-color: #dceef8;
+  border-radius: 3px;
+  padding: 0.1em 0.2em;
+}
+.n-bg-purple {
+  background-color: #ede7f8;
+  border-radius: 3px;
+  padding: 0.1em 0.2em;
+}
+.n-bg-pink {
+  background-color: #f8e4f3;
+  border-radius: 3px;
+  padding: 0.1em 0.2em;
+}
+.n-bg-red {
+  background-color: #fae3e2;
+  border-radius: 3px;
+  padding: 0.1em 0.2em;
+}
 
-.dark .n-bg-gray   { background-color: #4a4a4a; }
-.dark .n-bg-brown  { background-color: #5c3d2e; }
-.dark .n-bg-orange { background-color: #5c3a1a; }
-.dark .n-bg-yellow { background-color: #554c1a; }
-.dark .n-bg-green  { background-color: #1e4230; }
-.dark .n-bg-blue   { background-color: #1a3a52; }
-.dark .n-bg-purple { background-color: #3a2352; }
-.dark .n-bg-pink   { background-color: #52243e; }
-.dark .n-bg-red    { background-color: #52201e; }
+.dark .n-bg-gray {
+  background-color: #4a4a4a;
+}
+.dark .n-bg-brown {
+  background-color: #5c3d2e;
+}
+.dark .n-bg-orange {
+  background-color: #5c3a1a;
+}
+.dark .n-bg-yellow {
+  background-color: #554c1a;
+}
+.dark .n-bg-green {
+  background-color: #1e4230;
+}
+.dark .n-bg-blue {
+  background-color: #1a3a52;
+}
+.dark .n-bg-purple {
+  background-color: #3a2352;
+}
+.dark .n-bg-pink {
+  background-color: #52243e;
+}
+.dark .n-bg-red {
+  background-color: #52201e;
+}

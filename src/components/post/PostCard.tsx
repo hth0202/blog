@@ -10,7 +10,9 @@ interface PostCardProps {
 }
 
 export const PostCard: React.FC<PostCardProps> = ({ post, secret }) => {
-  const href = secret ? `/post/${post.id}?secret=${secret}` : `/post/${post.id}`;
+  const href = secret
+    ? `/post/${post.id}?secret=${secret}`
+    : `/post/${post.id}`;
   return (
     <Link href={href} className="group block">
       <div className="flex w-full flex-col items-start gap-6 rounded-lg p-4 transition-all duration-300 ease-in-out group-hover:-translate-y-1 group-hover:bg-gray-50 group-hover:shadow-lg sm:flex-row dark:group-hover:bg-neutral-800/50 dark:group-hover:shadow-neutral-800/60">
