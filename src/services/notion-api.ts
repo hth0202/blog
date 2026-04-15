@@ -11,6 +11,16 @@ import type { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoin
 const IS_DEV = process.env.NODE_ENV === 'development';
 const TTL = (seconds: number): number | false => (IS_DEV ? false : seconds);
 
+// 개발: 캐시 없이 원본 함수 그대로, 프로덕션: unstable_cache로 감쌈
+function devCache<T extends (...args: any[]) => Promise<any>>(
+  fn: T,
+  key: string[],
+  opts: { revalidate: number | false; tags: string[] },
+): T {
+  if (IS_DEV) return fn;
+  return unstable_cache(fn, key, opts) as T;
+}
+
 // 공식 API 클라이언트
 const notionClient = new Client({
   auth: process.env.NOTION_AUTH_TOKEN,
@@ -92,7 +102,7 @@ const _getPageBlocks = async (
   }
 };
 
-export const getPageBlocks = unstable_cache(_getPageBlocks, ['notion-blocks'], {
+export const getPageBlocks = devCache(_getPageBlocks, ['notion-blocks'], {
   revalidate: TTL(300),
   tags: ['notion-blocks'],
 });
@@ -156,7 +166,7 @@ const _querySkillDatabase = async (dbId: string): Promise<SkillItem[]> => {
   }
 };
 
-export const querySkillDatabase = unstable_cache(
+export const querySkillDatabase = devCache(
   _querySkillDatabase,
   ['notion-skill-db'],
   { revalidate: TTL(300), tags: ['notion-blocks'] },
@@ -190,7 +200,7 @@ const _getSkillTextBlocks = async (pageId: string): Promise<string[]> => {
   }
 };
 
-export const getSkillTextBlocks = unstable_cache(
+export const getSkillTextBlocks = devCache(
   _getSkillTextBlocks,
   ['notion-skill-text'],
   { revalidate: TTL(600), tags: ['notion-blocks'] },
@@ -209,7 +219,7 @@ const _getPageMarkdown = async (pageId: string): Promise<string | null> => {
   }
 };
 
-export const getPageMarkdown = unstable_cache(
+export const getPageMarkdown = devCache(
   _getPageMarkdown,
   ['notion-markdown'],
   { revalidate: TTL(300), tags: ['notion-markdown'] },
@@ -339,7 +349,7 @@ const _getPostsFromNotion = async (databaseId?: string): Promise<Post[]> => {
   }
 };
 
-export const getPostsFromNotion = unstable_cache(
+export const getPostsFromNotion = devCache(
   _getPostsFromNotion,
   ['notion-posts'],
   { revalidate: TTL(60), tags: ['notion-posts'] },
@@ -480,7 +490,7 @@ const _getProjectsFromNotion = async (
   }
 };
 
-export const getProjectsFromNotion = unstable_cache(
+export const getProjectsFromNotion = devCache(
   _getProjectsFromNotion,
   ['notion-projects'],
   { revalidate: TTL(60), tags: ['notion-projects'] },
@@ -589,7 +599,7 @@ const _getPostMetaById = async (postId: string): Promise<Post | undefined> => {
   }
 };
 
-export const getPostMetaById = unstable_cache(
+export const getPostMetaById = devCache(
   _getPostMetaById,
   ['notion-post-meta'],
   { revalidate: TTL(300), tags: ['notion-post-meta'] },
@@ -714,7 +724,7 @@ const _getProjectMetaById = async (
   }
 };
 
-export const getProjectMetaById = unstable_cache(
+export const getProjectMetaById = devCache(
   _getProjectMetaById,
   ['notion-project-meta'],
   { revalidate: TTL(300), tags: ['notion-project-meta'] },
