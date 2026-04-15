@@ -291,6 +291,11 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ─── 단락 첫 줄 들여쓰기 ──────────────────────────────────────────────────── */
+.notion-text {
+  text-indent: 1em;
+}
+
 /* code / pre는 모노스페이스 유지 */
 .notion code,
 .notion pre,
