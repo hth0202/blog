@@ -213,14 +213,16 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
 
     case 'column_list': {
       const colCount = children?.length || 2;
+      // 모바일: 1단 세로 배치 / 데스크탑: 노션 원본 단 수 유지
+      const colClass: Record<number, string> = {
+        2: 'grid-cols-1 md:grid-cols-2',
+        3: 'grid-cols-1 md:grid-cols-3',
+        4: 'grid-cols-1 md:grid-cols-4',
+      };
+      const gridClass = colClass[colCount] ?? 'grid-cols-1 md:grid-cols-2';
       return (
         <div className="my-4 overflow-x-hidden">
-          <div
-            className="grid gap-4"
-            style={{
-              gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))`,
-            }}
-          >
+          <div className={`grid gap-4 ${gridClass}`}>
             {children?.map((col) => (
               <div key={col.id}>
                 {(col as any).children && (
