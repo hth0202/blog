@@ -291,8 +291,18 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ─── 형광펜 밑줄 효과 ──────────────────────────────────────────────────────── */
+.notion-underline {
+  background: linear-gradient(transparent 72%, rgba(167, 139, 250, 0.4) 62%);
+  padding: 0 2px;
+}
+
+.dark .notion-underline {
+  background: linear-gradient(transparent 72%, rgba(139, 85, 212, 0.5) 62%);
+}
+
 /* ─── 단락 첫 줄 들여쓰기 ──────────────────────────────────────────────────── */
-.notion-content p {
+.notion-content p:not(:has(br)) {
   text-indent: 1em;
 }
 
@@ -319,22 +329,22 @@ h3.n-bg-green, h3.n-bg-blue, h3.n-bg-purple, h3.n-bg-pink, h3.n-bg-red {
 }
 
 /* ─── Notion 텍스트 배경 색상 (light / dark) ─────────────────────────────── */
-.n-bg-gray       { background-color: #f1f1ef; border-radius: 3px; padding: 0.1em 0.3em; }
-.n-bg-brown      { background-color: #f4eeee; border-radius: 3px; padding: 0.1em 0.3em; }
-.n-bg-orange     { background-color: #faebdd; border-radius: 3px; padding: 0.1em 0.3em; }
-.n-bg-yellow     { background-color: #fbf3db; border-radius: 3px; padding: 0.1em 0.3em; }
-.n-bg-green      { background-color: #edf3ec; border-radius: 3px; padding: 0.1em 0.3em; }
-.n-bg-blue       { background-color: #e7f3f8; border-radius: 3px; padding: 0.1em 0.3em; }
-.n-bg-purple     { background-color: #f6f3f9; border-radius: 3px; padding: 0.1em 0.3em; }
-.n-bg-pink       { background-color: #fbe7f3; border-radius: 3px; padding: 0.1em 0.3em; }
-.n-bg-red        { background-color: #fde9e8; border-radius: 3px; padding: 0.1em 0.3em; }
+.n-bg-gray       { background-color: #efefec; border-radius: 3px; padding: 0.1em 0.2em; }
+.n-bg-brown      { background-color: #f3e8e3; border-radius: 3px; padding: 0.1em 0.2em; }
+.n-bg-orange     { background-color: #fbe8d2; border-radius: 3px; padding: 0.1em 0.2em; }
+.n-bg-yellow     { background-color: #faf2cc; border-radius: 3px; padding: 0.1em 0.2em; }
+.n-bg-green      { background-color: #e4f2e2; border-radius: 3px; padding: 0.1em 0.2em; }
+.n-bg-blue       { background-color: #dceef8; border-radius: 3px; padding: 0.1em 0.2em; }
+.n-bg-purple     { background-color: #ede7f8; border-radius: 3px; padding: 0.1em 0.2em; }
+.n-bg-pink       { background-color: #f8e4f3; border-radius: 3px; padding: 0.1em 0.2em; }
+.n-bg-red        { background-color: #fae3e2; border-radius: 3px; padding: 0.1em 0.2em; }
 
-.dark .n-bg-gray   { background-color: #3a3a3a; }
-.dark .n-bg-brown  { background-color: #3d2d2d; }
-.dark .n-bg-orange { background-color: #3d2a1a; }
-.dark .n-bg-yellow { background-color: #3d3417; }
-.dark .n-bg-green  { background-color: #1f3028; }
-.dark .n-bg-blue   { background-color: #1a2d3d; }
-.dark .n-bg-purple { background-color: #2a1f3d; }
-.dark .n-bg-pink   { background-color: #3d1f2d; }
-.dark .n-bg-red    { background-color: #3d1a1a; }
+.dark .n-bg-gray   { background-color: #4a4a4a; }
+.dark .n-bg-brown  { background-color: #5c3d2e; }
+.dark .n-bg-orange { background-color: #5c3a1a; }
+.dark .n-bg-yellow { background-color: #554c1a; }
+.dark .n-bg-green  { background-color: #1e4230; }
+.dark .n-bg-blue   { background-color: #1a3a52; }
+.dark .n-bg-purple { background-color: #3a2352; }
+.dark .n-bg-pink   { background-color: #52243e; }
+.dark .n-bg-red    { background-color: #52201e; }
