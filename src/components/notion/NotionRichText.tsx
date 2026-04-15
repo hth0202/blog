@@ -26,15 +26,20 @@ const BG_CLASS: Record<string, string> = {
   red_background: 'n-bg-red',
 };
 
-/** \n이 포함된 텍스트를 <br>로 분리해 렌더링 */
+/** \n이 포함된 텍스트를 <br>로 분리해 렌더링, 줄 앞 공백은 nbsp로 변환 */
 function renderWithLineBreaks(text: string, className?: string) {
   const parts = text.split('\n');
-  return parts.map((part, idx) => (
-    <span key={idx} className={className}>
-      {part}
-      {idx < parts.length - 1 && <br />}
-    </span>
-  ));
+  return parts.map((part, idx) => {
+    const leading = part.match(/^( +)/)?.[1] ?? '';
+    const rest = part.slice(leading.length);
+    const nbsp = '\u00A0'.repeat(leading.length);
+    return (
+      <span key={idx} className={className}>
+        {nbsp}{rest}
+        {idx < parts.length - 1 && <br />}
+      </span>
+    );
+  });
 }
 
 export function NotionRichText({ items }: { items: RichTextItemResponse[] }) {
@@ -66,7 +71,7 @@ export function NotionRichText({ items }: { items: RichTextItemResponse[] }) {
           bold ? 'font-bold' : '',
           italic ? 'italic' : '',
           strikethrough ? 'line-through' : '',
-          underline ? 'underline' : '',
+          underline ? 'notion-underline' : '',
           textColorClass,
           bgClass,
         ]

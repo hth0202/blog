@@ -241,7 +241,8 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
 
     case 'table': {
       if (!children) return null;
-      const hasColumnHeader = block.table.has_column_header;
+      const hasColumnHeader = block.table.has_column_header; // 첫 번째 행 헤더
+      const hasRowHeader = block.table.has_row_header;       // 첫 번째 열 헤더
       return (
         <div className="my-4 overflow-x-auto">
           <table className="w-full border-collapse text-sm text-gray-800 dark:text-gray-200">
@@ -249,21 +250,27 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
               {children.map((row, idx) => {
                 if (row.type !== 'table_row') return null;
                 const cells = row.table_row.cells;
+                const isHeaderRow = hasColumnHeader && idx === 0;
                 return (
                   <tr
                     key={row.id}
                     className={
-                      hasColumnHeader && idx === 0
+                      isHeaderRow
                         ? 'bg-gray-50 font-semibold dark:bg-neutral-700 dark:text-gray-100'
                         : 'hover:bg-gray-50 dark:hover:bg-neutral-800/40'
                     }
                   >
                     {cells.map((cell, ci) => {
-                      const Tag = hasColumnHeader && idx === 0 ? 'th' : 'td';
+                      const isHeaderCell = isHeaderRow || (hasRowHeader && ci === 0);
+                      const Tag = isHeaderCell ? 'th' : 'td';
                       return (
                         <Tag
                           key={ci}
-                          className="border border-gray-200 p-2 text-left dark:border-neutral-600"
+                          className={`border border-gray-200 p-2 text-left dark:border-neutral-600${
+                            hasRowHeader && ci === 0 && !isHeaderRow
+                              ? ' bg-gray-50 font-semibold dark:bg-neutral-700 dark:text-gray-100'
+                              : ''
+                          }`}
                         >
                           <NotionRichText items={cell} />
                         </Tag>
