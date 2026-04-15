@@ -46,13 +46,20 @@ export async function generateStaticParams() {
 
 interface PostDetailPageProps {
   params: Promise<{ postId: string }>;
+  searchParams: Promise<{ secret?: string }>;
 }
 
-export default async function PostDetailPage({ params }: PostDetailPageProps) {
+export default async function PostDetailPage({
+  params,
+  searchParams,
+}: PostDetailPageProps) {
   const { postId } = await params;
+  const { secret } = await searchParams;
+  const isDraft =
+    process.env.DRAFT_SECRET && secret === process.env.DRAFT_SECRET;
 
   const post = await getPostMetaById(postId);
-  if (!post || post.status !== '발행') notFound();
+  if (!post || (!isDraft && post.status !== '발행')) notFound();
 
   const blocks = await getPageBlocks(post.rawId);
 
@@ -78,6 +85,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
           <div className="text-sm text-gray-500 dark:text-gray-400">
             {post.date}
           </div>
+          <hr className="mt-6 border-gray-200 dark:border-neutral-700" />
         </header>
 
         <div className="mb-12 max-w-none">

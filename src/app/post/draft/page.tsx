@@ -50,5 +50,5 @@ export default async function PostDraftPage({ searchParams }: DraftPageProps) {
 
   const { posts, categories } = await getPosts();
 
-  return <PostContent initialPosts={posts} initialCategories={categories} />;
+  return <PostContent initialPosts={posts} initialCategories={categories} secret={secret} />;
 }
