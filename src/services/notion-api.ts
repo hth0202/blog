@@ -219,11 +219,10 @@ const _getPageMarkdown = async (pageId: string): Promise<string | null> => {
   }
 };
 
-export const getPageMarkdown = devCache(
-  _getPageMarkdown,
-  ['notion-markdown'],
-  { revalidate: TTL(300), tags: ['notion-markdown'] },
-);
+export const getPageMarkdown = devCache(_getPageMarkdown, ['notion-markdown'], {
+  revalidate: TTL(300),
+  tags: ['notion-markdown'],
+});
 
 // ─── 공식 API: 포스트 목록 ────────────────────────────────────────────────────
 

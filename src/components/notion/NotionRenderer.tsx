@@ -126,9 +126,10 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
 
       const alignMatch = remaining.match(/^\[(left|mid|right)\]\s*/i);
       if (alignMatch) remaining = remaining.slice(alignMatch[0].length);
-      const alignHint = (
-        alignMatch ? alignMatch[1].toLowerCase() : 'mid'
-      ) as 'left' | 'mid' | 'right';
+      const alignHint = (alignMatch ? alignMatch[1].toLowerCase() : 'mid') as
+        | 'left'
+        | 'mid'
+        | 'right';
 
       const displayCaption = remaining;
       const widthStyle =

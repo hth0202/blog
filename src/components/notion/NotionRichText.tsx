@@ -87,7 +87,11 @@ export function NotionRichText({ items }: { items: RichTextItemResponse[] }) {
           );
         }
 
-        return <span key={i}>{renderWithLineBreaks(text, spanClasses || undefined)}</span>;
+        return (
+          <span key={i}>
+            {renderWithLineBreaks(text, spanClasses || undefined)}
+          </span>
+        );
       })}
     </>
   );

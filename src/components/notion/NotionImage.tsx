@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 interface NotionImageProps {
   src: string;
@@ -13,11 +13,19 @@ interface NotionImageProps {
 
 const ALIGN_STYLE: Record<
   'left' | 'mid' | 'right',
-  { margin: string; alignItems: string; textAlign: string }
+  {
+    margin: string;
+    alignItems: string;
+    textAlign: React.CSSProperties['textAlign'];
+  }
 > = {
-  left: { margin: '1.5rem 0',              alignItems: 'flex-start', textAlign: 'left' },
-  mid:  { margin: '1.5rem auto',           alignItems: 'center',     textAlign: 'center' },
-  right:{ margin: '1.5rem 0 1.5rem auto',  alignItems: 'flex-end',   textAlign: 'right' },
+  left: { margin: '1.5rem 0', alignItems: 'flex-start', textAlign: 'left' },
+  mid: { margin: '1.5rem auto', alignItems: 'center', textAlign: 'center' },
+  right: {
+    margin: '1.5rem 0 1.5rem auto',
+    alignItems: 'flex-end',
+    textAlign: 'right',
+  },
 };
 
 export function NotionImage({
