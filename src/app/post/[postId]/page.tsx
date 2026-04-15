@@ -68,24 +68,31 @@ export default async function PostDetailPage({
       <ViewTracker postId={post.id} />
       <article className="animate-fade-in mx-auto max-w-3xl">
         <header className="mb-8">
-          <img
-            src={post.thumbnailUrl}
-            alt={post.title}
-            className="mb-6 h-64 w-full rounded-lg bg-gray-100 object-cover dark:bg-neutral-700"
-          />
-          <div className="text-sm text-gray-500 dark:text-gray-400">
-            {post.category}
+          {/* 커버 히어로: 이미지를 배경으로 하고 텍스트를 위에 오버레이 */}
+          <div className="relative mb-12 h-72 w-full overflow-hidden rounded-xl bg-gray-900 sm:h-80">
+            <img
+              src={post.thumbnailUrl}
+              alt={post.title}
+              className="h-full w-full object-cover opacity-45"
+            />
+            {/* 텍스트 가독성을 위한 그라디언트 오버레이 */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
+            {/* 텍스트 콘텐츠 */}
+            <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-8">
+              <div className="mb-2 text-sm font-medium text-white/70">
+                {post.category}
+              </div>
+              <h1 className="mb-2 text-2xl leading-tight font-extrabold text-white drop-shadow-md sm:text-3xl">
+                {post.title}
+              </h1>
+              {post.contentPreview && (
+                <p className="mb-3 line-clamp-2 text-sm text-white/80 drop-shadow-sm">
+                  {post.contentPreview}
+                </p>
+              )}
+              <div className="text-xs text-white/60">{post.date}</div>
+            </div>
           </div>
-          <h1 className="my-2 text-4xl leading-tight font-extrabold text-gray-900 dark:text-white">
-            {post.title}
-          </h1>
-          <p className="mt-2 mb-4 text-lg text-gray-600 dark:text-gray-300">
-            {post.contentPreview}
-          </p>
-          <div className="text-sm text-gray-500 dark:text-gray-400">
-            {post.date}
-          </div>
-          <hr className="mt-6 border-gray-200 dark:border-neutral-700" />
         </header>
 
         <div className="mb-12 max-w-none">
