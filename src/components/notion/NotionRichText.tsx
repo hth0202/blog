@@ -26,6 +26,17 @@ const BG_CLASS: Record<string, string> = {
   red_background: 'n-bg-red',
 };
 
+/** \n이 포함된 텍스트를 <br>로 분리해 렌더링 */
+function renderWithLineBreaks(text: string, className?: string) {
+  const parts = text.split('\n');
+  return parts.map((part, idx) => (
+    <span key={idx} className={className}>
+      {part}
+      {idx < parts.length - 1 && <br />}
+    </span>
+  ));
+}
+
 export function NotionRichText({ items }: { items: RichTextItemResponse[] }) {
   return (
     <>
@@ -71,20 +82,12 @@ export function NotionRichText({ items }: { items: RichTextItemResponse[] }) {
               target="_blank"
               rel="noopener noreferrer"
             >
-              {text}
+              {renderWithLineBreaks(text)}
             </a>
           );
         }
 
-        if (spanClasses) {
-          return (
-            <span key={i} className={spanClasses}>
-              {text}
-            </span>
-          );
-        }
-
-        return <span key={i}>{text}</span>;
+        return <span key={i}>{renderWithLineBreaks(text, spanClasses || undefined)}</span>;
       })}
     </>
   );

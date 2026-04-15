@@ -117,14 +117,22 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
       const caption = block.image.caption;
       const captionText = caption?.map((c) => c.plain_text).join('') || '';
 
-      // 캡션 앞의 [small] / [medium] / [large] 힌트로 크기 제어
-      const sizeMatch = captionText.match(/^\[(small|medium|large)\]\s*/i);
-      const sizeHint = sizeMatch ? sizeMatch[1].toLowerCase() : 'large';
-      const displayCaption = sizeMatch
-        ? captionText.slice(sizeMatch[0].length)
-        : captionText;
+      // 캡션 앞의 [s/m/l] [left/mid/right] 힌트로 크기·정렬 제어
+      let remaining = captionText;
+
+      const sizeMatch = remaining.match(/^\[(s|m|l)\]\s*/i);
+      if (sizeMatch) remaining = remaining.slice(sizeMatch[0].length);
+      const sizeHint = sizeMatch ? sizeMatch[1].toLowerCase() : 'l';
+
+      const alignMatch = remaining.match(/^\[(left|mid|right)\]\s*/i);
+      if (alignMatch) remaining = remaining.slice(alignMatch[0].length);
+      const alignHint = (
+        alignMatch ? alignMatch[1].toLowerCase() : 'mid'
+      ) as 'left' | 'mid' | 'right';
+
+      const displayCaption = remaining;
       const widthStyle =
-        sizeHint === 'small' ? '33%' : sizeHint === 'medium' ? '60%' : '100%';
+        sizeHint === 's' ? '33%' : sizeHint === 'm' ? '60%' : '100%';
 
       return (
         <NotionImage
@@ -132,6 +140,7 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
           alt={displayCaption}
           caption={displayCaption || undefined}
           widthStyle={widthStyle}
+          align={alignHint}
         />
       );
     }
