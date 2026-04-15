@@ -132,15 +132,13 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
         | 'right';
 
       const displayCaption = remaining;
-      const widthStyle =
-        sizeHint === 's' ? '33%' : sizeHint === 'm' ? '60%' : '100%';
 
       return (
         <NotionImage
           src={imgSrc}
           alt={displayCaption}
           caption={displayCaption || undefined}
-          widthStyle={widthStyle}
+          size={sizeHint as 's' | 'm' | 'l'}
           align={alignHint}
         />
       );

@@ -1,48 +1,44 @@
 'use client';
 
 import Image from 'next/image';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 interface NotionImageProps {
   src: string;
   alt: string;
   caption?: string;
-  widthStyle: string;
+  size?: 's' | 'm' | 'l';
   align?: 'left' | 'mid' | 'right';
 }
 
-const ALIGN_STYLE: Record<
+// 모바일 → 데스크탑 반응형 너비
+const SIZE_CLASS: Record<'s' | 'm' | 'l', string> = {
+  s: 'w-3/5 md:w-1/3',
+  m: 'w-full md:w-[60%]',
+  l: 'w-full',
+};
+
+const ALIGN_CLASS: Record<
   'left' | 'mid' | 'right',
-  {
-    margin: string;
-    alignItems: string;
-    textAlign: React.CSSProperties['textAlign'];
-  }
+  { figure: string; caption: string }
 > = {
-  left: { margin: '1.5rem 0', alignItems: 'flex-start', textAlign: 'left' },
-  mid: { margin: '1.5rem auto', alignItems: 'center', textAlign: 'center' },
-  right: {
-    margin: '1.5rem 0 1.5rem auto',
-    alignItems: 'flex-end',
-    textAlign: 'right',
-  },
+  left: { figure: 'items-start mr-auto', caption: 'text-left' },
+  mid: { figure: 'items-center mx-auto', caption: 'text-center' },
+  right: { figure: 'items-end ml-auto', caption: 'text-right' },
 };
 
 export function NotionImage({
   src,
   alt,
   caption,
-  widthStyle,
+  size = 'l',
   align = 'mid',
 }: NotionImageProps) {
   const [loaded, setLoaded] = useState(false);
-  const { margin, alignItems, textAlign } = ALIGN_STYLE[align];
+  const { figure: figureClass, caption: captionClass } = ALIGN_CLASS[align];
 
   return (
-    <figure
-      className="my-6 flex flex-col"
-      style={{ width: widthStyle, margin, alignItems }}
-    >
+    <figure className={`my-6 flex flex-col ${SIZE_CLASS[size]} ${figureClass}`}>
       {/* width/height=0 + h-auto w-full: 크기 불명 이미지를 반응형으로 표시하는 Next.js 관용구 */}
       <Image
         src={src}
@@ -56,8 +52,7 @@ export function NotionImage({
       />
       {caption && (
         <figcaption
-          className="mt-2 text-sm text-gray-500 dark:text-gray-400"
-          style={{ textAlign }}
+          className={`mt-2 text-sm text-gray-500 dark:text-gray-400 ${captionClass}`}
         >
           {caption}
         </figcaption>
