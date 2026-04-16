@@ -279,7 +279,7 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
       return (
         <div className="my-4 overflow-x-hidden">
           <div
-            className={`grid gap-4 ${gridClass}`}
+            className={`grid gap-0 ${gridClass}`}
             style={
               colRatio
                 ? ({ '--col-ratio': colRatio } as React.CSSProperties)
