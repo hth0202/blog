@@ -540,7 +540,15 @@ export function NotionRenderer({ blocks }: { blocks: BlockObjectResponse[] }) {
             );
           }
         }
-        // numbered_list가 아닌 블록은 카운터 리셋하지 않음 (사이에 본문이 와도 번호 유지)
+        // 헤딩 블록이 오면 새 섹션으로 간주해 번호 리셋, 단락은 유지
+        const blockType = (item as BlockObjectResponse).type;
+        if (
+          blockType === 'heading_1' ||
+          blockType === 'heading_2' ||
+          blockType === 'heading_3'
+        ) {
+          numberedListCounter = 0;
+        }
 
         return (
           <NotionBlock
