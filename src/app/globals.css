@@ -428,3 +428,11 @@ h3.n-bg-red {
 .dark .n-bg-red {
   background-color: #52201e;
 }
+
+/* ─── 커스텀 컬럼 비율: [col:N:M] 태그로 제어 ──────────────────────────── */
+/* 모바일은 grid-cols-1 유지, md 이상에서만 커스텀 비율 적용               */
+@media (min-width: 768px) {
+  .col-ratio-grid {
+    grid-template-columns: var(--col-ratio, 1fr 1fr) !important;
+  }
+}

@@ -340,7 +340,6 @@ const _getPostsFromNotion = async (databaseId?: string): Promise<Post[]> => {
         } satisfies Post;
       });
 
-    console.log(`Notion에서 ${posts.length}개의 포스트를 가져왔습니다.`);
     return posts;
   } catch (error) {
     console.error('Notion에서 포스트 가져오기 실패:', error);
@@ -481,7 +480,6 @@ const _getProjectsFromNotion = async (
         } satisfies Project;
       });
 
-    console.log(`Notion에서 ${projects.length}개의 프로젝트를 가져왔습니다.`);
     return projects;
   } catch (error) {
     console.error('Notion에서 프로젝트 가져오기 실패:', error);

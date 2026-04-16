@@ -3,6 +3,7 @@ import { NotionRichText } from './NotionRichText';
 import { SkillCollectionServer } from './SkillCollectionServer';
 
 import type { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
+import type React from 'react';
 
 const BLOCK_BG: Record<string, string> = {
   gray_background: 'n-bg-gray',
@@ -237,17 +238,54 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
 
     case 'column_list': {
       const colCount = children?.length || 2;
+
+      // 첫 번째 컬럼의 첫 번째 블록에서 [col:N:M] 태그 감지
+      // 예: [col:1:2] → 1fr 2fr (이미지 1/3, 본문 2/3)
+      // 태그 단락은 렌더링에서 제거
+      let colRatio: string | undefined;
+      const processedChildren = children?.map((col, colIdx) => {
+        const colChildren: any[] = (col as any).children ?? [];
+        if (colIdx === 0 && colChildren.length > 0) {
+          const firstBlock = colChildren[0];
+          if (firstBlock.type === 'paragraph') {
+            const text =
+              firstBlock.paragraph?.rich_text
+                ?.map((t: any) => t.plain_text)
+                .join('') ?? '';
+            const m = text.match(/^\[col:([\d:]+)\]\s*$/i);
+            if (m) {
+              colRatio = m[1]
+                .split(':')
+                .map((n: string) => `${n}fr`)
+                .join(' ');
+              return { ...col, children: colChildren.slice(1) };
+            }
+          }
+        }
+        return col;
+      });
+
       // 모바일: 1단 세로 배치 / 데스크탑: 노션 원본 단 수 유지
       const colClass: Record<number, string> = {
         2: 'grid-cols-1 md:grid-cols-2',
         3: 'grid-cols-1 md:grid-cols-3',
         4: 'grid-cols-1 md:grid-cols-4',
       };
-      const gridClass = colClass[colCount] ?? 'grid-cols-1 md:grid-cols-2';
+      const gridClass = colRatio
+        ? 'grid-cols-1 col-ratio-grid'
+        : (colClass[colCount] ?? 'grid-cols-1 md:grid-cols-2');
+
       return (
         <div className="my-4 overflow-x-hidden">
-          <div className={`grid gap-4 ${gridClass}`}>
-            {children?.map((col) => (
+          <div
+            className={`grid gap-4 ${gridClass}`}
+            style={
+              colRatio
+                ? ({ '--col-ratio': colRatio } as React.CSSProperties)
+                : undefined
+            }
+          >
+            {processedChildren?.map((col) => (
               <div key={col.id}>
                 {(col as any).children && (
                   <NotionRenderer blocks={(col as any).children} />
