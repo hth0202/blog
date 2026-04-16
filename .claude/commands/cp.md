@@ -1,0 +1,46 @@
+# /cp — 커밋 & 푸시
+
+변경된 파일을 논리적 작업 단위로 커밋한 뒤 origin/main으로 푸시합니다.
+
+## 실행 절차
+
+1. `git status`와 `git diff --stat HEAD`로 변경 파일 전체 파악
+2. `npx prettier --write src/`로 포맷 자동 정리 (빌드 오류 방지)
+3. 변경 내용을 아래 기준으로 작업 단위 그룹화
+4. 그룹별로 `git add <files>` → `git commit` 순서로 커밋
+5. 모든 커밋 완료 후 `git push origin main`
+6. `git log --oneline -5`로 결과 확인
+
+## 커밋 프리픽스 기준
+
+| 프리픽스 | 사용 상황 |
+|---------|---------|
+| `feat(범위)` | 새 기능, 새 컴포넌트, 신규 API 추가 |
+| `fix(범위)` | 버그 수정 |
+| `refactor(범위)` | 동작 변경 없는 코드 구조 개선 |
+| `style(범위)` | CSS, 색상, 레이아웃 등 시각적 변경 |
+| `chore(범위)` | 패키지, 설정, 빌드 관련 변경 |
+| `docs(범위)` | 문서, 주석 변경 |
+
+범위 예시: `api`, `renderer`, `ui`, `pages`, `dark-mode`, `layout`
+
+## 커밋 메시지 형식
+
+```
+<프리픽스>: <한 줄 제목 — 무엇을 왜 했는지>
+
+<본문 — 구체적으로 어떤 파일/로직이 바뀌었는지 1~3줄>
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+```
+
+## 그룹화 우선순위
+
+1. **서비스/타입 레이어** — `src/services/`, `src/types/`, `package.json` 등
+2. **신규 컴포넌트** — 새로 생성된 컴포넌트 파일 묶음
+3. **페이지 컴포넌트** — `src/app/**/page.tsx` 수정 묶음
+4. **기존 컴포넌트 수정** — 기존 컴포넌트 리팩토링/연동
+5. **스타일/CSS** — `globals.css`, 색상, 레이아웃 전용 변경
+6. **설정/인프라** — `next.config.*`, `.env`, CI 등
+
+한 파일이 여러 성격의 변경을 담고 있으면 **가장 큰 비중의 그룹**에 포함합니다.
