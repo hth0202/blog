@@ -158,9 +158,6 @@ const _querySkillDatabase = async (dbId: string): Promise<SkillItem[]> => {
           }
         }
 
-        console.log(
-          `[SkillDB] "${title}" → iconType=${pageObj.icon?.type ?? 'none'}, iconUrl=${iconUrl}`,
-        );
         return { id: page.id, title, category, iconUrl, iconEmoji };
       });
   } catch (error) {

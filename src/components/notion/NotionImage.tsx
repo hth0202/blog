@@ -1,9 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
-
-import type React from 'react';
+import { type CSSProperties, useState } from 'react';
 
 interface NotionImageProps {
   src: string;
@@ -12,7 +10,7 @@ interface NotionImageProps {
   size?: 's' | 'm' | 'l';
   align?: 'left' | 'mid' | 'right';
   nobg?: boolean;
-  marginStyle?: React.CSSProperties;
+  marginStyle?: CSSProperties;
 }
 
 // 모바일 → 데스크탑 반응형 너비
