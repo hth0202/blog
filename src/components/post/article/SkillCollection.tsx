@@ -87,7 +87,7 @@ export function SkillCollection({
                       <img
                         src={item.iconUrl}
                         alt=""
-                        className="h-6 w-6 object-contain"
+                        className="h-6 w-6 object-contain mix-blend-multiply dark:mix-blend-normal dark:brightness-0 dark:invert"
                       />
                     )}
                     {item.iconEmoji && (
