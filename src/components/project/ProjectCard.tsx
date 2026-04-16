@@ -6,11 +6,18 @@ import type { Project } from '@/types/blog';
 
 interface ProjectCardProps {
   project: Project;
+  secret?: string;
 }
 
-export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
+export const ProjectCard: React.FC<ProjectCardProps> = ({
+  project,
+  secret,
+}) => {
+  const href = secret
+    ? `/projects/${project.id}?secret=${secret}`
+    : `/projects/${project.id}`;
   return (
-    <Link href={`/projects/${project.id}`} className="group block h-full">
+    <Link href={href} className="group block h-full">
       <div className="flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 transition-all duration-300 ease-in-out group-hover:-translate-y-1 group-hover:shadow-lg dark:border-neutral-700 dark:group-hover:shadow-neutral-800/60">
         <div className="relative aspect-square w-full overflow-hidden bg-gray-100 dark:bg-neutral-800">
           <Image

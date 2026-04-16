@@ -9,11 +9,13 @@ import { Project, ProjectCategory } from '@/types/blog';
 interface ProjectsContentProps {
   initialProjects: Project[];
   initialCategories: ProjectCategory[];
+  secret?: string;
 }
 
 export function ProjectsContent({
   initialProjects,
   initialCategories,
+  secret,
 }: ProjectsContentProps) {
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [activeTags, setActiveTags] = useState<string[]>([]);
@@ -188,7 +190,11 @@ export function ProjectsContent({
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {filteredProjects.length > 0 ? (
               filteredProjects.map((project) => (
-                <ProjectCard key={project.id} project={project} />
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  secret={secret}
+                />
               ))
             ) : (
               <div className="col-span-full py-16 text-center">

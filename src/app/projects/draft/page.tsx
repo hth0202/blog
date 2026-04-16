@@ -53,6 +53,7 @@ export default async function ProjectsDraftPage({
     <ProjectsContent
       initialProjects={projects}
       initialCategories={categories}
+      secret={secret}
     />
   );
 }
