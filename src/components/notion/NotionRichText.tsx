@@ -8,7 +8,7 @@ const TEXT_COLOR: Record<string, string> = {
   yellow: 'text-yellow-600 dark:text-yellow-400',
   green: 'text-green-600 dark:text-green-400',
   blue: 'text-blue-600 dark:text-blue-400',
-  purple: 'text-purple-600 dark:text-purple-400',
+  purple: 'text-[#5a4080] dark:text-indigo-300',
   pink: 'text-pink-500',
   red: 'text-red-500',
 };
