@@ -46,15 +46,20 @@ export async function generateStaticParams() {
 
 interface ProjectDetailPageProps {
   params: Promise<{ projectId: string }>;
+  searchParams: Promise<{ secret?: string }>;
 }
 
 export default async function ProjectDetailPage({
   params,
+  searchParams,
 }: ProjectDetailPageProps) {
   const { projectId } = await params;
+  const { secret } = await searchParams;
+  const isDraft =
+    !!process.env.DRAFT_SECRET && secret === process.env.DRAFT_SECRET;
 
   const project = await getProjectMetaById(projectId);
-  if (!project || project.status !== '발행') notFound();
+  if (!project || (!isDraft && project.status !== '발행')) notFound();
 
   const blocks = await getPageBlocks(project.rawId);
 
