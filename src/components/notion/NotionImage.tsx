@@ -3,12 +3,16 @@
 import Image from 'next/image';
 import { useState } from 'react';
 
+import type React from 'react';
+
 interface NotionImageProps {
   src: string;
   alt: string;
   caption?: string;
   size?: 's' | 'm' | 'l';
   align?: 'left' | 'mid' | 'right';
+  nobg?: boolean;
+  marginStyle?: React.CSSProperties;
 }
 
 // 모바일 → 데스크탑 반응형 너비
@@ -33,12 +37,17 @@ export function NotionImage({
   caption,
   size = 'l',
   align = 'mid',
+  nobg = false,
+  marginStyle,
 }: NotionImageProps) {
   const [loaded, setLoaded] = useState(false);
   const { figure: figureClass, caption: captionClass } = ALIGN_CLASS[align];
 
   return (
-    <figure className={`my-6 flex flex-col ${SIZE_CLASS[size]} ${figureClass}`}>
+    <figure
+      className={`my-6 flex flex-col ${SIZE_CLASS[size]} ${figureClass}`}
+      style={marginStyle}
+    >
       {/* width/height=0 + h-auto w-full: 크기 불명 이미지를 반응형으로 표시하는 Next.js 관용구 */}
       <Image
         src={src}
@@ -46,7 +55,14 @@ export function NotionImage({
         width={0}
         height={0}
         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 720px"
-        className="h-auto w-full rounded-lg transition-opacity duration-500"
+        className={[
+          'h-auto w-full rounded-lg transition-opacity duration-500',
+          nobg
+            ? 'mix-blend-multiply dark:mix-blend-normal dark:brightness-0 dark:invert'
+            : '',
+        ]
+          .join(' ')
+          .trim()}
         style={{ opacity: loaded ? 1 : 0 }}
         onLoad={() => setLoaded(true)}
       />

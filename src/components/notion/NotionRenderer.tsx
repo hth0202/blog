@@ -117,19 +117,41 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
       const caption = block.image.caption;
       const captionText = caption?.map((c) => c.plain_text).join('') || '';
 
-      // 캡션 앞의 [s/m/l] [left/mid/right] 힌트로 크기·정렬 제어
+      // 캡션 태그로 크기·정렬·여백·배경 제어
+      // 지원 태그: [s/m/l] [left/mid/right] [nobg] [mt:N] [mb:N] [ml:N] [mr:N]
       let remaining = captionText;
 
-      const sizeMatch = remaining.match(/^\[(s|m|l)\]\s*/i);
-      if (sizeMatch) remaining = remaining.slice(sizeMatch[0].length);
+      const popTag = (pattern: RegExp) => {
+        const m = remaining.match(pattern);
+        if (m) remaining = remaining.slice(m.index! + m[0].length).trimStart();
+        return m;
+      };
+
+      const sizeMatch = popTag(/\[(s|m|l)\]\s*/i);
       const sizeHint = sizeMatch ? sizeMatch[1].toLowerCase() : 'l';
 
-      const alignMatch = remaining.match(/^\[(left|mid|right)\]\s*/i);
-      if (alignMatch) remaining = remaining.slice(alignMatch[0].length);
+      const alignMatch = popTag(/\[(left|mid|right)\]\s*/i);
       const alignHint = (alignMatch ? alignMatch[1].toLowerCase() : 'mid') as
         | 'left'
         | 'mid'
         | 'right';
+
+      const nobgMatch = popTag(/\[nobg\]\s*/i);
+      const nobg = !!nobgMatch;
+
+      const margins: Record<string, string> = {};
+      for (const dir of ['mt', 'mb', 'ml', 'mr'] as const) {
+        const m = popTag(new RegExp(`\\[${dir}:(\\d+)\\]\\s*`, 'i'));
+        if (m) {
+          const prop = {
+            mt: 'marginTop',
+            mb: 'marginBottom',
+            ml: 'marginLeft',
+            mr: 'marginRight',
+          }[dir];
+          margins[prop] = `${m[1]}px`;
+        }
+      }
 
       const displayCaption = remaining;
 
@@ -140,6 +162,8 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
           caption={displayCaption || undefined}
           size={sizeHint as 's' | 'm' | 'l'}
           align={alignHint}
+          nobg={nobg}
+          marginStyle={Object.keys(margins).length ? margins : undefined}
         />
       );
     }
