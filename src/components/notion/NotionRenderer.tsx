@@ -483,11 +483,16 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
 export function NotionRenderer({ blocks }: { blocks: BlockObjectResponse[] }) {
   const grouped = groupBlocks(blocks);
 
+  // numbered_list 그룹 사이에 다른 블록이 끼어있어도 번호가 이어지도록
+  // 직전 numbered_list의 마지막 번호를 추적
+  let numberedListCounter = 0;
+
   return (
     <div className="notion-content">
       {grouped.map((item, i) => {
         if ('items' in item) {
           if (item.type === 'bulleted_list') {
+            numberedListCounter = 0;
             return (
               <ul
                 key={i}
@@ -510,9 +515,12 @@ export function NotionRenderer({ blocks }: { blocks: BlockObjectResponse[] }) {
             );
           }
           if (item.type === 'numbered_list') {
+            const startAt = numberedListCounter + 1;
+            numberedListCounter += item.items.length;
             return (
               <ol
                 key={i}
+                start={startAt}
                 className="my-4 list-decimal space-y-2 pl-6 text-gray-700 dark:text-gray-300"
               >
                 {item.items.map((block) => {
@@ -532,6 +540,8 @@ export function NotionRenderer({ blocks }: { blocks: BlockObjectResponse[] }) {
             );
           }
         }
+        // numbered_list가 아닌 블록은 카운터 리셋하지 않음 (사이에 본문이 와도 번호 유지)
+
         return (
           <NotionBlock
             key={(item as BlockObjectResponse).id}
