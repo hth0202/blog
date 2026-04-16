@@ -239,13 +239,14 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
     case 'column_list': {
       const colCount = children?.length || 2;
 
-      // 첫 번째 컬럼의 첫 번째 블록에서 [col:N:M] 태그 감지
-      // 예: [col:1:2] → 1fr 2fr (이미지 1/3, 본문 2/3)
+      // 어느 컬럼이든 첫 번째 블록에서 [col:N:M] 태그 감지
+      // 예: [col:1:2] → 1fr 2fr (이미지 컬럼 1/3, 본문 컬럼 2/3)
+      // 이미지가 첫 블록인 컬럼은 건너뛰고, 본문 컬럼 첫 줄에 태그를 두면 됨
       // 태그 단락은 렌더링에서 제거
       let colRatio: string | undefined;
-      const processedChildren = children?.map((col, colIdx) => {
+      const processedChildren = children?.map((col) => {
         const colChildren: any[] = (col as any).children ?? [];
-        if (colIdx === 0 && colChildren.length > 0) {
+        if (!colRatio && colChildren.length > 0) {
           const firstBlock = colChildren[0];
           if (firstBlock.type === 'paragraph') {
             const text =
