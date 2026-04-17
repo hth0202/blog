@@ -5,7 +5,7 @@ import {
 
 import type { MetadataRoute } from 'next';
 
-const BASE_URL = 'https://hth-blog.vercel.app';
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://taffy-story.com';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [posts, projects] = await Promise.all([
