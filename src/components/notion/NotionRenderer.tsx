@@ -128,7 +128,7 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
         return m;
       };
 
-      const sizeMatch = popTag(/\[(s|m|l)\]\s*/i);
+      const sizeMatch = popTag(/\[(xs|s|m|l)\]\s*/i);
       const sizeHint = sizeMatch ? sizeMatch[1].toLowerCase() : 'l';
 
       const alignMatch = popTag(/\[(left|mid|right)\]\s*/i);
@@ -161,7 +161,7 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
           src={imgSrc}
           alt={displayCaption}
           caption={displayCaption || undefined}
-          size={sizeHint as 's' | 'm' | 'l'}
+          size={sizeHint as 'xs' | 's' | 'm' | 'l'}
           align={alignHint}
           nobg={nobg}
           marginStyle={Object.keys(margins).length ? margins : undefined}
