@@ -67,11 +67,18 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
       if (!block.paragraph.rich_text.length) return <br />;
       const pBg = blockColorClass(block.paragraph.color);
       return (
-        <p
-          className={`mb-4 leading-relaxed text-gray-700 dark:text-gray-300 ${pBg}`.trim()}
-        >
-          <NotionRichText items={block.paragraph.rich_text} />
-        </p>
+        <>
+          <p
+            className={`mb-4 leading-relaxed text-gray-700 dark:text-gray-300 ${pBg}`.trim()}
+          >
+            <NotionRichText items={block.paragraph.rich_text} />
+          </p>
+          {children && (
+            <div className="pl-6">
+              <NotionRenderer blocks={children} />
+            </div>
+          )}
+        </>
       );
     }
 
