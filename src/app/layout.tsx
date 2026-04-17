@@ -14,6 +14,21 @@ export const metadata: Metadata = {
   ),
   title: '태피스토리',
   description: '서비스 기획자 겸 PM 태피가 엮어가는 성장 기록',
+  openGraph: {
+    type: 'website',
+    locale: 'ko_KR',
+    url: process.env.NEXT_PUBLIC_SITE_URL ?? 'https://taffy-story.com',
+    siteName: '태피스토리',
+    title: '태피스토리',
+    description: '서비스 기획자 겸 PM 태피가 엮어가는 성장 기록',
+    images: [{ url: '/android-chrome-512x512.png', width: 512, height: 512 }],
+  },
+  twitter: {
+    card: 'summary',
+    title: '태피스토리',
+    description: '서비스 기획자 겸 PM 태피가 엮어가는 성장 기록',
+    images: ['/android-chrome-512x512.png'],
+  },
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },

@@ -33,6 +33,15 @@ export async function generateMetadata({
       description: post.contentPreview,
       images: post.thumbnailUrl ? [{ url: post.thumbnailUrl }] : [],
       type: 'article',
+      publishedTime: post.date,
+      authors: ['태피'],
+      locale: 'ko_KR',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.contentPreview,
+      images: post.thumbnailUrl ? [post.thumbnailUrl] : [],
     },
   };
 }
@@ -63,8 +72,34 @@ export default async function PostDetailPage({
 
   const blocks = await getPageBlocks(post.rawId);
 
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://taffy-story.com';
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.contentPreview,
+    image: post.thumbnailUrl,
+    datePublished: post.date,
+    dateModified: post.date,
+    url: `${baseUrl}/post/${post.id}`,
+    author: {
+      '@type': 'Person',
+      name: '태피',
+      url: `${baseUrl}/about`,
+    },
+    publisher: {
+      '@type': 'Person',
+      name: '태피스토리',
+      url: baseUrl,
+    },
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <ViewTracker postId={post.id} />
       <article className="animate-fade-in mx-auto max-w-3xl">
         <header className="mb-8">
