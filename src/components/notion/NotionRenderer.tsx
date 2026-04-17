@@ -330,11 +330,14 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
                       return (
                         <Tag
                           key={ci}
-                          className={`border border-gray-200 p-2 text-left dark:border-neutral-600${
-                            hasRowHeader && ci === 0 && !isHeaderRow
-                              ? 'bg-gray-50 font-semibold dark:bg-neutral-700 dark:text-gray-100'
-                              : ''
-                          }`}
+                          className={[
+                            'border border-gray-200 p-2 text-left dark:border-neutral-600',
+                            hasRowHeader && ci === 0
+                              ? 'w-px bg-gray-50 font-semibold whitespace-nowrap dark:bg-neutral-700 dark:text-gray-100'
+                              : '',
+                          ]
+                            .join(' ')
+                            .trim()}
                         >
                           <NotionRichText items={cell} />
                         </Tag>
