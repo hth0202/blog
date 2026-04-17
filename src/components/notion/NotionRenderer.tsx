@@ -287,7 +287,7 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
             }
           >
             {processedChildren?.map((col) => (
-              <div key={col.id}>
+              <div key={col.id} className="px-3">
                 {(col as any).children && (
                   <NotionRenderer blocks={(col as any).children} />
                 )}
