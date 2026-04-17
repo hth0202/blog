@@ -429,6 +429,12 @@ h3.n-bg-red {
   background-color: #52201e;
 }
 
+/* ─── 불렛 리스트 중첩 스타일 (노션 동일하게) ──────────────────────────── */
+/* 1depth: 검은 원(disc), 2depth: 빈 원(circle), 3depth+: 검은 네모(square) */
+.notion-content ul { list-style-type: disc; }
+.notion-content ul ul { list-style-type: circle; }
+.notion-content ul ul ul { list-style-type: square; }
+
 /* ─── 커스텀 컬럼 비율: [col:N:M] 태그로 제어 ──────────────────────────── */
 /* 모바일은 grid-cols-1 유지, md 이상에서만 커스텀 비율 적용               */
 @media (min-width: 768px) {
