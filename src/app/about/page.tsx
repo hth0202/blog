@@ -1,5 +1,6 @@
 import { EducationSection } from '@/components/about/EducationSection';
 import { NotionRenderer } from '@/components/notion/NotionRenderer';
+
 import { getPageBlocks } from '@/services/notion-api';
 
 import type { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';

@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-import { TableOfContents } from '@/components/notion/TableOfContents';
 import { NotionRenderer } from '@/components/notion/NotionRenderer';
+import { TableOfContents } from '@/components/notion/TableOfContents';
 import { ReactionSection } from '@/components/post';
 import {
   CommentSection,
@@ -10,12 +10,13 @@ import {
   ViewTracker,
 } from '@/components/post/article';
 
-import { extractHeadings } from '@/lib/slugify';
 import {
   getPageBlocks,
   getProjectMetaById,
   getProjectsFromNotion,
 } from '@/services/notion-api';
+
+import { extractHeadings } from '@/lib/slugify';
 
 import type { Metadata } from 'next';
 
