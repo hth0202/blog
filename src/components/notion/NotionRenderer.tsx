@@ -522,7 +522,7 @@ function NotionBlock({
 
       return (
         <div
-          className={`my-4 overflow-x-hidden${resolvedIsImageCol ? ' pl-4' : ''}`}
+          className={`my-4 overflow-x-hidden${resolvedIsImageCol ? 'pl-4' : ''}`}
         >
           <div
             className={`grid ${resolvedIsImageCol ? (resolvedWidth >= 200 ? 'gap-x-8' : 'gap-x-8') : 'gap-x-4'} ${gridClass}`}
