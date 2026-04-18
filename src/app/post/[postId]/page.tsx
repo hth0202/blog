@@ -28,8 +28,7 @@ export async function generateMetadata({
   const { postId } = await params;
   const post = await getPostMetaById(postId);
   if (!post) return {};
-  const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ?? 'https://taffy-story.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://taffy-story.com';
   const ogImage = post.thumbnailUrl
     ? post.thumbnailUrl.startsWith('/')
       ? `${baseUrl}${post.thumbnailUrl}`

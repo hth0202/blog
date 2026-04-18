@@ -2,7 +2,7 @@ import type { RichTextItemResponse } from '@notionhq/client/build/src/api-endpoi
 
 // 텍스트 색상 (Tailwind 클래스)
 const TEXT_COLOR: Record<string, string> = {
-  gray: 'text-gray-500 dark:text-gray-400',
+  gray: 'text-gray-400 dark:text-gray-500',
   brown: 'text-amber-700 dark:text-amber-500',
   orange: 'text-orange-500',
   yellow: 'text-yellow-600 dark:text-yellow-400',
