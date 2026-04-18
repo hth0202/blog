@@ -129,12 +129,19 @@ function NotionBlock({
         .map((t: any) => t.plain_text)
         .join('');
       return (
-        <h1
-          id={slugify(h1Text)}
-          className={`mt-10 mb-4 scroll-mt-24 text-3xl font-bold text-gray-900 dark:text-white ${h1Bg}`.trim()}
-        >
-          <NotionRichText items={block.heading_1.rich_text} />
-        </h1>
+        <>
+          <h1
+            id={slugify(h1Text)}
+            className={`mt-10 mb-4 scroll-mt-24 text-3xl font-bold text-gray-900 dark:text-white ${h1Bg}`.trim()}
+          >
+            <NotionRichText items={block.heading_1.rich_text} />
+          </h1>
+          {children && (
+            <div className="pl-6">
+              <NotionRenderer blocks={children} imageColWidth={imageColWidth} />
+            </div>
+          )}
+        </>
       );
     }
 
@@ -144,12 +151,19 @@ function NotionBlock({
         .map((t: any) => t.plain_text)
         .join('');
       return (
-        <h2
-          id={slugify(h2Text)}
-          className={`mt-8 mb-3 scroll-mt-24 text-2xl font-semibold text-gray-900 dark:text-white ${h2Bg}`.trim()}
-        >
-          <NotionRichText items={block.heading_2.rich_text} />
-        </h2>
+        <>
+          <h2
+            id={slugify(h2Text)}
+            className={`mt-8 mb-3 scroll-mt-24 text-2xl font-semibold text-gray-900 dark:text-white ${h2Bg}`.trim()}
+          >
+            <NotionRichText items={block.heading_2.rich_text} />
+          </h2>
+          {children && (
+            <div className="pl-6">
+              <NotionRenderer blocks={children} imageColWidth={imageColWidth} />
+            </div>
+          )}
+        </>
       );
     }
 
@@ -159,12 +173,19 @@ function NotionBlock({
         .map((t: any) => t.plain_text)
         .join('');
       return (
-        <h3
-          id={slugify(h3Text)}
-          className={`mt-6 mb-2 scroll-mt-24 text-xl font-semibold text-gray-800 dark:text-gray-100 ${h3Bg}`.trim()}
-        >
-          <NotionRichText items={block.heading_3.rich_text} />
-        </h3>
+        <>
+          <h3
+            id={slugify(h3Text)}
+            className={`mt-6 mb-2 scroll-mt-24 text-xl font-semibold text-gray-800 dark:text-gray-100 ${h3Bg}`.trim()}
+          >
+            <NotionRichText items={block.heading_3.rich_text} />
+          </h3>
+          {children && (
+            <div className="pl-6">
+              <NotionRenderer blocks={children} imageColWidth={imageColWidth} />
+            </div>
+          )}
+        </>
       );
     }
 
@@ -501,7 +522,7 @@ function NotionBlock({
 
       return (
         <div
-          className={`my-4 overflow-x-hidden${resolvedIsImageCol ? 'pl-4' : ''}`}
+          className={`my-4 overflow-x-hidden${resolvedIsImageCol ? ' pl-4' : ''}`}
         >
           <div
             className={`grid ${resolvedIsImageCol ? (resolvedWidth >= 200 ? 'gap-x-8' : 'gap-x-8') : 'gap-x-4'} ${gridClass}`}
