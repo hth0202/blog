@@ -114,7 +114,7 @@ function NotionBlock({
       return (
         <>
           <p
-            className={`mb-4 leading-relaxed text-gray-700 dark:text-gray-300 ${pBg}`.trim()}
+            className={`mb-4 leading-relaxed break-keep text-gray-700 dark:text-gray-300 ${pBg}`.trim()}
           >
             <NotionRichText items={block.paragraph.rich_text} />
           </p>
