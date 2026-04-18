@@ -106,6 +106,10 @@ function NotionBlock({
   switch (block.type) {
     case 'paragraph': {
       if (!block.paragraph.rich_text.length) return <br />;
+      const pText = block.paragraph.rich_text
+        .map((t: any) => t.plain_text)
+        .join('');
+      if (/^\[col:[^\]]+\]\s*$/i.test(pText)) return null;
       const pBg = blockColorClass(block.paragraph.color);
       return (
         <>
