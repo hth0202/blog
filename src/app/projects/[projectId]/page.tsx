@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+import { TableOfContents } from '@/components/notion/TableOfContents';
 import { NotionRenderer } from '@/components/notion/NotionRenderer';
 import { ReactionSection } from '@/components/post';
 import {
@@ -9,6 +10,7 @@ import {
   ViewTracker,
 } from '@/components/post/article';
 
+import { extractHeadings } from '@/lib/slugify';
 import {
   getPageBlocks,
   getProjectMetaById,
@@ -71,6 +73,7 @@ export default async function ProjectDetailPage({
   if (!project || (!isDraft && project.status !== '발행')) notFound();
 
   const blocks = await getPageBlocks(project.rawId);
+  const headings = extractHeadings(blocks);
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://taffy-story.com';
   const jsonLd = {
@@ -101,24 +104,30 @@ export default async function ProjectDetailPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <ViewTracker postId={project.id} />
+      {headings.length > 0 && <TableOfContents headings={headings} />}
       <article className="animate-fade-in mx-auto max-w-3xl">
         <header className="mb-8">
-          <img
-            src={project.thumbnailUrl}
-            alt={project.name}
-            className="mb-6 h-64 w-full rounded-lg bg-gray-100 object-cover dark:bg-neutral-700"
-          />
-          <div className="text-sm text-gray-500 dark:text-gray-400">
-            {project.category}
-          </div>
-          <h1 className="my-2 text-4xl leading-tight font-extrabold text-gray-900 dark:text-white">
-            {project.name}
-          </h1>
-          <p className="mt-2 mb-4 text-lg text-gray-600 dark:text-gray-300">
-            {project.contentPreview}
-          </p>
-          <div className="text-sm text-gray-500 dark:text-gray-400">
-            {project.date}
+          <div className="relative mb-12 h-72 w-full overflow-hidden rounded-xl bg-gray-900 sm:h-80">
+            <img
+              src={project.thumbnailUrl}
+              alt={project.name}
+              className="h-full w-full object-cover opacity-45"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
+            <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-8">
+              <div className="mb-2 text-sm font-medium text-white/70">
+                {project.category}
+              </div>
+              <h1 className="mb-2 text-2xl leading-tight font-extrabold text-white drop-shadow-md sm:text-3xl">
+                {project.name}
+              </h1>
+              {project.contentPreview && (
+                <p className="mb-3 line-clamp-2 text-sm text-white/80 drop-shadow-sm">
+                  {project.contentPreview}
+                </p>
+              )}
+              <div className="text-xs text-white/60">{project.date}</div>
+            </div>
           </div>
         </header>
 

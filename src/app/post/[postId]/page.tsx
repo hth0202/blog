@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+import { TableOfContents } from '@/components/notion/TableOfContents';
 import { NotionRenderer } from '@/components/notion/NotionRenderer';
 import { ReactionSection } from '@/components/post';
 import {
@@ -9,6 +10,7 @@ import {
   ViewTracker,
 } from '@/components/post/article';
 
+import { extractHeadings } from '@/lib/slugify';
 import {
   getPageBlocks,
   getPostMetaById,
@@ -71,6 +73,7 @@ export default async function PostDetailPage({
   if (!post || (!isDraft && post.status !== '발행')) notFound();
 
   const blocks = await getPageBlocks(post.rawId);
+  const headings = extractHeadings(blocks);
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://taffy-story.com';
   const jsonLd = {
@@ -101,6 +104,7 @@ export default async function PostDetailPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <ViewTracker postId={post.id} />
+      {headings.length > 0 && <TableOfContents headings={headings} />}
       <article className="animate-fade-in mx-auto max-w-3xl">
         <header className="mb-8">
           {/* 커버 히어로: 이미지를 배경으로 하고 텍스트를 위에 오버레이 */}

@@ -1,4 +1,4 @@
-export default function PostDetailLoading() {
+export default function ProjectDetailLoading() {
   return (
     <article className="mx-auto max-w-3xl">
       <header className="mb-8">
