@@ -607,9 +607,12 @@ const _getPostMetaById = async (postId: string): Promise<Post | undefined> => {
       likes,
       thumbnailUrl,
     };
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.status === 404 || error?.code === 'object_not_found') {
+      return undefined;
+    }
     console.error('Notion에서 포스트 메타 가져오기 실패:', error);
-    return undefined;
+    throw error;
   }
 };
 
@@ -741,9 +744,12 @@ const _getProjectMetaById = async (
       status,
       thumbnailUrl,
     } satisfies Project;
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.status === 404 || error?.code === 'object_not_found') {
+      return undefined;
+    }
     console.error('Notion에서 프로젝트 메타 가져오기 실패:', error);
-    return undefined;
+    throw error;
   }
 };
 
