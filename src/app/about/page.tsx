@@ -86,7 +86,7 @@ export default async function AboutPage() {
   const parts = splitBlocks(blocks as BlockObjectResponse[]);
 
   return (
-    <div className="animate-fade-in about-page mx-auto max-w-5xl pt-6 sm:pt-0">
+    <div className="animate-fade-in mx-auto max-w-5xl pt-6 sm:pt-0">
       <div className="mb-8 border-b border-gray-200 pb-4 dark:border-neutral-600">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
           소개

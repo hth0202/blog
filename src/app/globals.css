@@ -305,16 +305,6 @@
   text-indent: 1em;
 }
 
-/* ─── 소개 페이지 본문 들여쓰기 (h2/h3 제외) ────────────────────────────── */
-.about-page .notion-content > p {
-  padding-left: 1rem;
-  text-indent: 0;
-}
-.about-page .notion-content > ul,
-.about-page .notion-content > ol {
-  margin-left: 1rem;
-}
-
 /* code / pre는 모노스페이스 유지 */
 .notion code,
 .notion pre,
