@@ -28,6 +28,7 @@ export interface Project {
   tags: string[];
   thumbnailUrl: string;
   date: string;
+  dateEnd?: string;
   views: number;
   likes: number;
   status: '백로그' | '임시저장' | '발행';

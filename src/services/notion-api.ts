@@ -267,14 +267,22 @@ const _getPostsFromNotion = async (databaseId?: string): Promise<Post[]> => {
                 ?.name ?? '기타')
             : '기타';
 
-        const rawDate =
+        const notionDate =
           props['날짜']?.type === 'date'
-            ? ((props['날짜'] as { date: { start: string } | null }).date
-                ?.start ?? null)
+            ? (
+                props['날짜'] as {
+                  date: { start: string; end: string | null } | null;
+                }
+              ).date
             : null;
+        const rawDate = notionDate?.start ?? null;
+        const rawDateEnd = notionDate?.end ?? null;
         const date = rawDate
           ? format(new Date(rawDate), 'yyyy.MM.dd')
           : format(new Date(), 'yyyy.MM.dd');
+        const dateEnd = rawDateEnd
+          ? format(new Date(rawDateEnd), 'yyyy.MM.dd')
+          : undefined;
 
         const tags =
           props['태그']?.type === 'multi_select'
@@ -406,14 +414,22 @@ const _getProjectsFromNotion = async (
                 )
               : '';
 
-        const rawDate =
+        const notionDate =
           props['날짜']?.type === 'date'
-            ? ((props['날짜'] as { date: { start: string } | null }).date
-                ?.start ?? null)
+            ? (
+                props['날짜'] as {
+                  date: { start: string; end: string | null } | null;
+                }
+              ).date
             : null;
+        const rawDate = notionDate?.start ?? null;
+        const rawDateEnd = notionDate?.end ?? null;
         const date = rawDate
           ? format(new Date(rawDate), 'yyyy.MM.dd')
           : format(new Date(), 'yyyy.MM.dd');
+        const dateEnd = rawDateEnd
+          ? format(new Date(rawDateEnd), 'yyyy.MM.dd')
+          : undefined;
 
         const tags =
           props['태그']?.type === 'multi_select'
@@ -471,6 +487,7 @@ const _getProjectsFromNotion = async (
           category,
           role,
           date,
+          dateEnd,
           tags,
           contentPreview,
           views,
@@ -708,6 +725,7 @@ const _getProjectMetaById = async (
       category,
       role,
       date,
+      dateEnd,
       tags,
       contentPreview,
       views,

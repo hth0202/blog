@@ -136,7 +136,10 @@ export default async function ProjectDetailPage({
                   {project.contentPreview}
                 </p>
               )}
-              <div className="text-xs text-white/60">{project.date}</div>
+              <div className="text-xs text-white/60">
+                {project.date}
+                {project.dateEnd && ` ~ ${project.dateEnd}`}
+              </div>
             </div>
           </div>
         </header>
