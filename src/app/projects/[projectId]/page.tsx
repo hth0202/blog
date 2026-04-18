@@ -28,13 +28,22 @@ export async function generateMetadata({
   const { projectId } = await params;
   const project = await getProjectMetaById(projectId);
   if (!project) return {};
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ?? 'https://taffy-story.com';
+  const ogImage = project.thumbnailUrl
+    ? project.thumbnailUrl.startsWith('/')
+      ? `${baseUrl}${project.thumbnailUrl}`
+      : project.thumbnailUrl
+    : null;
   return {
     title: `${project.name} | 태피스토리`,
     description: project.contentPreview,
     openGraph: {
       title: project.name,
       description: project.contentPreview,
-      images: project.thumbnailUrl ? [{ url: project.thumbnailUrl }] : [],
+      url: `${baseUrl}/projects/${project.id}`,
+      siteName: '태피스토리',
+      images: ogImage ? [{ url: ogImage, alt: project.name }] : [],
       type: 'article',
       publishedTime: project.date,
       authors: ['태피'],
@@ -44,7 +53,7 @@ export async function generateMetadata({
       card: 'summary_large_image',
       title: project.name,
       description: project.contentPreview,
-      images: project.thumbnailUrl ? [project.thumbnailUrl] : [],
+      images: ogImage ? [ogImage] : [],
     },
   };
 }
