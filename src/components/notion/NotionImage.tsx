@@ -15,8 +15,8 @@ interface NotionImageProps {
 
 // 모바일 → 데스크탑 반응형 너비
 const SIZE_CLASS: Record<'xs' | 's' | 'm' | 'l', string> = {
-  xs: 'w-1/3 md:w-1/6',
-  s: 'w-3/5 md:w-1/3',
+  xs: 'w-[64px]',
+  s: 'w-[120px]',
   m: 'w-full md:w-[60%]',
   l: 'w-full',
 };

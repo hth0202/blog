@@ -1,3 +1,5 @@
+import { slugify } from '@/lib/slugify';
+
 import { NotionImage } from './NotionImage';
 import { NotionRichText } from './NotionRichText';
 import { SkillCollectionServer } from './SkillCollectionServer';
@@ -15,6 +17,39 @@ const BLOCK_BG: Record<string, string> = {
   purple_background: 'n-bg-purple',
   pink_background: 'n-bg-pink',
   red_background: 'n-bg-red',
+};
+
+const CALLOUT_BG: Record<string, string> = {
+  gray: 'bg-[#efefec] dark:bg-[#4a4a4a]',
+  brown: 'bg-[#f3e8e3] dark:bg-[#5c3d2e]',
+  orange: 'bg-[#fbe8d2] dark:bg-[#5c3a1a]',
+  yellow: 'bg-[#faf2cc] dark:bg-[#554c1a]',
+  green: 'bg-[#e4f2e2] dark:bg-[#1e4230]',
+  blue: 'bg-[#dceef8] dark:bg-[#1a3a52]',
+  purple: 'bg-[#ede7f8] dark:bg-[#3a2352]',
+  pink: 'bg-[#f8e4f3] dark:bg-[#52233a]',
+  red: 'bg-[#fae3e2] dark:bg-[#52201e]',
+  gray_background: 'bg-[#efefec] dark:bg-[#4a4a4a]',
+  brown_background: 'bg-[#f3e8e3] dark:bg-[#5c3d2e]',
+  orange_background: 'bg-[#fbe8d2] dark:bg-[#5c3a1a]',
+  yellow_background: 'bg-[#faf2cc] dark:bg-[#554c1a]',
+  green_background: 'bg-[#e4f2e2] dark:bg-[#1e4230]',
+  blue_background: 'bg-[#dceef8] dark:bg-[#1a3a52]',
+  purple_background: 'bg-[#ede7f8] dark:bg-[#3a2352]',
+  pink_background: 'bg-[#f8e4f3] dark:bg-[#52233a]',
+  red_background: 'bg-[#fae3e2] dark:bg-[#52201e]',
+};
+
+const CALLOUT_ICON_COLOR: Record<string, string> = {
+  gray: 'text-gray-500',
+  brown: 'text-amber-700',
+  orange: 'text-orange-500',
+  yellow: 'text-yellow-500',
+  green: 'text-green-600',
+  blue: 'text-blue-500',
+  purple: 'n-text-purple',
+  pink: 'text-pink-500',
+  red: 'text-red-500',
 };
 
 /** 블록 레벨 color 값 → CSS 클래스 */
@@ -59,7 +94,13 @@ function groupBlocks(blocks: BlockObjectResponse[]): GroupedBlock[] {
   return result;
 }
 
-function NotionBlock({ block }: { block: BlockObjectResponse }) {
+function NotionBlock({
+  block,
+  imageColWidth,
+}: {
+  block: BlockObjectResponse;
+  imageColWidth?: number;
+}) {
   const children = (block as any).children as BlockObjectResponse[] | undefined;
 
   switch (block.type) {
@@ -75,7 +116,7 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
           </p>
           {children && (
             <div className="pl-6">
-              <NotionRenderer blocks={children} />
+              <NotionRenderer blocks={children} imageColWidth={imageColWidth} />
             </div>
           )}
         </>
@@ -84,9 +125,13 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
 
     case 'heading_1': {
       const h1Bg = blockColorClass(block.heading_1.color);
+      const h1Text = block.heading_1.rich_text
+        .map((t: any) => t.plain_text)
+        .join('');
       return (
         <h1
-          className={`mt-10 mb-4 text-3xl font-bold text-gray-900 dark:text-white ${h1Bg}`.trim()}
+          id={slugify(h1Text)}
+          className={`mt-10 mb-4 scroll-mt-24 text-3xl font-bold text-gray-900 dark:text-white ${h1Bg}`.trim()}
         >
           <NotionRichText items={block.heading_1.rich_text} />
         </h1>
@@ -95,9 +140,13 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
 
     case 'heading_2': {
       const h2Bg = blockColorClass(block.heading_2.color);
+      const h2Text = block.heading_2.rich_text
+        .map((t: any) => t.plain_text)
+        .join('');
       return (
         <h2
-          className={`mt-8 mb-3 text-2xl font-semibold text-gray-900 dark:text-white ${h2Bg}`.trim()}
+          id={slugify(h2Text)}
+          className={`mt-8 mb-3 scroll-mt-24 text-2xl font-semibold text-gray-900 dark:text-white ${h2Bg}`.trim()}
         >
           <NotionRichText items={block.heading_2.rich_text} />
         </h2>
@@ -106,9 +155,13 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
 
     case 'heading_3': {
       const h3Bg = blockColorClass(block.heading_3.color);
+      const h3Text = block.heading_3.rich_text
+        .map((t: any) => t.plain_text)
+        .join('');
       return (
         <h3
-          className={`mt-6 mb-2 text-xl font-semibold text-gray-800 dark:text-gray-100 ${h3Bg}`.trim()}
+          id={slugify(h3Text)}
+          className={`mt-6 mb-2 scroll-mt-24 text-xl font-semibold text-gray-800 dark:text-gray-100 ${h3Bg}`.trim()}
         >
           <NotionRichText items={block.heading_3.rich_text} />
         </h3>
@@ -205,19 +258,63 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
       return (
         <blockquote className="my-4 border-l-4 border-indigo-400 pl-4 text-gray-600 italic dark:text-gray-400">
           <NotionRichText items={block.quote.rich_text} />
-          {children && <NotionRenderer blocks={children} />}
+          {children && (
+            <NotionRenderer blocks={children} imageColWidth={imageColWidth} />
+          )}
         </blockquote>
       );
 
     case 'callout': {
       const icon = block.callout.icon;
-      const iconContent = icon?.type === 'emoji' ? icon.emoji : '💡';
+      const calloutColor = block.callout.color;
+      // Notion 내장 아이콘의 color 추출 (type === 'icon')
+      const builtinIconColor: string | undefined =
+        (icon as any)?.type === 'icon' ? (icon as any)?.icon?.color : undefined;
+      // 배경: callout.color가 명시된 경우만 색상 적용, default는 흰 배경 + 테두리
+      const bgClass =
+        calloutColor !== 'default' && CALLOUT_BG[calloutColor]
+          ? CALLOUT_BG[calloutColor]
+          : 'bg-white border border-gray-200 dark:bg-neutral-900 dark:border-neutral-700';
+      let iconEl: React.ReactNode;
+      if (icon?.type === 'emoji') {
+        iconEl = <span className="text-xl leading-none">{icon.emoji}</span>;
+      } else if (icon?.type === 'external') {
+        iconEl = (
+          <img
+            src={icon.external.url}
+            alt=""
+            className="mt-0.5 h-5 w-5 object-contain"
+          />
+        );
+      } else if (icon?.type === 'file') {
+        iconEl = (
+          <img
+            src={icon.file.url}
+            alt=""
+            className="mt-0.5 h-5 w-5 object-contain"
+          />
+        );
+      } else if ((icon as any)?.type === 'icon') {
+        // Notion 내장 SVG 아이콘: 색상 적용한 ✳ 문자로 대체 표시
+        const iconTextColor = builtinIconColor
+          ? (CALLOUT_ICON_COLOR[builtinIconColor] ?? 'text-gray-500')
+          : 'text-gray-500';
+        iconEl = (
+          <span className={`text-xl leading-none font-bold ${iconTextColor}`}>
+            ✳
+          </span>
+        );
+      } else {
+        iconEl = <span className="text-xl leading-none">💡</span>;
+      }
       return (
-        <div className="my-4 flex gap-3 rounded-lg bg-gray-50 p-4 dark:bg-neutral-800/60">
-          <span className="text-xl leading-relaxed">{iconContent}</span>
+        <div className={`my-4 flex gap-3 rounded-lg p-4 ${bgClass}`}>
+          <span className="shrink-0">{iconEl}</span>
           <div className="flex-1 text-gray-700 dark:text-gray-300">
             <NotionRichText items={block.callout.rich_text} />
-            {children && <NotionRenderer blocks={children} />}
+            {children && (
+              <NotionRenderer blocks={children} imageColWidth={imageColWidth} />
+            )}
           </div>
         </div>
       );
@@ -234,7 +331,7 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
           </summary>
           {children && (
             <div className="border-t border-gray-200 p-4 dark:border-neutral-700">
-              <NotionRenderer blocks={children} />
+              <NotionRenderer blocks={children} imageColWidth={imageColWidth} />
             </div>
           )}
         </details>
@@ -260,18 +357,120 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
               firstBlock.paragraph?.rich_text
                 ?.map((t: any) => t.plain_text)
                 .join('') ?? '';
-            const m = text.match(/^\[col:([\d:]+)\]\s*$/i);
-            if (m) {
-              colRatio = m[1]
+            // 단독 단락: "[col:2:3]" 또는 "[col:300px]" 형태
+            const mExact = text.match(/^\[col:([^\]]+)\]\s*$/i);
+            // 첫 줄 prefix: "[col:2:3]\n내용..." 형태 (Shift+Enter 소프트 줄바꿈)
+            const mPrefix = !mExact
+              ? text.match(/^\[col:([^\]]+)\][ \t]*\n/i)
+              : null;
+            const parseColRatio = (val: string) => {
+              // "[col:300px]" → "300px 1fr" / "[col:2:3]" → "2fr 3fr"
+              if (/^\d+px$/.test(val.trim())) return `${val.trim()} 1fr`;
+              return val
                 .split(':')
-                .map((n: string) => `${n}fr`)
+                .map((n: string) => `${n.trim()}fr`)
                 .join(' ');
+            };
+            if (mExact) {
+              colRatio = parseColRatio(mExact[1]);
               return { ...col, children: colChildren.slice(1) };
+            } else if (mPrefix) {
+              colRatio = parseColRatio(mPrefix[1]);
+              // rich_text 앞에서 "[col:2:3]\n" 만큼 잘라냄
+              const stripLen = mPrefix[0].length;
+              const origRichText: any[] = firstBlock.paragraph.rich_text ?? [];
+              let remaining = stripLen;
+              const newRichText: any[] = [];
+              for (const item of origRichText) {
+                if (remaining <= 0) {
+                  newRichText.push(item);
+                  continue;
+                }
+                const content: string =
+                  item.text?.content ?? item.plain_text ?? '';
+                if (content.length <= remaining) {
+                  remaining -= content.length;
+                } else {
+                  newRichText.push({
+                    ...item,
+                    plain_text: content.slice(remaining),
+                    text: { ...item.text, content: content.slice(remaining) },
+                  });
+                  remaining = 0;
+                }
+              }
+              const newFirstBlock = {
+                ...firstBlock,
+                paragraph: { ...firstBlock.paragraph, rich_text: newRichText },
+              };
+              return {
+                ...col,
+                children: [newFirstBlock, ...colChildren.slice(1)],
+              };
             }
           }
         }
         return col;
       });
+
+      // 첫 컬럼이 이미지+여백으로만 구성된 경우 → 고정 px 컬럼으로 레이아웃
+      // 컨트롤 태그 [xs/s/m/l] 단락 또는 이미지 캡션으로 크기 지정 (기본 120px)
+      const isControlTagPara = (b: any) => {
+        if (b.type !== 'paragraph') return false;
+        const text = (b.paragraph?.rich_text ?? [])
+          .map((t: any) => t.plain_text)
+          .join('');
+        return /^\[(xs|s|m|l)\]\s*$/i.test(text);
+      };
+      const isEmptyPara = (b: any) => {
+        if (b.type !== 'paragraph') return false;
+        return (
+          (b.paragraph?.rich_text ?? [])
+            .map((t: any) => t.plain_text)
+            .join('')
+            .trim() === ''
+        );
+      };
+
+      const firstColBlocks: any[] = processedChildren?.[0]
+        ? ((processedChildren[0] as any).children ?? [])
+        : [];
+      const firstColImageBlocks = firstColBlocks.filter(
+        (b: any) => b.type === 'image',
+      );
+      // 첫 컬럼이 이미지+공백+제어태그로만 구성된 2단 레이아웃
+      const firstColIsImageCol =
+        colCount === 2 &&
+        firstColBlocks.length > 0 &&
+        firstColImageBlocks.length > 0 &&
+        firstColBlocks.every(
+          (b: any) =>
+            b.type === 'image' || isControlTagPara(b) || isEmptyPara(b),
+        );
+
+      // 사이즈 태그로 첫 컬럼 px 결정 (xs=64, s=120, m=200, l=280, 기본=480)
+      const getFirstColWidth = (): number => {
+        const controlPara = firstColBlocks.find(isControlTagPara);
+        if (controlPara) {
+          const t = (controlPara.paragraph?.rich_text ?? [])
+            .map((x: any) => x.plain_text)
+            .join('');
+          if (/\[xs\]/i.test(t)) return 64;
+          if (/\[s\]/i.test(t)) return 120;
+          if (/\[m\]/i.test(t)) return 200;
+          if (/\[l\]/i.test(t)) return 280;
+        }
+        for (const img of firstColImageBlocks) {
+          const cap =
+            img.image?.caption?.map((c: any) => c.plain_text).join('') ?? '';
+          if (/\[xs\]/i.test(cap)) return 64;
+          if (/\[s\]/i.test(cap)) return 120;
+          if (/\[m\]/i.test(cap)) return 200;
+          if (/\[l\]/i.test(cap)) return 280;
+        }
+        return 480;
+      };
+      const firstColWidth = firstColIsImageCol ? getFirstColWidth() : undefined;
 
       // 모바일: 1단 세로 배치 / 데스크탑: 노션 원본 단 수 유지
       const colClass: Record<number, string> = {
@@ -279,27 +478,62 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
         3: 'grid-cols-1 md:grid-cols-3',
         4: 'grid-cols-1 md:grid-cols-4',
       };
-      const gridClass = colRatio
-        ? 'grid-cols-1 col-ratio-grid'
-        : (colClass[colCount] ?? 'grid-cols-1 md:grid-cols-2');
+      // prop으로 강제된 너비가 있으면 이미지 컬럼으로 간주
+      const propForceImageCol = imageColWidth !== undefined && colCount === 2;
+      const resolvedIsImageCol = propForceImageCol || firstColIsImageCol;
+      const resolvedWidth = propForceImageCol
+        ? imageColWidth
+        : (firstColWidth ?? 480);
+
+      const imageColClass = (px: number) => {
+        if (px === 64) return 'col-image-64';
+        if (px === 200) return 'col-image-200';
+        if (px === 280) return 'col-image-280';
+        if (px === 300) return 'col-image-300';
+        if (px === 480) return 'col-image-480';
+        return 'col-image-120';
+      };
+      const gridClass = resolvedIsImageCol
+        ? `grid-cols-1 ${imageColClass(resolvedWidth)}`
+        : colRatio
+          ? 'grid-cols-1 col-ratio-grid'
+          : (colClass[colCount] ?? 'grid-cols-1 md:grid-cols-2');
 
       return (
-        <div className="my-4 overflow-x-hidden">
+        <div
+          className={`my-4 overflow-x-hidden${resolvedIsImageCol ? 'pl-4' : ''}`}
+        >
           <div
-            className={`grid gap-0 ${gridClass}`}
+            className={`grid ${resolvedIsImageCol ? (resolvedWidth >= 200 ? 'gap-x-8' : 'gap-x-8') : 'gap-x-4'} ${gridClass}`}
             style={
-              colRatio
+              !resolvedIsImageCol && colRatio
                 ? ({ '--col-ratio': colRatio } as React.CSSProperties)
                 : undefined
             }
           >
-            {processedChildren?.map((col) => (
-              <div key={col.id} className="px-3">
-                {(col as any).children && (
-                  <NotionRenderer blocks={(col as any).children} />
-                )}
-              </div>
-            ))}
+            {processedChildren?.map((col, colIdx) => {
+              const colChildren = (col as any).children;
+              const blocksToRender =
+                resolvedIsImageCol && colIdx === 0
+                  ? colChildren?.filter(
+                      (b: any) => !isControlTagPara(b) && !isEmptyPara(b),
+                    )
+                  : colChildren;
+              const colDivClass =
+                resolvedIsImageCol && colIdx === 0
+                  ? 'min-w-0 [&_figure]:!w-full [&_figure]:!mx-0'
+                  : 'min-w-0';
+              return (
+                <div key={col.id} className={colDivClass}>
+                  {blocksToRender && (
+                    <NotionRenderer
+                      blocks={blocksToRender}
+                      imageColWidth={imageColWidth}
+                    />
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       );
@@ -371,7 +605,9 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
                 : block.numbered_list_item.rich_text
             }
           />
-          {children && <NotionRenderer blocks={children} />}
+          {children && (
+            <NotionRenderer blocks={children} imageColWidth={imageColWidth} />
+          )}
         </li>
       );
 
@@ -490,14 +726,17 @@ function NotionBlock({ block }: { block: BlockObjectResponse }) {
   }
 }
 
-export function NotionRenderer({ blocks }: { blocks: BlockObjectResponse[] }) {
+export function NotionRenderer({
+  blocks,
+  imageColWidth,
+}: {
+  blocks: BlockObjectResponse[];
+  imageColWidth?: number;
+}) {
   const grouped = groupBlocks(blocks);
-
-  // numbered_list 그룹 사이에 다른 블록이 끼어있어도 번호가 이어지도록
-  // 직전 numbered_list의 마지막 번호를 추적
   let numberedListCounter = 0;
 
-  return (
+  const content = (
     <div className="notion-content">
       {grouped.map((item, i) => {
         if ('items' in item) {
@@ -517,7 +756,12 @@ export function NotionRenderer({ blocks }: { blocks: BlockObjectResponse[] }) {
                       <NotionRichText
                         items={(block as any).bulleted_list_item.rich_text}
                       />
-                      {listChildren && <NotionRenderer blocks={listChildren} />}
+                      {listChildren && (
+                        <NotionRenderer
+                          blocks={listChildren}
+                          imageColWidth={imageColWidth}
+                        />
+                      )}
                     </li>
                   );
                 })}
@@ -542,7 +786,12 @@ export function NotionRenderer({ blocks }: { blocks: BlockObjectResponse[] }) {
                       <NotionRichText
                         items={(block as any).numbered_list_item.rich_text}
                       />
-                      {listChildren && <NotionRenderer blocks={listChildren} />}
+                      {listChildren && (
+                        <NotionRenderer
+                          blocks={listChildren}
+                          imageColWidth={imageColWidth}
+                        />
+                      )}
                     </li>
                   );
                 })}
@@ -550,7 +799,6 @@ export function NotionRenderer({ blocks }: { blocks: BlockObjectResponse[] }) {
             );
           }
         }
-        // 헤딩 블록이 오면 새 섹션으로 간주해 번호 리셋, 단락은 유지
         const blockType = (item as BlockObjectResponse).type;
         if (
           blockType === 'heading_1' ||
@@ -564,9 +812,12 @@ export function NotionRenderer({ blocks }: { blocks: BlockObjectResponse[] }) {
           <NotionBlock
             key={(item as BlockObjectResponse).id}
             block={item as BlockObjectResponse}
+            imageColWidth={imageColWidth}
           />
         );
       })}
     </div>
   );
+
+  return content;
 }

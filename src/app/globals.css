@@ -49,7 +49,8 @@
     /* Always reserve scrollbar space — prevents layout shift when scrollbar appears/disappears */
     scrollbar-gutter: stable;
     /* Prevent horizontal overflow/scroll on all pages */
-    overflow-x: hidden;
+    /* clip instead of hidden — hidden breaks position:sticky by creating a new scroll container */
+    overflow-x: clip;
   }
 
   html.dark {
@@ -62,7 +63,7 @@
     color: var(--foreground);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden;
+    overflow-x: clip;
     transition:
       background-color 0.3s ease,
       color 0.3s ease;
@@ -422,6 +423,12 @@ h3.n-bg-red {
 .dark .n-bg-purple {
   background-color: #3a2352;
 }
+.n-text-purple {
+  color: #5a35a0;
+}
+.dark .n-text-purple {
+  color: #c4b0e5;
+}
 .dark .n-bg-pink {
   background-color: #52243e;
 }
@@ -431,14 +438,40 @@ h3.n-bg-red {
 
 /* ─── 불렛 리스트 중첩 스타일 (노션 동일하게) ──────────────────────────── */
 /* 1depth: 검은 원(disc), 2depth: 빈 원(circle), 3depth+: 검은 네모(square) */
-.notion-content ul { list-style-type: disc; }
-.notion-content ul ul { list-style-type: circle; margin-top: 0; margin-bottom: 0; }
-.notion-content ul ul ul { list-style-type: square; }
+.notion-content ul {
+  list-style-type: disc;
+}
+.notion-content ul ul {
+  list-style-type: circle;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.notion-content ul ul ul {
+  list-style-type: square;
+}
 
 /* ─── 커스텀 컬럼 비율: [col:N:M] 태그로 제어 ──────────────────────────── */
 /* 모바일은 grid-cols-1 유지, md 이상에서만 커스텀 비율 적용               */
 @media (min-width: 768px) {
   .col-ratio-grid {
     grid-template-columns: var(--col-ratio, 1fr 1fr) !important;
+  }
+  .col-image-64 {
+    grid-template-columns: 64px 1fr !important;
+  }
+  .col-image-120 {
+    grid-template-columns: 120px 1fr !important;
+  }
+  .col-image-200 {
+    grid-template-columns: 200px 1fr !important;
+  }
+  .col-image-280 {
+    grid-template-columns: 280px 1fr !important;
+  }
+  .col-image-300 {
+    grid-template-columns: 300px 1fr !important;
+  }
+  .col-image-480 {
+    grid-template-columns: 480px 1fr !important;
   }
 }
