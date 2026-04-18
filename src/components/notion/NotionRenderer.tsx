@@ -503,12 +503,12 @@ function NotionBlock({
         3: 'grid-cols-1 md:grid-cols-3',
         4: 'grid-cols-1 md:grid-cols-4',
       };
-      // prop으로 강제된 너비가 있으면 이미지 컬럼으로 간주
-      const propForceImageCol = imageColWidth !== undefined && colCount === 2;
-      const resolvedIsImageCol = propForceImageCol || firstColIsImageCol;
-      const resolvedWidth = propForceImageCol
-        ? imageColWidth
-        : (firstColWidth ?? 480);
+      // 첫 컬럼 이미지 여부로만 판단 — imageColWidth는 크기 힌트로만 사용
+      const resolvedIsImageCol = firstColIsImageCol;
+      const resolvedWidth =
+        firstColIsImageCol && imageColWidth !== undefined
+          ? imageColWidth
+          : (firstColWidth ?? 480);
 
       const imageColClass = (px: number) => {
         if (px === 64) return 'col-image-64';
