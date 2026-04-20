@@ -58,48 +58,51 @@ const extractCoverUrl = (
 const _getPageBlocks = async (
   pageId: string,
 ): Promise<BlockObjectResponse[]> => {
-  try {
-    if (!pageId) return [];
-    const blocks: BlockObjectResponse[] = [];
-    let cursor: string | undefined;
+  if (!pageId) return [];
+  const blocks: BlockObjectResponse[] = [];
+  let cursor: string | undefined;
 
-    do {
-      const response = await notionClient.blocks.children.list({
-        block_id: pageId,
-        page_size: 100,
-        ...(cursor ? { start_cursor: cursor } : {}),
-      });
+  do {
+    const response = await notionClient.blocks.children.list({
+      block_id: pageId,
+      page_size: 100,
+      ...(cursor ? { start_cursor: cursor } : {}),
+    });
 
-      const validBlocks = response.results.filter(
-        (b): b is BlockObjectResponse => 'type' in b,
-      );
-      blocks.push(...validBlocks);
-      cursor = response.has_more
-        ? (response.next_cursor ?? undefined)
-        : undefined;
-    } while (cursor);
+    const validBlocks = response.results.filter(
+      (b): b is BlockObjectResponse => 'type' in b,
+    );
+    blocks.push(...validBlocks);
+    cursor = response.has_more
+      ? (response.next_cursor ?? undefined)
+      : undefined;
+  } while (cursor);
 
-    // has_children인 블록은 재귀적으로 children fetch
-    // child_database / child_page는 별도 컴포넌트에서 처리하므로 제외
-    await Promise.all(
-      blocks
-        .filter(
-          (b) =>
-            b.has_children &&
-            b.type !== 'child_database' &&
-            b.type !== 'child_page',
-        )
-        .map(async (block) => {
+  // has_children인 블록은 재귀적으로 children fetch
+  // child_database / child_page는 별도 컴포넌트에서 처리하므로 제외
+  // 개별 자식 fetch 실패는 해당 블록만 children 없이 처리 (전체 실패 방지)
+  await Promise.all(
+    blocks
+      .filter(
+        (b) =>
+          b.has_children &&
+          b.type !== 'child_database' &&
+          b.type !== 'child_page',
+      )
+      .map(async (block) => {
+        try {
           const children = await _getPageBlocks(block.id);
           (block as any).children = children;
-        }),
-    );
+        } catch (err) {
+          console.error(
+            `[getPageBlocks] 자식 블록 조회 실패 blockId=${block.id}:`,
+            err,
+          );
+        }
+      }),
+  );
 
-    return blocks;
-  } catch (error) {
-    console.error('Notion 블록 조회 실패:', error);
-    return [];
-  }
+  return blocks;
 };
 
 export const getPageBlocks = devCache(_getPageBlocks, ['notion-blocks'], {

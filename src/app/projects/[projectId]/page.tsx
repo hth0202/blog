@@ -81,7 +81,16 @@ export default async function ProjectDetailPage({
   const project = await getProjectMetaById(projectId);
   if (!project || (!isDraft && project.status !== '발행')) notFound();
 
-  const blocks = await getPageBlocks(project.rawId);
+  let blocks: Awaited<ReturnType<typeof getPageBlocks>> = [];
+  try {
+    blocks = await getPageBlocks(project.rawId);
+  } catch (err) {
+    console.error(
+      `[ProjectDetailPage] 블록 조회 실패 rawId=${project.rawId}:`,
+      err,
+    );
+    blocks = [];
+  }
   const headings = extractHeadings(blocks);
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://taffy-story.com';

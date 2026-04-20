@@ -81,7 +81,13 @@ export default async function PostDetailPage({
   const post = await getPostMetaById(postId);
   if (!post || (!isDraft && post.status !== '발행')) notFound();
 
-  const blocks = await getPageBlocks(post.rawId);
+  let blocks: Awaited<ReturnType<typeof getPageBlocks>> = [];
+  try {
+    blocks = await getPageBlocks(post.rawId);
+  } catch (err) {
+    console.error(`[PostDetailPage] 블록 조회 실패 rawId=${post.rawId}:`, err);
+    blocks = [];
+  }
   const headings = extractHeadings(blocks);
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://taffy-story.com';
