@@ -97,9 +97,11 @@ function groupBlocks(blocks: BlockObjectResponse[]): GroupedBlock[] {
 function NotionBlock({
   block,
   imageColWidth,
+  noIndent,
 }: {
   block: BlockObjectResponse;
   imageColWidth?: number;
+  noIndent?: boolean;
 }) {
   const children = (block as any).children as BlockObjectResponse[] | undefined;
 
@@ -119,8 +121,12 @@ function NotionBlock({
             <NotionRichText items={block.paragraph.rich_text} />
           </p>
           {children && (
-            <div className="pl-6">
-              <NotionRenderer blocks={children} imageColWidth={imageColWidth} />
+            <div className={noIndent ? '' : 'pl-6'}>
+              <NotionRenderer
+                blocks={children}
+                imageColWidth={imageColWidth}
+                noIndent={noIndent}
+              />
             </div>
           )}
         </>
@@ -141,8 +147,12 @@ function NotionBlock({
             <NotionRichText items={block.heading_1.rich_text} />
           </h1>
           {children && (
-            <div className="pl-6">
-              <NotionRenderer blocks={children} imageColWidth={imageColWidth} />
+            <div className={noIndent ? '' : 'pl-6'}>
+              <NotionRenderer
+                blocks={children}
+                imageColWidth={imageColWidth}
+                noIndent={noIndent}
+              />
             </div>
           )}
         </>
@@ -163,8 +173,12 @@ function NotionBlock({
             <NotionRichText items={block.heading_2.rich_text} />
           </h2>
           {children && (
-            <div className="pl-6">
-              <NotionRenderer blocks={children} imageColWidth={imageColWidth} />
+            <div className={noIndent ? '' : 'pl-6'}>
+              <NotionRenderer
+                blocks={children}
+                imageColWidth={imageColWidth}
+                noIndent={noIndent}
+              />
             </div>
           )}
         </>
@@ -185,8 +199,12 @@ function NotionBlock({
             <NotionRichText items={block.heading_3.rich_text} />
           </h3>
           {children && (
-            <div className="pl-6">
-              <NotionRenderer blocks={children} imageColWidth={imageColWidth} />
+            <div className={noIndent ? '' : 'pl-6'}>
+              <NotionRenderer
+                blocks={children}
+                imageColWidth={imageColWidth}
+                noIndent={noIndent}
+              />
             </div>
           )}
         </>
@@ -284,7 +302,11 @@ function NotionBlock({
         <blockquote className="my-4 border-l-4 border-indigo-400 pl-4 text-gray-600 italic dark:text-gray-400">
           <NotionRichText items={block.quote.rich_text} />
           {children && (
-            <NotionRenderer blocks={children} imageColWidth={imageColWidth} />
+            <NotionRenderer
+              blocks={children}
+              imageColWidth={imageColWidth}
+              noIndent={noIndent}
+            />
           )}
         </blockquote>
       );
@@ -338,7 +360,11 @@ function NotionBlock({
           <div className="flex-1 text-gray-700 dark:text-gray-300">
             <NotionRichText items={block.callout.rich_text} />
             {children && (
-              <NotionRenderer blocks={children} imageColWidth={imageColWidth} />
+              <NotionRenderer
+                blocks={children}
+                imageColWidth={imageColWidth}
+                noIndent={noIndent}
+              />
             )}
           </div>
         </div>
@@ -356,7 +382,11 @@ function NotionBlock({
           </summary>
           {children && (
             <div className="border-t border-gray-200 p-4 dark:border-neutral-700">
-              <NotionRenderer blocks={children} imageColWidth={imageColWidth} />
+              <NotionRenderer
+                blocks={children}
+                imageColWidth={imageColWidth}
+                noIndent={noIndent}
+              />
             </div>
           )}
         </details>
@@ -554,6 +584,7 @@ function NotionBlock({
                     <NotionRenderer
                       blocks={blocksToRender}
                       imageColWidth={imageColWidth}
+                      noIndent={noIndent}
                     />
                   )}
                 </div>
@@ -631,7 +662,11 @@ function NotionBlock({
             }
           />
           {children && (
-            <NotionRenderer blocks={children} imageColWidth={imageColWidth} />
+            <NotionRenderer
+              blocks={children}
+              imageColWidth={imageColWidth}
+              noIndent={false}
+            />
           )}
         </li>
       );
@@ -754,9 +789,11 @@ function NotionBlock({
 export function NotionRenderer({
   blocks,
   imageColWidth,
+  noIndent,
 }: {
   blocks: BlockObjectResponse[];
   imageColWidth?: number;
+  noIndent?: boolean;
 }) {
   const grouped = groupBlocks(blocks);
   let numberedListCounter = 0;
@@ -785,6 +822,7 @@ export function NotionRenderer({
                         <NotionRenderer
                           blocks={listChildren}
                           imageColWidth={imageColWidth}
+                          noIndent={false}
                         />
                       )}
                     </li>
@@ -815,6 +853,7 @@ export function NotionRenderer({
                         <NotionRenderer
                           blocks={listChildren}
                           imageColWidth={imageColWidth}
+                          noIndent={false}
                         />
                       )}
                     </li>
@@ -838,6 +877,7 @@ export function NotionRenderer({
             key={(item as BlockObjectResponse).id}
             block={item as BlockObjectResponse}
             imageColWidth={imageColWidth}
+            noIndent={noIndent}
           />
         );
       })}
