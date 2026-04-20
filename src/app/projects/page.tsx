@@ -6,9 +6,12 @@ import { ProjectCategory } from '@/types/blog';
 
 import type { Metadata } from 'next';
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://taffy-story.com';
+
 export const metadata: Metadata = {
   title: '작업 | 태피스토리',
   description: '태피가 참여한 서비스 기획 및 PM 작업물 모음',
+  alternates: { canonical: `${BASE_URL}/projects` },
 };
 
 export const revalidate = 300;

@@ -37,6 +37,9 @@ export async function generateMetadata({
   return {
     title: `${project.name} | 태피스토리`,
     description: project.contentPreview,
+    alternates: {
+      canonical: `${baseUrl}/projects/${project.id}`,
+    },
     openGraph: {
       title: project.name,
       description: project.contentPreview,

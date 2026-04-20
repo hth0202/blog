@@ -6,9 +6,12 @@ import { getPageBlocks } from '@/services/notion-api';
 import type { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import type { Metadata } from 'next';
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://taffy-story.com';
+
 export const metadata: Metadata = {
   title: '소개 | 태피스토리',
   description: '서비스 기획자 겸 PM 태피를 소개합니다',
+  alternates: { canonical: `${BASE_URL}/about` },
 };
 
 export const revalidate = 300;

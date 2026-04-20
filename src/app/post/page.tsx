@@ -6,9 +6,12 @@ import { Post, Category } from '@/types/blog';
 
 import type { Metadata } from 'next';
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://taffy-story.com';
+
 export const metadata: Metadata = {
   title: '기록 | 태피스토리',
   description: '서비스 기획자 태피의 솔직한 고민과 인사이트를 담은 글 모음',
+  alternates: { canonical: `${BASE_URL}/post` },
 };
 
 export const revalidate = 300;

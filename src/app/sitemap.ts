@@ -17,7 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .filter((p) => p.status === '발행')
     .map((p) => ({
       url: `${BASE_URL}/post/${p.id}`,
-      lastModified: p.date ? new Date(p.date) : new Date(),
+      lastModified: p.isoDate ? new Date(p.isoDate) : new Date(),
       changeFrequency: 'monthly' as const,
       priority: 0.8,
     }));
@@ -26,7 +26,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .filter((p) => p.status === '발행')
     .map((p) => ({
       url: `${BASE_URL}/projects/${p.id}`,
-      lastModified: p.date ? new Date(p.date) : new Date(),
+      lastModified: p.date ? new Date(p.date.replace(/\./g, '-')) : new Date(),
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     }));
