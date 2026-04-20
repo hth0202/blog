@@ -89,7 +89,7 @@ export default async function AboutPage() {
   const parts = splitBlocks(blocks as BlockObjectResponse[]);
 
   return (
-    <div className="animate-fade-in mx-auto max-w-5xl pt-6 sm:pt-0">
+    <div className="about-no-indent animate-fade-in mx-auto max-w-5xl pt-6 sm:pt-0">
       <div className="mb-8 border-b border-gray-200 pb-4 dark:border-neutral-600">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
           소개
@@ -100,7 +100,7 @@ export default async function AboutPage() {
         <>
           {parts.map((part, i) => {
             if (part.type === 'notion')
-              return <NotionRenderer key={i} blocks={part.blocks} />;
+              return <NotionRenderer key={i} blocks={part.blocks} noIndent />;
             if (part.type === '학력') return <EducationSection key={i} />;
             if (part.type === '경력')
               return (
@@ -108,6 +108,7 @@ export default async function AboutPage() {
                   key={i}
                   blocks={part.blocks}
                   imageColWidth={120}
+                  noIndent
                 />
               );
             if (part.type === '사이드')
@@ -116,6 +117,7 @@ export default async function AboutPage() {
                   key={i}
                   blocks={part.blocks}
                   imageColWidth={300}
+                  noIndent
                 />
               );
           })}

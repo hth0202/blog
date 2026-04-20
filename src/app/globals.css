@@ -300,9 +300,12 @@
   background: linear-gradient(transparent 72%, rgba(139, 85, 212, 0.5) 62%);
 }
 
-/* ─── 단락 첫 줄 들여쓰기 ──────────────────────────────────────────────────── */
+/* ─── 단락 첫 줄 들여쓰기 (소개 페이지 제외) ─────────────────────────────── */
 .notion-content p:not(:has(br)) {
   text-indent: 1em;
+}
+.about-no-indent .notion-content p {
+  text-indent: 0;
 }
 
 /* code / pre는 모노스페이스 유지 */
@@ -448,6 +451,17 @@ h3.n-bg-red {
 }
 .notion-content ul ul ul {
   list-style-type: square;
+}
+
+/* li 안에 중첩된 리스트는 상하 여백 제거 */
+.notion-content li .notion-content {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.notion-content li .notion-content ul,
+.notion-content li .notion-content ol {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
 }
 
 /* ─── 커스텀 컬럼 비율: [col:N:M] 태그로 제어 ──────────────────────────── */
