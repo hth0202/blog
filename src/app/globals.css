@@ -460,7 +460,7 @@ h3.n-bg-red {
 }
 .notion-content li .notion-content ul,
 .notion-content li .notion-content ol {
-  margin-top: 0 !important;
+  margin-top: 4px !important;
   margin-bottom: 0 !important;
 }
 
