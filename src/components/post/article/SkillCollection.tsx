@@ -84,7 +84,7 @@ export function SkillCollection({
                   {/* 아이콘 + 이름 */}
                   <div className="flex items-center gap-2.5">
                     {item.iconUrl && (
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white dark:ring-1 dark:ring-gray-200/30">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white dark:bg-transparent">
                         <img
                           src={item.iconUrl}
                           alt=""
