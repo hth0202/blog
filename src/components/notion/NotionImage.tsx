@@ -52,22 +52,28 @@ export function NotionImage({
         ...(maxWidth ? { maxWidth: `${maxWidth}px` } : {}),
       }}
     >
-      {/* width/height=0 + h-auto w-full: 크기 불명 이미지를 반응형으로 표시하는 Next.js 관용구 */}
-      <Image
-        src={src}
-        alt={alt}
-        width={0}
-        height={0}
-        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 720px"
-        className={[
-          'h-auto w-full rounded-lg transition-opacity duration-500',
-          nobg ? 'mix-blend-multiply dark:mix-blend-normal' : '',
-        ]
-          .join(' ')
-          .trim()}
-        style={{ opacity: loaded ? 1 : 0 }}
-        onLoad={() => setLoaded(true)}
-      />
+      {/* 로딩 중 skeleton — 이미지가 보이지 않아 독자가 그냥 지나치는 것을 방지 */}
+      <div className={`relative w-full${!loaded ? 'min-h-[200px]' : ''}`}>
+        {!loaded && (
+          <div className="absolute inset-0 animate-pulse rounded-lg bg-gray-200 dark:bg-neutral-700" />
+        )}
+        {/* width/height=0 + h-auto w-full: 크기 불명 이미지를 반응형으로 표시하는 Next.js 관용구 */}
+        <Image
+          src={src}
+          alt={alt}
+          width={0}
+          height={0}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 720px"
+          className={[
+            'h-auto w-full rounded-lg transition-opacity duration-300',
+            nobg ? 'mix-blend-multiply dark:mix-blend-normal' : '',
+          ]
+            .join(' ')
+            .trim()}
+          style={{ opacity: loaded ? 1 : 0 }}
+          onLoad={() => setLoaded(true)}
+        />
+      </div>
       {caption && (
         <figcaption
           className={`mt-2 text-sm text-gray-500 dark:text-gray-400 ${captionClass}`}
