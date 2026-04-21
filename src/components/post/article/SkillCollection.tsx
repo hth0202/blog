@@ -84,11 +84,13 @@ export function SkillCollection({
                   {/* 아이콘 + 이름 */}
                   <div className="flex items-center gap-2.5">
                     {item.iconUrl && (
-                      <img
-                        src={item.iconUrl}
-                        alt=""
-                        className="h-6 w-6 object-contain mix-blend-multiply dark:mix-blend-normal dark:brightness-0 dark:invert"
-                      />
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white dark:ring-1 dark:ring-gray-200/30">
+                        <img
+                          src={item.iconUrl}
+                          alt=""
+                          className="h-5 w-5 object-contain"
+                        />
+                      </div>
                     )}
                     {item.iconEmoji && (
                       <span className="text-xl leading-none">
