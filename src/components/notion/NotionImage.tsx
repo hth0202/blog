@@ -53,7 +53,7 @@ export function NotionImage({
       }}
     >
       {/* 로딩 중 skeleton — 이미지가 보이지 않아 독자가 그냥 지나치는 것을 방지 */}
-      <div className={`relative w-full${!loaded ? 'min-h-[200px]' : ''}`}>
+      <div className={`relative w-full ${!loaded ? 'min-h-[200px]' : ''}`}>
         {!loaded && (
           <div className="absolute inset-0 animate-pulse rounded-lg bg-gray-200 dark:bg-neutral-700" />
         )}
