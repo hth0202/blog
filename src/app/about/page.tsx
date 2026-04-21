@@ -100,7 +100,14 @@ export default async function AboutPage() {
         <>
           {parts.map((part, i) => {
             if (part.type === 'notion')
-              return <NotionRenderer key={i} blocks={part.blocks} noIndent />;
+              return (
+                <NotionRenderer
+                  key={i}
+                  blocks={part.blocks}
+                  imageColWidth={360}
+                  noIndent
+                />
+              );
             if (part.type === '학력') return <EducationSection key={i} />;
             if (part.type === '경력')
               return (

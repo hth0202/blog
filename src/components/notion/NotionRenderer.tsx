@@ -52,10 +52,28 @@ const CALLOUT_ICON_COLOR: Record<string, string> = {
   red: 'text-red-500',
 };
 
-/** 블록 레벨 color 값 → CSS 클래스 */
+const BLOCK_TEXT: Record<string, string> = {
+  gray: 'text-gray-400 dark:text-gray-500',
+  brown: 'text-amber-700 dark:text-amber-500',
+  orange: 'text-orange-500',
+  yellow: 'text-yellow-600 dark:text-yellow-400',
+  green: 'text-green-600 dark:text-green-400',
+  blue: 'text-blue-600 dark:text-blue-400',
+  purple: 'n-text-purple',
+  pink: 'text-pink-500',
+  red: 'text-red-500',
+};
+
+/** 블록 레벨 color 값 → 배경 CSS 클래스 */
 function blockColorClass(color?: string): string {
   if (!color || color === 'default') return '';
   return BLOCK_BG[color] ?? '';
+}
+
+/** 블록 레벨 color 값 → 텍스트 CSS 클래스 */
+function blockTextColorClass(color?: string): string {
+  if (!color || color === 'default' || color.endsWith('_background')) return '';
+  return BLOCK_TEXT[color] ?? '';
 }
 
 // 연속된 리스트 항목을 그룹으로 묶기
@@ -135,6 +153,7 @@ function NotionBlock({
 
     case 'heading_1': {
       const h1Bg = blockColorClass(block.heading_1.color);
+      const h1TextColor = blockTextColorClass(block.heading_1.color);
       const h1Text = block.heading_1.rich_text
         .map((t: any) => t.plain_text)
         .join('');
@@ -142,7 +161,7 @@ function NotionBlock({
         <>
           <h1
             id={slugify(h1Text)}
-            className={`mt-10 mb-4 scroll-mt-24 text-3xl font-bold text-gray-900 dark:text-white ${h1Bg}`.trim()}
+            className={`mt-10 mb-4 scroll-mt-24 text-3xl font-bold ${h1TextColor || 'text-gray-900 dark:text-white'} ${h1Bg}`.trim()}
           >
             <NotionRichText items={block.heading_1.rich_text} />
           </h1>
@@ -161,6 +180,7 @@ function NotionBlock({
 
     case 'heading_2': {
       const h2Bg = blockColorClass(block.heading_2.color);
+      const h2TextColor = blockTextColorClass(block.heading_2.color);
       const h2Text = block.heading_2.rich_text
         .map((t: any) => t.plain_text)
         .join('');
@@ -168,7 +188,7 @@ function NotionBlock({
         <>
           <h2
             id={slugify(h2Text)}
-            className={`mt-8 mb-3 scroll-mt-24 text-2xl font-semibold text-gray-900 dark:text-white ${h2Bg}`.trim()}
+            className={`mt-8 mb-3 scroll-mt-24 text-2xl font-semibold ${h2TextColor || 'text-gray-900 dark:text-white'} ${h2Bg}`.trim()}
           >
             <NotionRichText items={block.heading_2.rich_text} />
           </h2>
@@ -187,6 +207,7 @@ function NotionBlock({
 
     case 'heading_3': {
       const h3Bg = blockColorClass(block.heading_3.color);
+      const h3TextColor = blockTextColorClass(block.heading_3.color);
       const h3Text = block.heading_3.rich_text
         .map((t: any) => t.plain_text)
         .join('');
@@ -194,7 +215,7 @@ function NotionBlock({
         <>
           <h3
             id={slugify(h3Text)}
-            className={`mt-6 mb-2 scroll-mt-24 text-xl font-semibold text-gray-800 dark:text-gray-100 ${h3Bg}`.trim()}
+            className={`mt-6 mb-2 scroll-mt-24 text-xl font-semibold ${h3TextColor || 'text-gray-800 dark:text-gray-100'} ${h3Bg}`.trim()}
           >
             <NotionRichText items={block.heading_3.rich_text} />
           </h3>
@@ -243,6 +264,9 @@ function NotionBlock({
       const nobgMatch = popTag(/\[nobg\]\s*/i);
       const nobg = !!nobgMatch;
 
+      const wMatch = popTag(/\[w:(\d+)\]\s*/i);
+      const maxWidth = wMatch ? parseInt(wMatch[1], 10) : undefined;
+
       const margins: Record<string, string> = {};
       for (const dir of ['mt', 'mb', 'ml', 'mr'] as const) {
         const m = popTag(new RegExp(`\\[${dir}:(\\d+)\\]\\s*`, 'i'));
@@ -268,6 +292,7 @@ function NotionBlock({
           align={alignHint}
           nobg={nobg}
           marginStyle={Object.keys(margins).length ? margins : undefined}
+          maxWidth={maxWidth}
         />
       );
     }
@@ -518,6 +543,8 @@ function NotionBlock({
         for (const img of firstColImageBlocks) {
           const cap =
             img.image?.caption?.map((c: any) => c.plain_text).join('') ?? '';
+          const pxMatch = cap.match(/\[(\d+)px\]/i);
+          if (pxMatch) return parseInt(pxMatch[1], 10);
           if (/\[xs\]/i.test(cap)) return 64;
           if (/\[s\]/i.test(cap)) return 120;
           if (/\[m\]/i.test(cap)) return 200;
@@ -540,16 +567,27 @@ function NotionBlock({
           ? imageColWidth
           : (firstColWidth ?? 480);
 
+      const PREDEFINED_COL_WIDTHS = new Set([
+        64, 120, 200, 280, 300, 480, 520, 600,
+      ]);
       const imageColClass = (px: number) => {
         if (px === 64) return 'col-image-64';
         if (px === 200) return 'col-image-200';
         if (px === 280) return 'col-image-280';
         if (px === 300) return 'col-image-300';
+        if (px === 360) return 'col-image-360';
         if (px === 480) return 'col-image-480';
-        return 'col-image-120';
+        if (px === 520) return 'col-image-520';
+        if (px === 600) return 'col-image-600';
+        return null;
       };
+      const resolvedImageColClass = resolvedIsImageCol
+        ? imageColClass(resolvedWidth)
+        : null;
+      const useInlineImageCol =
+        resolvedIsImageCol && !PREDEFINED_COL_WIDTHS.has(resolvedWidth);
       const gridClass = resolvedIsImageCol
-        ? `grid-cols-1 ${imageColClass(resolvedWidth)}`
+        ? `grid-cols-1 ${resolvedImageColClass ?? 'col-image-120'}`
         : colRatio
           ? 'grid-cols-1 col-ratio-grid'
           : (colClass[colCount] ?? 'grid-cols-1 md:grid-cols-2');
@@ -559,11 +597,15 @@ function NotionBlock({
           className={`my-4 overflow-x-hidden${resolvedIsImageCol ? 'pl-4' : ''}`}
         >
           <div
-            className={`grid ${resolvedIsImageCol ? (resolvedWidth >= 200 ? 'gap-x-8' : 'gap-x-8') : 'gap-x-4'} ${gridClass}`}
+            className={`grid ${resolvedIsImageCol ? 'gap-x-8' : 'gap-x-4'} ${gridClass}`}
             style={
-              !resolvedIsImageCol && colRatio
-                ? ({ '--col-ratio': colRatio } as React.CSSProperties)
-                : undefined
+              useInlineImageCol
+                ? ({
+                    gridTemplateColumns: `${resolvedWidth}px 1fr`,
+                  } as React.CSSProperties)
+                : !resolvedIsImageCol && colRatio
+                  ? ({ '--col-ratio': colRatio } as React.CSSProperties)
+                  : undefined
             }
           >
             {processedChildren?.map((col, colIdx) => {

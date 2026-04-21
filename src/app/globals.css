@@ -485,7 +485,16 @@ h3.n-bg-red {
   .col-image-300 {
     grid-template-columns: 300px 1fr !important;
   }
+  .col-image-360 {
+    grid-template-columns: 360px 1fr !important;
+  }
   .col-image-480 {
     grid-template-columns: 480px 1fr !important;
+  }
+  .col-image-520 {
+    grid-template-columns: 520px 1fr !important;
+  }
+  .col-image-600 {
+    grid-template-columns: 600px 1fr !important;
   }
 }

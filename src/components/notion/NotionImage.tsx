@@ -11,6 +11,7 @@ interface NotionImageProps {
   align?: 'left' | 'mid' | 'right';
   nobg?: boolean;
   marginStyle?: CSSProperties;
+  maxWidth?: number;
 }
 
 // 모바일 → 데스크탑 반응형 너비
@@ -38,6 +39,7 @@ export function NotionImage({
   align = 'mid',
   nobg = false,
   marginStyle,
+  maxWidth,
 }: NotionImageProps) {
   const [loaded, setLoaded] = useState(false);
   const { figure: figureClass, caption: captionClass } = ALIGN_CLASS[align];
@@ -45,7 +47,10 @@ export function NotionImage({
   return (
     <figure
       className={`my-6 flex flex-col ${SIZE_CLASS[size]} ${figureClass}`}
-      style={marginStyle}
+      style={{
+        ...marginStyle,
+        ...(maxWidth ? { maxWidth: `${maxWidth}px` } : {}),
+      }}
     >
       {/* width/height=0 + h-auto w-full: 크기 불명 이미지를 반응형으로 표시하는 Next.js 관용구 */}
       <Image
