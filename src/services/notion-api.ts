@@ -153,10 +153,13 @@ const _querySkillDatabase = async (dbId: string): Promise<SkillItem[]> => {
         if (pageObj.icon) {
           if (pageObj.icon.type === 'emoji') {
             iconEmoji = pageObj.icon.emoji;
-          } else if (pageObj.icon.type === 'external') {
-            iconUrl = pageObj.icon.external.url;
-          } else if (pageObj.icon.type === 'file') {
-            // pageId 전달 → 프록시가 요청 시점에 Notion에서 신선한 URL 조회 (S3 만료 없음)
+          } else if (
+            pageObj.icon.type === 'file' ||
+            pageObj.icon.type === 'external'
+          ) {
+            // file/external 모두 프록시로 라우팅:
+            // file URL은 S3 서명 URL이라 1시간 후 만료됨 → 프록시가 요청 시점에 신선한 URL 재조회
+            // external URL도 Notion 내부 S3 서명 URL일 수 있어 동일하게 처리
             iconUrl = `/api/notion-image?pageId=${page.id}&field=icon`;
           }
         }

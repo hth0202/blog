@@ -31,11 +31,13 @@ async function resolvePageAssetUrl(
 ): Promise<string | null> {
   try {
     const page = await notionClient.pages.retrieve({ page_id: pageId });
-    if (field === 'icon' && 'icon' in page && page.icon?.type === 'file') {
-      return page.icon.file.url;
+    if (field === 'icon' && 'icon' in page) {
+      if (page.icon?.type === 'file') return page.icon.file.url;
+      if (page.icon?.type === 'external') return page.icon.external.url;
     }
-    if (field === 'cover' && 'cover' in page && page.cover?.type === 'file') {
-      return page.cover.file.url;
+    if (field === 'cover' && 'cover' in page) {
+      if (page.cover?.type === 'file') return page.cover.file.url;
+      if (page.cover?.type === 'external') return page.cover.external.url;
     }
     return null;
   } catch {
