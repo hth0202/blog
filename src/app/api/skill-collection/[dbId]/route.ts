@@ -48,6 +48,13 @@ export async function GET(
             iconUrl = pageObj.icon.external.url;
           } else if (pageObj.icon.type === 'file') {
             iconUrl = pageObj.icon.file.url;
+          } else if (pageObj.icon.type === 'icon') {
+            const { name, color } = pageObj.icon.icon ?? {};
+            if (name) {
+              iconUrl = color
+                ? `https://www.notion.so/icons/${name}_${color}.svg`
+                : `https://www.notion.so/icons/${name}.svg`;
+            }
           }
         }
 
