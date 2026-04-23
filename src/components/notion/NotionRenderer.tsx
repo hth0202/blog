@@ -134,12 +134,12 @@ function NotionBlock({
       return (
         <>
           <p
-            className={`mb-4 leading-relaxed break-keep text-gray-700 dark:text-gray-300 ${pBg}`.trim()}
+            className={`${children ? 'mb-0' : 'mb-4'} leading-relaxed break-keep text-gray-700 dark:text-gray-300 ${pBg}`.trim()}
           >
             <NotionRichText items={block.paragraph.rich_text} />
           </p>
           {children && (
-            <div className={noIndent ? '' : 'pl-6'}>
+            <div className="pl-6 [&>div>ol:first-child]:mt-1 [&>div>ul:first-child]:mt-1">
               <NotionRenderer
                 blocks={children}
                 imageColWidth={imageColWidth}
@@ -215,7 +215,7 @@ function NotionBlock({
         <>
           <h3
             id={slugify(h3Text)}
-            className={`mt-6 mb-2 scroll-mt-24 text-xl font-semibold ${h3TextColor || 'text-gray-800 dark:text-gray-100'} ${h3Bg}`.trim()}
+            className={`mt-6 mb-4 scroll-mt-24 text-xl font-semibold ${h3TextColor || 'text-gray-800 dark:text-gray-100'} ${h3Bg}`.trim()}
           >
             <NotionRichText items={block.heading_3.rich_text} />
           </h3>
