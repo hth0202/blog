@@ -131,10 +131,11 @@ function NotionBlock({
         .join('');
       if (/^\[col:[^\]]+\]\s*$/i.test(pText)) return null;
       const pBg = blockColorClass(block.paragraph.color);
+      const pTextColor = blockTextColorClass(block.paragraph.color);
       return (
         <>
           <p
-            className={`${children ? 'mb-0' : 'mb-4'} leading-relaxed break-keep text-gray-700 dark:text-gray-300 ${pBg}`.trim()}
+            className={`${children ? 'mb-0' : 'mb-4'} leading-relaxed break-keep ${pTextColor || 'text-gray-700 dark:text-gray-300'} ${pBg}`.trim()}
           >
             <NotionRichText items={block.paragraph.rich_text} />
           </p>
@@ -568,7 +569,7 @@ function NotionBlock({
           : (firstColWidth ?? 480);
 
       const PREDEFINED_COL_WIDTHS = new Set([
-        64, 120, 200, 280, 300, 480, 520, 600,
+        64, 120, 200, 280, 300, 360, 480, 520, 600,
       ]);
       const imageColClass = (px: number) => {
         if (px === 64) return 'col-image-64';
