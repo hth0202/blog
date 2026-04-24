@@ -464,6 +464,38 @@ h3.n-bg-red {
   margin-bottom: 0 !important;
 }
 
+/* ─── 모바일: col-image-120 이미지 + h3만 2단, 나머지 전체 너비 ─────────── */
+@media (max-width: 767px) {
+  .col-image-120 {
+    display: grid !important;
+    grid-template-columns: 80px 1fr !important;
+    align-items: start;
+    column-gap: 12px !important;
+  }
+  .col-image-120 > div:first-child {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: center;
+  }
+  /* 텍스트 컬럼 래퍼 + notion-content를 투명하게 — 자식이 직접 grid에 참여 */
+  .col-image-120 > div:nth-child(2),
+  .col-image-120 > div:nth-child(2) > .notion-content {
+    display: contents;
+  }
+  /* 모든 블록 기본값: 전체 너비 */
+  .col-image-120 > div:nth-child(2) > .notion-content > * {
+    grid-column: 1 / -1;
+  }
+  /* h3만 이미지 옆 col 2, row 1에 배치 */
+  .col-image-120 > div:nth-child(2) > .notion-content > h3:first-of-type {
+    grid-column: 2;
+    grid-row: 1;
+    margin-top: 0;
+    margin-bottom: 0;
+    align-self: center;
+  }
+}
+
 /* ─── 커스텀 컬럼 비율: [col:N:M] 태그로 제어 ──────────────────────────── */
 /* 모바일은 grid-cols-1 유지, md 이상에서만 커스텀 비율 적용               */
 @media (min-width: 768px) {
