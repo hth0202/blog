@@ -5,7 +5,10 @@ import { NotionToMarkdown } from 'notion-to-md';
 
 import type { Post, Category, Project, Comment } from '@/types/blog';
 
-import type { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
+import type {
+  BlockObjectResponse,
+  RichTextItemResponse,
+} from '@notionhq/client/build/src/api-endpoints';
 
 // 개발 중엔 캐시 끔 (새로고침하면 즉시 반영), 배포 후엔 자동으로 켜짐
 const IS_DEV = process.env.NODE_ENV === 'development';
@@ -187,7 +190,9 @@ export const querySkillDatabase = devCache(
   { revalidate: TTL(300), tags: ['notion-blocks'] },
 );
 
-const _getSkillTextBlocks = async (pageId: string): Promise<string[]> => {
+const _getSkillTextBlocks = async (
+  pageId: string,
+): Promise<RichTextItemResponse[][]> => {
   try {
     const response = await notionClient.blocks.children.list({
       block_id: pageId,
@@ -205,10 +210,9 @@ const _getSkillTextBlocks = async (pageId: string): Promise<string[]> => {
           )
         )
           return [];
-        const text: string = (block[type]?.rich_text ?? [])
-          .map((t: any) => t.plain_text)
-          .join('');
-        return text ? [text] : [];
+        const richText: RichTextItemResponse[] = block[type]?.rich_text ?? [];
+        const hasText = richText.some((t: any) => t.plain_text);
+        return hasText ? [richText] : [];
       });
   } catch {
     return [];

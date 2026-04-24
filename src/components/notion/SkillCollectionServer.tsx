@@ -1,6 +1,7 @@
 import { SkillCollection } from '@/components/post/article/SkillCollection';
 
 import { getSkillTextBlocks, querySkillDatabase } from '@/services/notion-api';
+import type { RichTextItemResponse } from '@notionhq/client/build/src/api-endpoints';
 
 export async function SkillCollectionServer({ dbId }: { dbId: string }) {
   const initialItems = await querySkillDatabase(dbId);
@@ -11,7 +12,8 @@ export async function SkillCollectionServer({ dbId }: { dbId: string }) {
       return [item.id, blocks] as const;
     }),
   );
-  const initialContent = Object.fromEntries(contentEntries);
+  const initialContent: Record<string, RichTextItemResponse[][]> =
+    Object.fromEntries(contentEntries);
 
   return (
     <SkillCollection
