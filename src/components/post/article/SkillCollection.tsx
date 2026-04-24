@@ -19,17 +19,55 @@ export function SkillCollection({
 
   if (!initialItems.length) return null;
 
-  // 카테고리별 그룹화 (순서 유지)
-  const groups: { category: string; items: SkillItem[] }[] = [];
+  const CATEGORY_ORDER = [
+    '프로젝트 관리',
+    'AI',
+    '데이터 분석',
+    '디자인',
+    '문서 작성',
+  ];
+
+  const ITEM_ORDER: Record<string, string[]> = {
+    '프로젝트 관리': ['Jira', 'Notion', 'Slack'],
+    AI: ['Claude', 'Gemini', 'Perplexity', 'ChatGPT'],
+    '데이터 분석': ['mySQL', 'Amplitude', 'Python'],
+    디자인: ['Figma', 'Photoshop', 'Illustrator'],
+    '문서 작성': ['MS Excel', 'Google Sheets', 'MS Word', 'HWP'],
+  };
+
+  // 카테고리별 그룹화 후 지정 순서로 정렬
   const seen = new Map<string, SkillItem[]>();
   for (const item of initialItems) {
     const key = item.category || '기타';
-    if (!seen.has(key)) {
-      seen.set(key, []);
-      groups.push({ category: key, items: seen.get(key)! });
-    }
+    if (!seen.has(key)) seen.set(key, []);
     seen.get(key)!.push(item);
   }
+
+  // 카테고리 내 항목 순서 정렬
+  for (const [cat, items] of seen) {
+    const order = ITEM_ORDER[cat];
+    if (order) {
+      items.sort((a, b) => {
+        const ai = order.findIndex((n) =>
+          a.title.toLowerCase().includes(n.toLowerCase()),
+        );
+        const bi = order.findIndex((n) =>
+          b.title.toLowerCase().includes(n.toLowerCase()),
+        );
+        return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+      });
+    }
+  }
+
+  const groups: { category: string; items: SkillItem[] }[] = [
+    ...CATEGORY_ORDER.filter((c) => seen.has(c)).map((c) => ({
+      category: c,
+      items: seen.get(c)!,
+    })),
+    ...[...seen.keys()]
+      .filter((c) => !CATEGORY_ORDER.includes(c))
+      .map((c) => ({ category: c, items: seen.get(c)! })),
+  ];
 
   function handleToggle(itemId: string) {
     const next = new Set(openIds);
@@ -66,7 +104,7 @@ export function SkillCollection({
 
           {/* 카드 그리드 */}
           <div
-            className="grid grid-cols-2 items-start sm:grid-cols-3"
+            className="grid grid-cols-1 items-start sm:grid-cols-3"
             style={{ gap: '1rem' }}
           >
             {groupItems.map((item) => {
@@ -92,7 +130,7 @@ export function SkillCollection({
                         <img
                           src={item.iconUrl}
                           alt=""
-                          className="h-5 w-5 object-contain"
+                          className={`h-5 w-5 object-contain${['Notion', 'Perplexity', 'ChatGPT'].some((n) => item.title.includes(n)) ? 'dark:brightness-0 dark:invert' : ''}`}
                         />
                       </div>
                     )}
@@ -104,11 +142,16 @@ export function SkillCollection({
                     <span className="flex-1 text-base font-semibold text-gray-900 dark:text-white">
                       {item.title}
                     </span>
-                    <span
-                      className={`text-sm transition-transform duration-200 ${isOpen ? 'rotate-180' : ''} text-gray-400`}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className={`shrink-0 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
                     >
-                      ▾
-                    </span>
+                      <path d="M6.293 9.293a1 1 0 0 1 1.414 0L12 13.586l4.293-4.293a1 1 0 1 1 1.414 1.414l-5 5a1 1 0 0 1-1.414 0l-5-5a1 1 0 0 1 0-1.414Z" />
+                    </svg>
                   </div>
 
                   {/* 토글 콘텐츠 */}
