@@ -32,15 +32,33 @@ async function resolvePageAssetUrl(
   try {
     const page = await notionClient.pages.retrieve({ page_id: pageId });
     if (field === 'icon' && 'icon' in page) {
-      if (page.icon?.type === 'file') return page.icon.file.url;
-      if (page.icon?.type === 'external') return page.icon.external.url;
+      const icon = page.icon as any;
+      if (icon?.type === 'file') return icon.file.url;
+      if (icon?.type === 'external') return icon.external.url;
+      // Notion 내장 아이콘 (type: 'icon') — 안정적 CDN URL 반환
+      if (icon?.type === 'icon') {
+        const { name, color } = icon.icon ?? {};
+        if (name) {
+          return color
+            ? `https://www.notion.so/icons/${name}_${color}.svg`
+            : `https://www.notion.so/icons/${name}.svg`;
+        }
+      }
     }
     if (field === 'cover' && 'cover' in page) {
       if (page.cover?.type === 'file') return page.cover.file.url;
       if (page.cover?.type === 'external') return page.cover.external.url;
     }
+    console.warn(
+      `[notion-image] unhandled asset: pageId=${pageId} field=${field}`,
+      JSON.stringify((page as any)[field]),
+    );
     return null;
-  } catch {
+  } catch (e) {
+    console.error(
+      `[notion-image] resolvePageAssetUrl failed: pageId=${pageId} field=${field}`,
+      e,
+    );
     return null;
   }
 }

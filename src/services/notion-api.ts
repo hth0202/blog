@@ -165,14 +165,8 @@ const _querySkillDatabase = async (dbId: string): Promise<SkillItem[]> => {
             // external URL도 Notion 내부 S3 서명 URL일 수 있어 동일하게 처리
             iconUrl = `/api/notion-image?pageId=${page.id}&field=icon`;
           } else if (pageObj.icon.type === 'icon') {
-            // Notion 내장 아이콘 라이브러리 (2023+ API)
-            // https://www.notion.so/icons/{name}_{color}.svg 형식으로 안정적 제공
-            const { name, color } = pageObj.icon.icon ?? {};
-            if (name) {
-              iconUrl = color
-                ? `https://www.notion.so/icons/${name}_${color}.svg`
-                : `https://www.notion.so/icons/${name}.svg`;
-            }
+            // Notion 내장 아이콘 라이브러리 (2023+ API) — 프록시로 라우팅해 에러 추적
+            iconUrl = `/api/notion-image?pageId=${page.id}&field=icon`;
           }
         }
 
