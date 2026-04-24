@@ -2,14 +2,17 @@
 
 import { useState } from 'react';
 
+import { NotionRichText } from '@/components/notion/NotionRichText';
+
 import type { SkillItem } from '@/services/notion-api';
+import type { RichTextItemResponse } from '@notionhq/client/build/src/api-endpoints';
 
 export function SkillCollection({
   initialItems,
   initialContent = {},
 }: {
   initialItems: SkillItem[];
-  initialContent?: Record<string, string[]>;
+  initialContent?: Record<string, RichTextItemResponse[][]>;
 }) {
   const [openIds, setOpenIds] = useState<Set<string>>(new Set());
   const contentCache = initialContent;
@@ -68,7 +71,8 @@ export function SkillCollection({
           >
             {groupItems.map((item) => {
               const isOpen = openIds.has(item.id);
-              const bullets: string[] = contentCache[item.id] ?? [];
+              const bullets: RichTextItemResponse[][] =
+                contentCache[item.id] ?? [];
 
               return (
                 <div
@@ -112,7 +116,7 @@ export function SkillCollection({
                     <div className="mt-4 border-t border-gray-100 pt-4 dark:border-neutral-700">
                       {bullets.length > 0 ? (
                         <ul className="space-y-2">
-                          {bullets.map((text, i) => (
+                          {bullets.map((richText, i) => (
                             <li
                               key={i}
                               className="flex items-baseline gap-2 text-sm text-gray-600 dark:text-gray-400"
@@ -120,7 +124,9 @@ export function SkillCollection({
                               <span className="shrink-0 text-indigo-500">
                                 •
                               </span>
-                              <span>{text}</span>
+                              <span className="text-left break-keep">
+                                <NotionRichText items={richText} />
+                              </span>
                             </li>
                           ))}
                         </ul>
