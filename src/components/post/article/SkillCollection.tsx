@@ -130,7 +130,7 @@ export function SkillCollection({
                         <img
                           src={item.iconUrl}
                           alt=""
-                          className={`h-5 w-5 object-contain${['Notion', 'Perplexity', 'ChatGPT'].some((n) => item.title.includes(n)) ? 'dark:brightness-0 dark:invert' : ''}`}
+                          className={`h-5 w-5 object-contain${['Notion', 'Perplexity', 'ChatGPT'].some((n) => item.title.includes(n)) ? ' dark:[filter:brightness(0)_invert(1)]' : ''}`}
                         />
                       </div>
                     )}
