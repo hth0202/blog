@@ -42,6 +42,10 @@ async function getPosts(): Promise<{
 }
 
 export default async function PostDraftPage({ searchParams }: DraftPageProps) {
+  if (process.env.NODE_ENV !== 'development') {
+    notFound();
+  }
+
   const { secret } = await searchParams;
 
   if (!process.env.DRAFT_SECRET || secret !== process.env.DRAFT_SECRET) {

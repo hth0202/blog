@@ -3,11 +3,18 @@ import { NextResponse } from 'next/server';
 
 const notionClient = new Client({ auth: process.env.NOTION_AUTH_TOKEN });
 
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ dbId: string }> },
 ) {
   const { dbId } = await params;
+
+  if (!UUID_RE.test(dbId)) {
+    return NextResponse.json({ error: 'Invalid database ID' }, { status: 400 });
+  }
 
   try {
     const response = await notionClient.databases.query({

@@ -41,6 +41,10 @@ async function getProjectsData() {
 export default async function ProjectsDraftPage({
   searchParams,
 }: DraftPageProps) {
+  if (process.env.NODE_ENV !== 'development') {
+    notFound();
+  }
+
   const { secret } = await searchParams;
 
   if (!process.env.DRAFT_SECRET || secret !== process.env.DRAFT_SECRET) {

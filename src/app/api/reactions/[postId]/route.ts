@@ -3,6 +3,33 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const notionClient = new Client({ auth: process.env.NOTION_AUTH_TOKEN });
 
+// ─── Rate Limiting ─────────────────────────────────────────────────────────────
+// IP 기준, 1분에 30번 초과 시 차단 (좋아요 add/remove 조합)
+const WINDOW_MS = 60 * 1000; // 1분
+const MAX_REQUESTS = 30;
+
+const reactionStore = new Map<string, { count: number; resetAt: number }>();
+
+function isReactionRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = reactionStore.get(ip);
+  if (!entry || now > entry.resetAt) {
+    reactionStore.set(ip, { count: 1, resetAt: now + WINDOW_MS });
+    return false;
+  }
+  if (entry.count >= MAX_REQUESTS) return true;
+  entry.count += 1;
+  return false;
+}
+
+function getClientIp(request: NextRequest): string {
+  return (
+    request.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
+    request.headers.get('x-real-ip') ??
+    'unknown'
+  );
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ postId: string }> },
@@ -14,6 +41,8 @@ export async function POST(
     if (action !== 'add' && action !== 'remove') {
       return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     }
+
+    const ip = getClientIp(request);
 
     // postId(32자리 hex) → UUID 복원
     const rawId = postId.replace(
@@ -33,6 +62,12 @@ export async function POST(
     >;
     const currentLikes =
       props['좋아요']?.type === 'number' ? (props['좋아요'].number ?? 0) : 0;
+
+    // rate limit 초과 시 업데이트 없이 현재 값 반환 (UX 영향 없음)
+    if (isReactionRateLimited(ip)) {
+      return NextResponse.json({ likes: currentLikes });
+    }
+
     const newLikes =
       action === 'add' ? currentLikes + 1 : Math.max(0, currentLikes - 1);
 
