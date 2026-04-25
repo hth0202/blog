@@ -1,11 +1,13 @@
-import React from 'react';
-
 import { Analytics } from '@vercel/analytics/next';
 import localFont from 'next/font/local';
-import type { Metadata } from 'next';
+import React from 'react';
 
 import { ThemeProvider } from '@/layouts/ThemeProvider';
-import { Header, Footer, BottomNav } from '@/layouts';
+
+import { Footer, BottomNav, Header } from '@/layouts';
+
+import type { Metadata } from 'next';
+
 import './globals.css';
 import 'react-notion-x/src/styles.css';
 
