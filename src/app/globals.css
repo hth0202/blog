@@ -26,8 +26,8 @@
 
   /* Font families */
   --font-family-sans:
-    'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
-    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
+    var(--font-pretendard), -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
     'Helvetica Neue', sans-serif;
 
   /* Spacing and sizing */
@@ -362,47 +362,47 @@ h3.n-bg-red {
 .n-bg-gray {
   background-color: #efefec;
   border-radius: 3px;
-  padding: 0.1em 0.2em;
+  padding: 0.1em;
 }
 .n-bg-brown {
   background-color: #f3e8e3;
   border-radius: 3px;
-  padding: 0.1em 0.2em;
+  padding: 0.1em;
 }
 .n-bg-orange {
   background-color: #fbe8d2;
   border-radius: 3px;
-  padding: 0.1em 0.2em;
+  padding: 0.1em;
 }
 .n-bg-yellow {
   background-color: #faf2cc;
   border-radius: 3px;
-  padding: 0.1em 0.2em;
+  padding: 0.1em;
 }
 .n-bg-green {
   background-color: #e4f2e2;
   border-radius: 3px;
-  padding: 0.1em 0.2em;
+  padding: 0.1em;
 }
 .n-bg-blue {
   background-color: #dceef8;
   border-radius: 3px;
-  padding: 0.1em 0.2em;
+  padding: 0.1em;
 }
 .n-bg-purple {
   background-color: #ede7f8;
   border-radius: 3px;
-  padding: 0.1em 0.2em;
+  padding: 0.1em;
 }
 .n-bg-pink {
   background-color: #f8e4f3;
   border-radius: 3px;
-  padding: 0.1em 0.2em;
+  padding: 0.1em;
 }
 .n-bg-red {
   background-color: #fae3e2;
   border-radius: 3px;
-  padding: 0.1em 0.2em;
+  padding: 0.1em;
 }
 
 .dark .n-bg-gray {

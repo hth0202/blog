@@ -1,12 +1,20 @@
 import React from 'react';
 
-import { ThemeProvider } from '@/layouts/ThemeProvider';
+import { Analytics } from '@vercel/analytics/next';
+import localFont from 'next/font/local';
+import type { Metadata } from 'next';
 
+import { ThemeProvider } from '@/layouts/ThemeProvider';
 import { Header, Footer, BottomNav } from '@/layouts';
 import './globals.css';
 import 'react-notion-x/src/styles.css';
 
-import type { Metadata } from 'next';
+const pretendard = localFont({
+  src: './fonts/PretendardVariable.woff2',
+  variable: '--font-pretendard',
+  display: 'swap',
+  weight: '100 900',
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -47,14 +55,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko" suppressHydrationWarning>
+    <html lang="ko" suppressHydrationWarning className={pretendard.variable}>
       <head>
-        <link
-          rel="stylesheet"
-          as="style"
-          crossOrigin="anonymous"
-          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
-        />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -88,6 +90,7 @@ export default function RootLayout({
             <BottomNav />
           </div>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
