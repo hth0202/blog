@@ -35,11 +35,28 @@ function renderWithLineBreaks(text: string, className?: string) {
     const leading = part.match(/^( +)/)?.[1] ?? '';
     const rest = part.slice(leading.length);
     const nbsp = '\u00A0'.repeat(leading.length);
+    const hasBr = idx < parts.length - 1;
+
+    // 내용 없는 파트는 span 없이 <br>만 렌더링 (배경색 박스 방지)
+    if (!leading && !rest) {
+      return hasBr ? <br key={idx} /> : null;
+    }
+
+    if (!className) {
+      return (
+        <React.Fragment key={idx}>
+          {nbsp}
+          {rest}
+          {hasBr && <br />}
+        </React.Fragment>
+      );
+    }
+
     return (
       <span key={idx} className={className}>
         {nbsp}
         {rest}
-        {idx < parts.length - 1 && <br />}
+        {hasBr && <br />}
       </span>
     );
   });
@@ -56,6 +73,9 @@ function renderItem(
   const text = overrideText ?? item.plain_text;
   const href = item.href;
 
+  // 완전히 빈 텍스트는 렌더링 생략 (배경색 박스 방지)
+  if (!text) return null;
+
   const isBgColor = color.endsWith('_background');
   const bgClass = isBgColor ? (BG_CLASS[color] ?? '') : '';
   const textColorClass =
@@ -65,7 +85,7 @@ function renderItem(
     return (
       <code
         key={key}
-        className={`rounded bg-gray-100 px-1 py-0.5 font-mono text-sm text-indigo-600 dark:bg-neutral-800 dark:text-indigo-400 ${textColorClass}`}
+        className={`rounded bg-gray-100 px-1 py-0.5 font-mono text-sm text-indigo-600 dark:bg-neutral-800 dark:text-indigo-400 ${bold ? 'font-bold' : ''} ${italic ? 'italic' : ''} ${textColorClass}`}
       >
         {text}
       </code>
