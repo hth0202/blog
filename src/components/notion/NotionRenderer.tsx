@@ -20,24 +20,24 @@ const BLOCK_BG: Record<string, string> = {
 };
 
 const CALLOUT_BG: Record<string, string> = {
-  gray: 'bg-[#efefec] dark:bg-[#4a4a4a]',
-  brown: 'bg-[#f3e8e3] dark:bg-[#5c3d2e]',
-  orange: 'bg-[#fbe8d2] dark:bg-[#5c3a1a]',
-  yellow: 'bg-[#faf2cc] dark:bg-[#554c1a]',
-  green: 'bg-[#e4f2e2] dark:bg-[#1e4230]',
-  blue: 'bg-[#dceef8] dark:bg-[#1a3a52]',
-  purple: 'bg-[#ede7f8] dark:bg-[#3a2352]',
-  pink: 'bg-[#f8e4f3] dark:bg-[#52233a]',
-  red: 'bg-[#fae3e2] dark:bg-[#52201e]',
-  gray_background: 'bg-[#efefec] dark:bg-[#4a4a4a]',
-  brown_background: 'bg-[#f3e8e3] dark:bg-[#5c3d2e]',
-  orange_background: 'bg-[#fbe8d2] dark:bg-[#5c3a1a]',
-  yellow_background: 'bg-[#faf2cc] dark:bg-[#554c1a]',
-  green_background: 'bg-[#e4f2e2] dark:bg-[#1e4230]',
-  blue_background: 'bg-[#dceef8] dark:bg-[#1a3a52]',
-  purple_background: 'bg-[#ede7f8] dark:bg-[#3a2352]',
-  pink_background: 'bg-[#f8e4f3] dark:bg-[#52233a]',
-  red_background: 'bg-[#fae3e2] dark:bg-[#52201e]',
+  gray: 'bg-[#f7f7f5] dark:bg-[#2a2a2a]',
+  brown: 'bg-[#faf4f1] dark:bg-[#321e14]',
+  orange: 'bg-[#fdf4ea] dark:bg-[#33200e]',
+  yellow: 'bg-[#fdf8e1] dark:bg-[#302a0d]',
+  green: 'bg-[#f0f9ef] dark:bg-[#10261a]',
+  blue: 'bg-[#edf6fc] dark:bg-[#0e2130]',
+  purple: 'bg-[#f5f1fc] dark:bg-[#1e1130]',
+  pink: 'bg-[#fceef9] dark:bg-[#2e1222]',
+  red: 'bg-[#fdf0ef] dark:bg-[#2e1110]',
+  gray_background: 'bg-[#f7f7f5] dark:bg-[#2a2a2a]',
+  brown_background: 'bg-[#faf4f1] dark:bg-[#321e14]',
+  orange_background: 'bg-[#fdf4ea] dark:bg-[#33200e]',
+  yellow_background: 'bg-[#fdf8e1] dark:bg-[#302a0d]',
+  green_background: 'bg-[#f0f9ef] dark:bg-[#10261a]',
+  blue_background: 'bg-[#edf6fc] dark:bg-[#0e2130]',
+  purple_background: 'bg-[#f5f1fc] dark:bg-[#1e1130]',
+  pink_background: 'bg-[#fceef9] dark:bg-[#2e1222]',
+  red_background: 'bg-[#fdf0ef] dark:bg-[#2e1110]',
 };
 
 const CALLOUT_ICON_COLOR: Record<string, string> = {
@@ -305,12 +305,12 @@ function NotionBlock({
       return (
         <div className="my-4">
           {lang && lang !== 'plain text' && (
-            <div className="rounded-t-lg bg-gray-700 px-4 py-1 text-xs text-gray-300">
+            <div className="rounded-t-lg bg-gray-200 px-4 py-1 text-xs text-gray-600 dark:bg-gray-600 dark:text-gray-300">
               {lang}
             </div>
           )}
           <pre
-            className={`overflow-x-auto bg-gray-900 p-4 text-sm text-gray-100 ${lang && lang !== 'plain text' ? 'rounded-b-lg' : 'rounded-lg'}`}
+            className={`overflow-x-auto bg-gray-100 p-4 text-sm text-gray-800 dark:bg-gray-800 dark:text-gray-100 ${lang && lang !== 'plain text' ? 'rounded-b-lg' : 'rounded-lg'}`}
           >
             <code>{code}</code>
           </pre>
@@ -383,7 +383,7 @@ function NotionBlock({
       return (
         <div className={`my-4 flex gap-3 rounded-lg p-4 ${bgClass}`}>
           <span className="shrink-0">{iconEl}</span>
-          <div className="flex-1 text-gray-700 dark:text-gray-300">
+          <div className="notion-callout-content flex-1 text-gray-700 dark:text-gray-300">
             <NotionRichText items={block.callout.rich_text} />
             {children && (
               <NotionRenderer
@@ -648,7 +648,7 @@ function NotionBlock({
       const hasRowHeader = block.table.has_row_header; // 첫 번째 열 헤더
       return (
         <div className="my-4 overflow-x-auto">
-          <table className="w-full border-collapse text-sm text-gray-800 dark:text-gray-200">
+          <table className="min-w-max border-collapse text-sm text-gray-800 dark:text-gray-200">
             <tbody>
               {children.map((row, idx) => {
                 if (row.type !== 'table_row') return null;
@@ -846,7 +846,6 @@ export function NotionRenderer({
       {grouped.map((item, i) => {
         if ('items' in item) {
           if (item.type === 'bulleted_list') {
-            numberedListCounter = 0;
             return (
               <ul
                 key={i}
@@ -887,11 +886,13 @@ export function NotionRenderer({
                   const listChildren = (block as any).children as
                     | BlockObjectResponse[]
                     | undefined;
+                  const richText = (block as any).numbered_list_item.rich_text;
+                  const allBold =
+                    richText.length > 0 &&
+                    richText.every((t: any) => t.annotations.bold);
                   return (
-                    <li key={block.id}>
-                      <NotionRichText
-                        items={(block as any).numbered_list_item.rich_text}
-                      />
+                    <li key={block.id} className={allBold ? 'font-bold' : ''}>
+                      <NotionRichText items={richText} />
                       {listChildren && (
                         <NotionRenderer
                           blocks={listChildren}
