@@ -1,3 +1,5 @@
+import { unstable_cache } from 'next/cache';
+
 import { Client } from '@notionhq/client';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -10,58 +12,63 @@ const ALLOWED_HOSTNAMES = [
 
 const notionClient = new Client({ auth: process.env.NOTION_AUTH_TOKEN });
 
-// blockId로 Notion에서 현재 유효한 이미지 S3 URL을 실시간 조회
-async function resolveBlockImageUrl(blockId: string): Promise<string | null> {
-  try {
-    const block = await notionClient.blocks.retrieve({ block_id: blockId });
-    if (!('type' in block)) return null;
-    if (block.type === 'image' && block.image.type === 'file') {
-      return block.image.file.url;
+// blockId로 Notion에서 현재 유효한 이미지 S3 URL을 조회 (30분 캐시)
+const resolveBlockImageUrl = unstable_cache(
+  async (blockId: string): Promise<string | null> => {
+    try {
+      const block = await notionClient.blocks.retrieve({ block_id: blockId });
+      if (!('type' in block)) return null;
+      if (block.type === 'image' && block.image.type === 'file') {
+        return block.image.file.url;
+      }
+      return null;
+    } catch {
+      return null;
     }
-    return null;
-  } catch {
-    return null;
-  }
-}
+  },
+  ['notion-block-image-url'],
+  { revalidate: 1800 }, // 30분
+);
 
-// pageId + field('icon'|'cover')로 Notion 페이지 자산 URL을 실시간 조회
-async function resolvePageAssetUrl(
-  pageId: string,
-  field: string,
-): Promise<string | null> {
-  try {
-    const page = await notionClient.pages.retrieve({ page_id: pageId });
-    if (field === 'icon' && 'icon' in page) {
-      const icon = page.icon as any;
-      if (icon?.type === 'file') return icon.file.url;
-      if (icon?.type === 'external') return icon.external.url;
-      // Notion 내장 아이콘 (type: 'icon') — 안정적 CDN URL 반환
-      if (icon?.type === 'icon') {
-        const { name, color } = icon.icon ?? {};
-        if (name) {
-          return color
-            ? `https://www.notion.so/icons/${name}_${color}.svg`
-            : `https://www.notion.so/icons/${name}.svg`;
+// pageId + field('icon'|'cover')로 Notion 페이지 자산 URL을 조회 (30분 캐시)
+const resolvePageAssetUrl = unstable_cache(
+  async (pageId: string, field: string): Promise<string | null> => {
+    try {
+      const page = await notionClient.pages.retrieve({ page_id: pageId });
+      if (field === 'icon' && 'icon' in page) {
+        const icon = page.icon as any;
+        if (icon?.type === 'file') return icon.file.url;
+        if (icon?.type === 'external') return icon.external.url;
+        // Notion 내장 아이콘 (type: 'icon') — 안정적 CDN URL 반환
+        if (icon?.type === 'icon') {
+          const { name, color } = icon.icon ?? {};
+          if (name) {
+            return color
+              ? `https://www.notion.so/icons/${name}_${color}.svg`
+              : `https://www.notion.so/icons/${name}.svg`;
+          }
         }
       }
+      if (field === 'cover' && 'cover' in page) {
+        if (page.cover?.type === 'file') return page.cover.file.url;
+        if (page.cover?.type === 'external') return page.cover.external.url;
+      }
+      console.warn(
+        `[notion-image] unhandled asset: pageId=${pageId} field=${field}`,
+        JSON.stringify((page as any)[field]),
+      );
+      return null;
+    } catch (e) {
+      console.error(
+        `[notion-image] resolvePageAssetUrl failed: pageId=${pageId} field=${field}`,
+        e,
+      );
+      return null;
     }
-    if (field === 'cover' && 'cover' in page) {
-      if (page.cover?.type === 'file') return page.cover.file.url;
-      if (page.cover?.type === 'external') return page.cover.external.url;
-    }
-    console.warn(
-      `[notion-image] unhandled asset: pageId=${pageId} field=${field}`,
-      JSON.stringify((page as any)[field]),
-    );
-    return null;
-  } catch (e) {
-    console.error(
-      `[notion-image] resolvePageAssetUrl failed: pageId=${pageId} field=${field}`,
-      e,
-    );
-    return null;
-  }
-}
+  },
+  ['notion-page-asset-url'],
+  { revalidate: 1800 }, // 30분
+);
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -120,7 +127,8 @@ export async function GET(request: NextRequest) {
       headers: {
         'Content-Type': res.headers.get('Content-Type') || 'image/jpeg',
         // S3 pre-signed URL 만료(1h) 전에 CDN/브라우저 캐시를 비움 — 50분
-        'Cache-Control': 'public, max-age=3000, s-maxage=3000',
+        'Cache-Control':
+          'public, max-age=3000, s-maxage=3000, stale-while-revalidate=86400',
       },
     });
   } catch {
