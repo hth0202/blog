@@ -299,12 +299,12 @@
 
 /* ─── 형광펜 밑줄 효과 ──────────────────────────────────────────────────────── */
 .notion-underline {
-  background: linear-gradient(transparent 72%, rgba(167, 139, 250, 0.4) 62%);
-  padding: 0 0.1em;
+  background: linear-gradient(transparent 78%, rgba(167, 139, 250, 0.4) 68%);
+  padding: 0 0.05em;
 }
 
 .dark .notion-underline {
-  background: linear-gradient(transparent 72%, rgba(139, 85, 212, 0.5) 62%);
+  background: linear-gradient(transparent 78%, rgba(139, 85, 212, 0.5) 68%);
 }
 
 /* ─── 단락 첫 줄 들여쓰기 (소개 페이지·리스트 하위 제외) ─────────────────── */
@@ -321,7 +321,8 @@
 /* ─── 리스트 바로 다음 단락: 위 여백 축소 ─────────────────────────────────── */
 .notion-content ul + p,
 .notion-content ol + p,
-.notion-content ol + ul {
+.notion-content ol + ul,
+.notion-content p + p {
   margin-top: -0.5rem;
 }
 
@@ -329,6 +330,16 @@
 .notion-content p + ul,
 .notion-content p + ol {
   margin-top: 1.5rem;
+}
+
+/* ─── 자식 불렛 가진 li 다음 형제 li: 위 여백 추가 ──────────────────────────── */
+.notion-content li:has(> .notion-content) + li {
+  margin-top: 1.5rem;
+}
+
+/* ─── li 자식으로 오는 표: 위 여백 ────────────────────────────────────────── */
+.notion-content li > .notion-content > div:has(> table) {
+  margin-top: 0.75rem;
 }
 
 /* code / pre는 모노스페이스 유지 */
