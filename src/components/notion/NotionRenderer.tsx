@@ -659,7 +659,7 @@ function NotionBlock({
                     key={row.id}
                     className={
                       isHeaderRow
-                        ? 'bg-gray-50 font-semibold dark:bg-neutral-700 dark:text-gray-100'
+                        ? 'bg-gray-50 font-semibold dark:bg-neutral-800 dark:text-gray-100'
                         : 'hover:bg-gray-50 dark:hover:bg-neutral-800/40'
                     }
                   >
@@ -673,7 +673,7 @@ function NotionBlock({
                           className={[
                             'border border-gray-200 p-2 text-left dark:border-neutral-600',
                             hasRowHeader && ci === 0
-                              ? 'w-px bg-gray-50 font-semibold whitespace-nowrap dark:bg-neutral-700 dark:text-gray-100'
+                              ? 'w-px bg-gray-50 font-semibold whitespace-nowrap dark:bg-neutral-800 dark:text-gray-100'
                               : '',
                           ]
                             .join(' ')
