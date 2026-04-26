@@ -24,22 +24,29 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             src={project.thumbnailUrl}
             alt={project.name}
             fill
-            unoptimized
+            sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
         </div>
-        <div className="flex flex-grow flex-col p-4">
+        <div className="flex flex-grow flex-col bg-gray-50/70 p-4 dark:bg-neutral-800/45">
+          <div className="mb-1 flex items-center gap-2">
+            {project.category && (
+              <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400">
+                {project.category}
+              </span>
+            )}
+          </div>
           <h3 className="text-base font-bold text-gray-900 dark:text-white">
             {project.name}
           </h3>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             {project.contentPreview}
           </p>
-          <div className="mt-3 flex flex-wrap gap-1.5">
+          <div className="mt-auto flex flex-wrap gap-1.5 pt-5">
             {project.tags.map((tag, index) => (
               <span
                 key={index}
-                className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600 dark:bg-neutral-800 dark:text-gray-300"
+                className="rounded-full bg-gray-200 px-2.5 py-0.5 text-xs font-medium text-gray-600 dark:bg-neutral-700 dark:text-gray-300"
               >
                 {tag}
               </span>

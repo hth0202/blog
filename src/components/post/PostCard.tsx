@@ -16,12 +16,12 @@ export const PostCard: React.FC<PostCardProps> = ({ post, secret }) => {
   return (
     <Link href={href} className="group block">
       <div className="flex w-full flex-col items-start gap-6 rounded-lg p-4 transition-all duration-300 ease-in-out group-hover:-translate-y-1 group-hover:bg-gray-50 group-hover:shadow-lg sm:flex-row dark:group-hover:bg-neutral-800/50 dark:group-hover:shadow-neutral-800/60">
-        <div className="relative h-48 w-full flex-shrink-0 sm:h-36 sm:w-36">
+        <div className="relative aspect-square w-full flex-shrink-0 sm:aspect-auto sm:h-36 sm:w-36">
           <Image
             src={post.thumbnailUrl}
             alt={post.title}
             fill
-            unoptimized
+            sizes="(min-width: 640px) 144px, 100vw"
             className="rounded-md bg-gray-100 object-cover opacity-80 dark:bg-neutral-700 dark:opacity-70"
           />
         </div>
