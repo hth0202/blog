@@ -63,7 +63,7 @@ export function NotionImage({
           alt={alt}
           width={0}
           height={0}
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 720px"
+          unoptimized
           className={[
             'h-auto w-full rounded-lg transition-opacity duration-300',
             nobg ? 'mix-blend-multiply dark:mix-blend-normal' : '',
