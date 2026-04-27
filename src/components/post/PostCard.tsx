@@ -22,6 +22,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post, secret }) => {
             alt={post.title}
             fill
             sizes="(min-width: 640px) 144px, 100vw"
+            unoptimized={post.thumbnailUrl.startsWith('/api/')}
             className="rounded-md bg-gray-100 object-cover opacity-80 dark:bg-neutral-700 dark:opacity-70"
           />
         </div>
