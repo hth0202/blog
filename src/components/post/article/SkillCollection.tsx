@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import clsx from 'clsx';
+
 import { NotionRichText } from '@/components/notion/NotionRichText';
 
 import type { SkillItem } from '@/services/notion-api';
@@ -130,7 +132,13 @@ export function SkillCollection({
                         <img
                           src={item.iconUrl}
                           alt=""
-                          className={`h-5 w-5 object-contain${['Notion', 'Perplexity', 'ChatGPT'].some((n) => item.title.includes(n)) ? 'dark:[filter:brightness(0)_invert(1)]' : ''}`}
+                          className={clsx('h-5 w-5 object-contain', {
+                            'skill-icon-dark-invert': [
+                              'Notion',
+                              'Perplexity',
+                              'ChatGPT',
+                            ].some((n) => item.title.includes(n)),
+                          })}
                         />
                       </div>
                     )}

@@ -342,6 +342,11 @@
   margin-top: 0.75rem;
 }
 
+/* ─── 다크모드 아이콘 반전 (Notion, Perplexity, ChatGPT 등 검정 아이콘) ────── */
+.dark .skill-icon-dark-invert {
+  filter: brightness(0) invert(1);
+}
+
 /* code / pre는 모노스페이스 유지 */
 .notion code,
 .notion pre,
