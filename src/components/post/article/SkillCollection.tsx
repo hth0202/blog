@@ -34,7 +34,13 @@ export function SkillCollection({
     AI: ['Claude', 'Gemini', 'Perplexity', 'ChatGPT'],
     '데이터 분석': ['mySQL', 'Amplitude', 'Python'],
     디자인: ['Figma', 'Photoshop', 'Illustrator'],
-    '문서 작성': ['MS Excel', 'Google Sheets', 'MS Word', 'HWP'],
+    '문서 작성': [
+      'MS Excel',
+      'Google Sheets',
+      'MS Powerpoint',
+      'MS Word',
+      'HWP',
+    ],
   };
 
   // 카테고리별 그룹화 후 지정 순서로 정렬
