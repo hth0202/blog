@@ -1,4 +1,4 @@
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { revalidatePath } from 'next/cache';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
@@ -7,12 +7,6 @@ export async function GET(request: Request) {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  revalidateTag('notion-posts');
-  revalidateTag('notion-projects');
-  revalidateTag('notion-blocks');
-  revalidateTag('notion-post-meta');
-  revalidateTag('notion-project-meta');
-  revalidateTag('notion-markdown');
   revalidatePath('/', 'layout');
 
   return NextResponse.json({ revalidated: true, at: new Date().toISOString() });
