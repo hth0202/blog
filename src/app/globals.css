@@ -310,6 +310,12 @@
 /* ─── 단락 첫 줄 들여쓰기 (소개 페이지·리스트 하위 제외) ─────────────────── */
 .notion-content p {
   text-indent: 1em;
+  text-align: justify;
+}
+@media (max-width: 767px) {
+  .notion-content p {
+    text-align: left;
+  }
 }
 .notion-content li p {
   text-indent: 0;
