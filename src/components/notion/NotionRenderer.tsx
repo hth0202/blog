@@ -300,7 +300,6 @@ function NotionBlock({
 
     case 'code': {
       const lang = block.code.language;
-      const code = block.code.rich_text.map((t) => t.plain_text).join('');
       const caption = block.code.caption;
       return (
         <div className="my-4">
@@ -312,7 +311,7 @@ function NotionBlock({
           <pre
             className={`overflow-x-auto bg-gray-100 p-4 text-sm text-gray-800 dark:bg-gray-800 dark:text-gray-100 ${lang && lang !== 'plain text' ? 'rounded-b-lg' : 'rounded-lg'}`}
           >
-            <code>{code}</code>
+            <code><NotionRichText items={block.code.rich_text} /></code>
           </pre>
           {caption?.length > 0 && (
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">

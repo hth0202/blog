@@ -2,17 +2,17 @@ import React from 'react';
 
 import type { RichTextItemResponse } from '@notionhq/client/build/src/api-endpoints';
 
-// 텍스트 색상 (Tailwind 클래스)
+// Notion 정확한 텍스트 색상 (globals.css n-text-* 클래스)
 const TEXT_COLOR: Record<string, string> = {
-  gray: 'text-gray-400 dark:text-gray-500',
-  brown: 'text-amber-700 dark:text-amber-500',
-  orange: 'text-orange-500',
-  yellow: 'text-yellow-600 dark:text-yellow-400',
-  green: 'text-green-600 dark:text-green-400',
-  blue: 'text-blue-600 dark:text-blue-400',
+  gray:   'n-text-gray',
+  brown:  'n-text-brown',
+  orange: 'n-text-orange',
+  yellow: 'n-text-yellow',
+  green:  'n-text-green',
+  blue:   'n-text-blue',
   purple: 'n-text-purple',
-  pink: 'text-pink-500',
-  red: 'text-red-500',
+  pink:   'n-text-pink',
+  red:    'n-text-red',
 };
 
 // 배경 색상 → globals.css .n-bg-* 클래스 (light/dark 대응)
