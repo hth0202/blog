@@ -36,7 +36,7 @@ export const Header: React.FC = () => {
         <div className="flex h-16 items-center justify-between border-b border-gray-200 dark:border-neutral-600">
           <Link
             href="/"
-            className="px-8 py-6"
+            className="px-6 py-6"
             onClick={(e) => {
               if (pathname === '/') {
                 e.preventDefault();
