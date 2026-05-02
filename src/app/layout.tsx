@@ -39,12 +39,10 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/favicon.ico', sizes: 'any' },
-      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
-      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/icon.ico', sizes: 'any' },
+      { url: '/icon-dark.svg', type: 'image/svg+xml' },
     ],
     apple: '/apple-touch-icon.png',
-    shortcut: '/favicon.ico',
   },
   manifest: '/site.webmanifest',
 };
@@ -74,6 +72,14 @@ export default function RootLayout({
                     root.style.colorScheme = 'light dark';
                   }
                 } catch (e) {}
+
+                function setFavicon(dark) {
+                  var el = document.querySelector("link[rel='icon'][type='image/svg+xml']");
+                  if (el) el.href = dark ? '/icon-dark.svg' : '/icon-light.svg';
+                }
+                var mq = window.matchMedia('(prefers-color-scheme: dark)');
+                setFavicon(mq.matches);
+                mq.addEventListener('change', function(e) { setFavicon(e.matches); });
               })();
             `,
           }}
