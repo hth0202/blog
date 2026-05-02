@@ -36,7 +36,7 @@ export const Header: React.FC = () => {
         <div className="flex h-16 items-center justify-between border-b border-gray-200 dark:border-neutral-600">
           <Link
             href="/"
-            className="ml-2 px-9 py-6"
+            className="px-8 py-6"
             onClick={(e) => {
               if (pathname === '/') {
                 e.preventDefault();
@@ -45,7 +45,7 @@ export const Header: React.FC = () => {
             }}
           >
             <img
-              src={theme === 'dark' ? '/icon-dark.svg' : '/icon-light.svg'}
+              src={theme === 'dark' ? '/logo-dark.png' : '/icon-light.svg'}
               alt="태피스토리 홈"
               className="h-9 w-9"
             />
