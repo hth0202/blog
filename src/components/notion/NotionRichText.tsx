@@ -108,7 +108,7 @@ function renderItem(
       <a
         key={key}
         href={href}
-        className={`underline hover:text-indigo-600 dark:hover:text-indigo-400 ${spanClasses}`}
+        className={`n-text-gray underline hover:text-indigo-600 dark:hover:text-indigo-400 ${spanClasses}`}
         target="_blank"
         rel="noopener noreferrer"
       >

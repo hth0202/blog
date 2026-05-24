@@ -238,6 +238,7 @@
   display: none !important;
 }
 
+
 /* 페이지 DB 속성(날짜, 상태, 태그 등 프로퍼티 행) 숨김 */
 .notion-collection-row {
   display: none !important;
@@ -346,6 +347,16 @@
 /* ─── li 자식으로 오는 표: 위 여백 ────────────────────────────────────────── */
 .notion-content li > .notion-content > div:has(> table) {
   margin-top: 0.75rem;
+}
+
+/* ─── li 자식 notion-content 안: 하위 리스트 다음 단락을 불렛 간격(8px)과 동일하게 ── */
+.notion-content li .notion-content > ul,
+.notion-content li .notion-content > ol {
+  margin-bottom: 0;
+}
+.notion-content li .notion-content ul + p,
+.notion-content li .notion-content ol + p {
+  margin-top: 0.5rem;
 }
 
 /* ─── 다크모드 아이콘 반전 (Notion, Perplexity, ChatGPT 등 검정 아이콘) ────── */
