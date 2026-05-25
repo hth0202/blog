@@ -31,7 +31,7 @@ export function SkillCollection({
 
   const ITEM_ORDER: Record<string, string[]> = {
     '프로젝트 관리': ['Jira', 'Notion', 'Slack'],
-    AI: ['Claude', 'Gemini', 'Perplexity', 'ChatGPT'],
+    AI: ['Claude Code', 'Codex', 'ChatGPT', 'Gemini', 'Claude', 'Perplexity'],
     '데이터 분석': ['mySQL', 'Amplitude', 'Python'],
     디자인: ['Figma', 'Photoshop', 'Illustrator'],
     '문서 작성': [
