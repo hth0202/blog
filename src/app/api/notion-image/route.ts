@@ -10,13 +10,16 @@ const ALLOWED_HOSTNAMES = [
 
 const notionClient = new Client({ auth: process.env.NOTION_AUTH_TOKEN });
 
-// blockId로 Notion에서 현재 유효한 이미지 S3 URL을 실시간 조회
-async function resolveBlockImageUrl(blockId: string): Promise<string | null> {
+// blockId로 Notion에서 현재 유효한 파일(이미지·PDF 등) S3 URL을 실시간 조회
+async function resolveBlockFileUrl(blockId: string): Promise<string | null> {
   try {
     const block = await notionClient.blocks.retrieve({ block_id: blockId });
     if (!('type' in block)) return null;
     if (block.type === 'image' && block.image.type === 'file') {
       return block.image.file.url;
+    }
+    if (block.type === 'pdf' && block.pdf.type === 'file') {
+      return block.pdf.file.url;
     }
     return null;
   } catch {
@@ -73,10 +76,10 @@ export async function GET(request: NextRequest) {
   let imageUrl: string | null = null;
 
   if (blockId) {
-    // blockId 방식: 블로그 본문 이미지 — 요청 시점에 신선한 URL 조회
-    imageUrl = await resolveBlockImageUrl(blockId);
+    // blockId 방식: 블로그 본문 이미지·PDF — 요청 시점에 신선한 URL 조회
+    imageUrl = await resolveBlockFileUrl(blockId);
     if (!imageUrl) {
-      return new NextResponse('Block not found or not a file image', {
+      return new NextResponse('Block not found or not a file asset', {
         status: 404,
       });
     }
@@ -116,9 +119,16 @@ export async function GET(request: NextRequest) {
       return new NextResponse('Upstream error', { status: 502 });
     }
 
+    const contentType = res.headers.get('Content-Type') || 'image/jpeg';
+    const isPdf = contentType.includes('pdf');
+
     return new NextResponse(res.body, {
       headers: {
-        'Content-Type': res.headers.get('Content-Type') || 'image/jpeg',
+        'Content-Type': contentType,
+        // iframe 안에서 렌더링되도록 인라인 표시 강제
+        'Content-Disposition': 'inline',
+        // S3의 X-Frame-Options: DENY 를 SAMEORIGIN으로 덮어 iframe 허용
+        'X-Frame-Options': isPdf ? 'SAMEORIGIN' : 'DENY',
         // S3 pre-signed URL 만료(1h) 전에 CDN/브라우저 캐시를 비움 — 50분
         'Cache-Control': 'public, max-age=3000, s-maxage=3000',
       },

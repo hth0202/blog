@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  webpack: (config) => {
+    // pdfjs-dist가 Node.js 네이티브 canvas 모듈을 참조하는 문제 방지
+    config.resolve.alias.canvas = false;
+    return config;
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -20,7 +25,7 @@ const nextConfig = {
       {
         source: '/(.*)',
         headers: [
-          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           {
             key: 'Referrer-Policy',
@@ -44,8 +49,8 @@ const nextConfig = {
               "img-src 'self' data: blob: https:",
               "font-src 'self'",
               "connect-src 'self' https://vitals.vercel-insights.com",
-              // YouTube embed iframe
-              "frame-src https://www.youtube.com",
+              // YouTube embed + 같은 출처 PDF 프록시 iframe
+              "frame-src 'self' https://www.youtube.com",
               // audio 블록 (Notion file/external URL)
               "media-src 'self' https:",
               "object-src 'none'",

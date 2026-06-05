@@ -40,7 +40,11 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           <h3 className="text-base font-bold text-gray-900 dark:text-white">
             {project.name}
           </h3>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
+            {project.date}
+            {project.dateEnd ? ` – ${project.dateEnd}` : ''}
+          </p>
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
             {project.contentPreview}
           </p>
           <div className="mt-auto flex flex-wrap gap-1.5 pt-5">

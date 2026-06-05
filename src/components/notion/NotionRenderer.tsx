@@ -1,7 +1,9 @@
 import { slugify } from '@/lib/slugify';
 
+import { BookmarkPreview } from './BookmarkPreview';
 import { NotionImage } from './NotionImage';
 import { NotionRichText } from './NotionRichText';
+import { PdfViewerLoader } from './PdfViewerLoader';
 import { SkillCollectionServer } from './SkillCollectionServer';
 
 import type { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
@@ -717,19 +719,7 @@ function NotionBlock({
     case 'link_preview': {
       const url =
         block.type === 'bookmark' ? block.bookmark.url : block.link_preview.url;
-      return (
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="my-3 flex items-center gap-3 rounded-lg border border-gray-200 p-4 text-sm transition-colors hover:bg-gray-50 dark:border-neutral-700 dark:hover:bg-neutral-800/60"
-        >
-          <span className="min-w-0 flex-1 truncate text-indigo-600 dark:text-indigo-400">
-            {url}
-          </span>
-          <span className="shrink-0 text-gray-400">↗</span>
-        </a>
-      );
+      return <BookmarkPreview url={url} />;
     }
 
     case 'embed': {
@@ -752,19 +742,7 @@ function NotionBlock({
           );
         }
       }
-      return (
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="my-3 flex items-center gap-3 rounded-lg border border-gray-200 p-4 text-sm transition-colors hover:bg-gray-50 dark:border-neutral-700 dark:hover:bg-neutral-800/60"
-        >
-          <span className="min-w-0 flex-1 truncate text-indigo-600 dark:text-indigo-400">
-            {url}
-          </span>
-          <span className="shrink-0 text-gray-400">↗</span>
-        </a>
-      );
+      return <BookmarkPreview url={url} />;
     }
 
     case 'video': {
@@ -817,6 +795,29 @@ function NotionBlock({
           <span>{name}</span>
         </a>
       );
+    }
+
+    case 'pdf': {
+      const pdf = block.pdf;
+      // 외부 URL은 상대방 서버가 iframe 삽입을 막아 차단됨 → 카드로 표시
+      if (pdf.type === 'external') {
+        return (
+          <a
+            href={pdf.external.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="my-3 flex items-center gap-3 rounded-lg border border-gray-200 p-4 text-sm transition-colors hover:bg-gray-50 dark:border-neutral-700 dark:hover:bg-neutral-800/60"
+          >
+            <span className="text-lg">📄</span>
+            <span className="min-w-0 flex-1 truncate text-indigo-600 dark:text-indigo-400">
+              {pdf.external.url}
+            </span>
+            <span className="shrink-0 text-gray-400">↗</span>
+          </a>
+        );
+      }
+      // Notion 업로드 파일은 프록시를 통해 페이지 단위로 렌더링
+      return <PdfViewerLoader src={`/api/notion-image?blockId=${block.id}`} />;
     }
 
     default: {
