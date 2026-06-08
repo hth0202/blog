@@ -2,6 +2,8 @@ import React from 'react';
 
 import type { RichTextItemResponse } from '@notionhq/client/build/src/api-endpoints';
 
+import { InlineLink } from './InlineLink';
+
 // Notion 정확한 텍스트 색상 (globals.css n-text-* 클래스)
 const TEXT_COLOR: Record<string, string> = {
   gray:   'n-text-gray',
@@ -105,15 +107,13 @@ function renderItem(
 
   if (href) {
     return (
-      <a
+      <InlineLink
         key={key}
         href={href}
         className={`n-text-gray underline hover:text-indigo-600 dark:hover:text-indigo-400 ${spanClasses}`}
-        target="_blank"
-        rel="noopener noreferrer"
       >
         {renderWithLineBreaks(text)}
-      </a>
+      </InlineLink>
     );
   }
 
