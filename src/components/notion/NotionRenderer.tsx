@@ -125,6 +125,33 @@ function NotionBlock({
 }) {
   const children = (block as any).children as BlockObjectResponse[] | undefined;
 
+  // heading_4는 공식 SDK 타입에 없지만 Notion API에서 런타임으로 반환될 수 있음
+  if ((block as any).type === 'heading_4') {
+    const h4 = (block as any).heading_4;
+    const h4Bg = blockColorClass(h4.color);
+    const h4TextColor = blockTextColorClass(h4.color);
+    const h4Text = h4.rich_text.map((t: any) => t.plain_text).join('');
+    return (
+      <>
+        <h4
+          id={slugify(h4Text)}
+          className={`mt-5 mb-2 scroll-mt-24 text-lg font-semibold ${h4TextColor || 'text-gray-800 dark:text-gray-100'} ${h4Bg}`.trim()}
+        >
+          <NotionRichText items={h4.rich_text} />
+        </h4>
+        {children && (
+          <div className={noIndent ? '' : 'pl-6'}>
+            <NotionRenderer
+              blocks={children}
+              imageColWidth={imageColWidth}
+              noIndent={noIndent}
+            />
+          </div>
+        )}
+      </>
+    );
+  }
+
   switch (block.type) {
     case 'paragraph': {
       if (!block.paragraph.rich_text.length) return <br />;
@@ -384,7 +411,7 @@ function NotionBlock({
       return (
         <div className={`my-4 flex gap-3 rounded-lg p-4 ${bgClass}`}>
           <span className="shrink-0">{iconEl}</span>
-          <div className="notion-callout-content flex-1 text-gray-700 dark:text-gray-300">
+          <div className="notion-callout-content min-w-0 flex-1 text-gray-700 dark:text-gray-300">
             <NotionRichText items={block.callout.rich_text} />
             {children && (
               <NotionRenderer
@@ -911,7 +938,8 @@ export function NotionRenderer({
         if (
           blockType === 'heading_1' ||
           blockType === 'heading_2' ||
-          blockType === 'heading_3'
+          blockType === 'heading_3' ||
+          (blockType as string) === 'heading_4'
         ) {
           numberedListCounter = 0;
         }

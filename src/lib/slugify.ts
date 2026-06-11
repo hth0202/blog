@@ -12,7 +12,7 @@ export function slugify(text: string): string {
 export type TocHeading = {
   id: string;
   text: string;
-  level: 1 | 2 | 3;
+  level: 1 | 2 | 3 | 4;
 };
 
 export function extractHeadings(blocks: any[]): TocHeading[] {
@@ -22,10 +22,11 @@ export function extractHeadings(blocks: any[]): TocHeading[] {
       (b) =>
         b.type === 'heading_1' ||
         b.type === 'heading_2' ||
-        b.type === 'heading_3',
+        b.type === 'heading_3' ||
+        b.type === 'heading_4',
     )
     .map((b) => {
-      const level = parseInt(b.type.slice(-1)) as 1 | 2 | 3;
+      const level = parseInt(b.type.slice(-1)) as 1 | 2 | 3 | 4;
       const text: string = b[b.type].rich_text
         .map((t: any) => t.plain_text)
         .join('');

@@ -294,7 +294,8 @@
 /* ─── 콜아웃 내부 첫 heading 상단 마진 제거 (아이콘 정렬) ──────────────────── */
 .notion-callout-content .notion-content h1:first-child,
 .notion-callout-content .notion-content h2:first-child,
-.notion-callout-content .notion-content h3:first-child {
+.notion-callout-content .notion-content h3:first-child,
+.notion-callout-content .notion-content h4:first-child {
   margin-top: 0;
 }
 
@@ -312,11 +313,8 @@
 .notion-content p {
   text-indent: 1em;
   text-align: justify;
-}
-@media (max-width: 767px) {
-  .notion-content p {
-    text-align: left;
-  }
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 .notion-content li p {
   text-indent: 0;
