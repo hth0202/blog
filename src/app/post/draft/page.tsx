@@ -18,9 +18,10 @@ async function getPosts(): Promise<{
 }> {
   try {
     const notionPosts = await getPostsFromNotion();
+    const draftPosts = notionPosts.filter((post) => post.status === '임시저장');
 
     const categorySet = new Set<string>();
-    notionPosts.forEach((post) => {
+    draftPosts.forEach((post) => {
       if (post.category) {
         categorySet.add(post.category);
       }
@@ -34,7 +35,7 @@ async function getPosts(): Promise<{
       })),
     ];
 
-    return { posts: notionPosts, categories };
+    return { posts: draftPosts, categories };
   } catch (error) {
     console.error('블로그 데이터 가져오기 실패:', error);
     return { posts: [], categories: [{ id: 'all', name: '전체보기' }] };

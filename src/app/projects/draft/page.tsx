@@ -15,9 +15,10 @@ interface DraftPageProps {
 async function getProjectsData() {
   try {
     const allProjects = await getProjectsFromNotion();
+    const draftProjects = allProjects.filter((p) => p.status === '임시저장');
 
     const categorySet = new Set<string>();
-    allProjects.forEach((project) => {
+    draftProjects.forEach((project) => {
       if (project.category && project.category !== '기타') {
         categorySet.add(project.category);
       }
@@ -31,7 +32,7 @@ async function getProjectsData() {
       })),
     ];
 
-    return { projects: allProjects, categories };
+    return { projects: draftProjects, categories };
   } catch (error) {
     console.error('프로젝트 데이터 가져오기 실패:', error);
     return { projects: [], categories: [{ id: 'all', name: '전체보기' }] };
