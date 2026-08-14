@@ -5,7 +5,7 @@ import localFont from 'next/font/local';
 import type { Metadata } from 'next';
 
 import { ThemeProvider } from '@/layouts/ThemeProvider';
-import { Header, Footer, BottomNav } from '@/layouts';
+import { Header, Footer, BottomNav, RouteScrollReset } from '@/layouts';
 import './globals.css';
 import 'react-notion-x/src/styles.css';
 
@@ -53,12 +53,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko" suppressHydrationWarning className={pretendard.variable}>
+    <html
+      lang="ko"
+      suppressHydrationWarning
+      className={pretendard.variable}
+      data-scroll-behavior="smooth"
+    >
       <head>
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
+                try {
+                  if ('scrollRestoration' in window.history) {
+                    window.history.scrollRestoration = 'manual';
+                  }
+                } catch (e) {}
+
                 try {
                   const theme = localStorage.getItem('theme') || 'system';
                   const root = document.documentElement;
@@ -87,6 +98,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen transition-colors duration-300">
         <ThemeProvider>
+          <RouteScrollReset />
           <div className="flex min-h-screen flex-col">
             <Header />
             <main className="container mx-auto flex-grow px-4 pt-20 pb-24 sm:px-6 sm:pt-24 sm:pb-8 lg:px-8">
