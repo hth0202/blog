@@ -337,6 +337,18 @@
   margin-top: 1.5rem;
 }
 
+/* ─── 리스트 다음 빈 줄 + 단락: 리스트와 무관한 문단, 위 리스트 규칙과 대칭 ──────── */
+/* 빈 문단은 <br>로 렌더링되는데 그 줄높이가 margin과 별개로 공간을 차지해
+   상하 비대칭이 생기므로, br을 숨기고 간격을 margin으로만 직접 제어(1.5rem) */
+.notion-content ul + br,
+.notion-content ol + br {
+  display: none;
+}
+.notion-content ul + br + p,
+.notion-content ol + br + p {
+  margin-top: 1.5rem;
+}
+
 /* ─── 자식 불렛 가진 li 다음 형제 li: 위 여백 추가 ──────────────────────────── */
 .notion-content li:has(> .notion-content) + li {
   margin-top: 1.5rem;
