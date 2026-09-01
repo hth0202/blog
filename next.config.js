@@ -8,6 +8,16 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  async redirects() {
+    return [
+      {
+        source: '/portfolio',
+        destination:
+          'https://drive.google.com/file/d/1eL0aedeQRyMhJ5CT3UMUdxCnQegu4tMf/view',
+        permanent: true,
+      },
+    ];
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 86400, // 24h — 블로그 이미지는 거의 변경되지 않음
