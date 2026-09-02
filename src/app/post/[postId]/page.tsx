@@ -6,6 +6,7 @@ import { TableOfContents } from '@/components/notion/TableOfContents';
 import { ReactionSection } from '@/components/post';
 import {
   CommentSection,
+  PostNavigation,
   ShareButton,
   ViewTracker,
 } from '@/components/post/article';
@@ -92,6 +93,16 @@ export default async function PostDetailPage({
     blocks = [];
   }
   const headings = extractHeadings(blocks);
+
+  const publishedPosts = (await getPostsFromNotion()).filter(
+    (p) => p.status === '발행',
+  );
+  const currentIndex = publishedPosts.findIndex((p) => p.id === post.id);
+  // 목록은 날짜 내림차순이므로 다음 인덱스가 더 이전 글, 이전 인덱스가 더 최신 글이다.
+  const prevPost =
+    currentIndex >= 0 ? (publishedPosts[currentIndex + 1] ?? null) : null;
+  const nextPost =
+    currentIndex >= 0 ? (publishedPosts[currentIndex - 1] ?? null) : null;
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://taffy-story.com';
   const jsonLd = {
@@ -182,6 +193,8 @@ export default async function PostDetailPage({
             목록으로
           </Link>
         </div>
+
+        <PostNavigation prevPost={prevPost} nextPost={nextPost} />
 
         <div className="border-t border-gray-200 pt-8 dark:border-neutral-600">
           <ReactionSection postId={post.id} initialLikes={post.likes} />
