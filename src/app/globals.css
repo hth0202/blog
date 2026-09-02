@@ -102,6 +102,15 @@
     overflow: hidden;
   }
 
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
   @keyframes fadeIn {
     from {
       opacity: 0;
