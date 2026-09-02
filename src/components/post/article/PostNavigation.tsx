@@ -2,7 +2,12 @@ import Link from 'next/link';
 
 import type { Post } from '@/types/blog';
 
-import { ChevronLeftIcon, ChevronRightIcon } from '@/constants';
+import {
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ChevronUpIcon,
+} from '@/constants';
 
 type NavPost = Pick<Post, 'id' | 'title'>;
 
@@ -60,7 +65,8 @@ export function PostNavigation({ prevPost, nextPost }: PostNavigationProps) {
             href={`/post/${prevPost.id}`}
             className="group flex items-start gap-4 py-3 transition-colors"
           >
-            <span className="flex-shrink-0 pt-0.5 text-xs text-gray-500 transition-colors group-hover:text-indigo-600 group-active:text-indigo-600 dark:text-gray-400 dark:group-hover:text-indigo-400 dark:group-active:text-indigo-400">
+            <span className="flex flex-shrink-0 items-center gap-1 pt-0.5 text-xs text-gray-500 transition-colors group-hover:text-indigo-600 group-active:text-indigo-600 dark:text-gray-400 dark:group-hover:text-indigo-400 dark:group-active:text-indigo-400">
+              <ChevronUpIcon className="h-3.5 w-3.5 flex-shrink-0 text-indigo-400 transition-colors group-hover:text-indigo-600 group-active:text-indigo-600 dark:text-indigo-400/80 dark:group-hover:text-indigo-300 dark:group-active:text-indigo-300" />
               이전 글
             </span>
             <span className="line-clamp-2 text-sm font-medium break-keep text-gray-700 transition-colors group-hover:text-indigo-600 group-active:text-indigo-600 dark:text-gray-300 dark:group-hover:text-indigo-400 dark:group-active:text-indigo-400">
@@ -74,7 +80,8 @@ export function PostNavigation({ prevPost, nextPost }: PostNavigationProps) {
             href={`/post/${nextPost.id}`}
             className="group flex items-start gap-4 py-3 transition-colors"
           >
-            <span className="flex-shrink-0 pt-0.5 text-xs text-gray-500 transition-colors group-hover:text-indigo-600 group-active:text-indigo-600 dark:text-gray-400 dark:group-hover:text-indigo-400 dark:group-active:text-indigo-400">
+            <span className="flex flex-shrink-0 items-center gap-1 pt-0.5 text-xs text-gray-500 transition-colors group-hover:text-indigo-600 group-active:text-indigo-600 dark:text-gray-400 dark:group-hover:text-indigo-400 dark:group-active:text-indigo-400">
+              <ChevronDownIcon className="h-3.5 w-3.5 flex-shrink-0 text-indigo-400 transition-colors group-hover:text-indigo-600 group-active:text-indigo-600 dark:text-indigo-400/80 dark:group-hover:text-indigo-300 dark:group-active:text-indigo-300" />
               다음 글
             </span>
             <span className="line-clamp-2 text-sm font-medium break-keep text-gray-700 transition-colors group-hover:text-indigo-600 group-active:text-indigo-600 dark:text-gray-300 dark:group-hover:text-indigo-400 dark:group-active:text-indigo-400">
