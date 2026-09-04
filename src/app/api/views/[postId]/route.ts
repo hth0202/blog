@@ -45,8 +45,29 @@ export async function POST(
 
     const props = page.properties as Record<
       string,
-      { type: string; number?: number | null }
+      {
+        type: string;
+        number?: number | null;
+        status?: { name: string } | null;
+        select?: { name: string } | null;
+      }
     >;
+
+    // 발행되지 않은 글은 DRAFT_SECRET이 일치할 때만 허용 (발행 글은 기존과 동일)
+    const statusProp = props['상태'];
+    const statusName =
+      statusProp?.type === 'status'
+        ? statusProp.status?.name
+        : statusProp?.type === 'select'
+          ? statusProp.select?.name
+          : undefined;
+    if (statusName !== '발행') {
+      const secret = request.nextUrl.searchParams.get('secret');
+      if (!process.env.DRAFT_SECRET || secret !== process.env.DRAFT_SECRET) {
+        return NextResponse.json({ error: 'Page not found' }, { status: 404 });
+      }
+    }
+
     const currentViews =
       props['조회수']?.type === 'number' ? (props['조회수'].number ?? 0) : 0;
 

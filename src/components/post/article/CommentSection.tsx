@@ -8,9 +8,10 @@ import type { Comment } from '@/types/blog';
 
 interface CommentSectionProps {
   postId: string;
+  secret?: string;
 }
 
-export function CommentSection({ postId }: CommentSectionProps) {
+export function CommentSection({ postId, secret }: CommentSectionProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -20,10 +21,14 @@ export function CommentSection({ postId }: CommentSectionProps) {
   const contentRef = useRef<HTMLTextAreaElement>(null);
   const honeypotRef = useRef<HTMLInputElement>(null);
 
+  const commentsUrl = secret
+    ? `/api/comments/${postId}?secret=${secret}`
+    : `/api/comments/${postId}`;
+
   const fetchComments = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`/api/comments/${postId}`);
+      const res = await fetch(commentsUrl);
       if (!res.ok) throw new Error('댓글을 불러오지 못했습니다.');
       const data: Comment[] = await res.json();
       setComments(data);
@@ -40,7 +45,7 @@ export function CommentSection({ postId }: CommentSectionProps) {
     const load = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/comments/${postId}`);
+        const res = await fetch(commentsUrl);
         if (cancelled) return;
         if (!res.ok) throw new Error('댓글을 불러오지 못했습니다.');
         const data: Comment[] = await res.json();
@@ -56,7 +61,8 @@ export function CommentSection({ postId }: CommentSectionProps) {
     return () => {
       cancelled = true;
     };
-  }, [postId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [postId, secret]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,7 +78,7 @@ export function CommentSection({ postId }: CommentSectionProps) {
     setError(null);
 
     try {
-      const res = await fetch(`/api/comments/${postId}`, {
+      const res = await fetch(commentsUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

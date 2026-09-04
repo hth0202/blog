@@ -132,7 +132,7 @@ export default async function PostDetailPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <ViewTracker postId={post.id} />
+      <ViewTracker postId={post.id} secret={isDraft ? secret : undefined} />
       {headings.length > 0 && <TableOfContents headings={headings} />}
       <article className="animate-fade-in mx-auto max-w-3xl">
         <header className="mb-8">
@@ -197,9 +197,16 @@ export default async function PostDetailPage({
         <PostNavigation prevPost={prevPost} nextPost={nextPost} />
 
         <div className="border-t border-gray-200 pt-8 dark:border-neutral-600">
-          <ReactionSection postId={post.id} initialLikes={post.likes} />
+          <ReactionSection
+            postId={post.id}
+            initialLikes={post.likes}
+            secret={isDraft ? secret : undefined}
+          />
 
-          <CommentSection postId={post.id} />
+          <CommentSection
+            postId={post.id}
+            secret={isDraft ? secret : undefined}
+          />
         </div>
       </article>
     </>

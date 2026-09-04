@@ -124,7 +124,10 @@ export default async function ProjectDetailPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <ViewTracker postId={project.id} />
+      <ViewTracker
+        postId={project.id}
+        secret={isDraft ? secret : undefined}
+      />
       {headings.length > 0 && <TableOfContents headings={headings} />}
       <article className="animate-fade-in mx-auto max-w-3xl">
         <header className="mb-8">
@@ -187,9 +190,16 @@ export default async function ProjectDetailPage({
         </div>
 
         <div className="border-t border-gray-200 pt-8 dark:border-neutral-600">
-          <ReactionSection postId={project.id} initialLikes={project.likes} />
+          <ReactionSection
+            postId={project.id}
+            initialLikes={project.likes}
+            secret={isDraft ? secret : undefined}
+          />
 
-          <CommentSection postId={project.id} />
+          <CommentSection
+            postId={project.id}
+            secret={isDraft ? secret : undefined}
+          />
         </div>
       </article>
     </>

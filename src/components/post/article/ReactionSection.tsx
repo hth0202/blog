@@ -7,11 +7,13 @@ import { HeartIcon, HeartIconFilled } from '@/constants';
 interface ReactionSectionProps {
   postId: string;
   initialLikes: number;
+  secret?: string;
 }
 
 export function ReactionSection({
   postId,
   initialLikes,
+  secret,
 }: ReactionSectionProps) {
   const [hasReacted, setHasReacted] = useState(false);
   const [likes, setLikes] = useState(initialLikes);
@@ -58,7 +60,10 @@ export function ReactionSection({
 
     // 백그라운드로 API 호출 (UI 블로킹 없음)
     pendingRef.current = true;
-    fetch(`/api/reactions/${postId}`, {
+    const url = secret
+      ? `/api/reactions/${postId}?secret=${secret}`
+      : `/api/reactions/${postId}`;
+    fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action }),

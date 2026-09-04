@@ -67,6 +67,7 @@ export async function fetchOgMeta(url: string): Promise<OgMeta> {
         Accept: 'text/html',
       },
       signal: AbortSignal.timeout(4000),
+      redirect: 'manual',
       next: { revalidate: 86400 },
     });
     if (!res.ok) return {};

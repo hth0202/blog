@@ -729,6 +729,25 @@ const _getProjectMetaById = async (
 
 export const getProjectMetaById = cache(_getProjectMetaById);
 
+// ─── 페이지 발행 상태 확인 (포스트/프로젝트 공용) ──────────────────────────────
+
+export async function isPagePublished(rawId: string): Promise<boolean> {
+  try {
+    const page = await notionClient.pages.retrieve({ page_id: rawId });
+    if (!('properties' in page)) return false;
+    const statusProp = (page.properties as Record<string, any>)['상태'];
+    const name =
+      statusProp?.type === 'status'
+        ? statusProp.status?.name
+        : statusProp?.type === 'select'
+          ? statusProp.select?.name
+          : undefined;
+    return name === '발행';
+  } catch {
+    return false;
+  }
+}
+
 // ─── 댓글 ────────────────────────────────────────────────────────────────────
 
 const AUTHOR_PREFIX = '[작성자: ';

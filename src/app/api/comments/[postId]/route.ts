@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { createPageComment, getPageComments } from '@/services/notion-api';
+import {
+  createPageComment,
+  getPageComments,
+  isPagePublished,
+} from '@/services/notion-api';
 
 // ─── Rate Limiting ────────────────────────────────────────────────────────────
 // IP당 WINDOW_MS 내 MAX_REQUESTS회 초과 시 차단
@@ -38,14 +42,29 @@ function resolveRawId(postId: string): string {
   return postId.replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/, '$1-$2-$3-$4-$5');
 }
 
+// 발행되지 않은 글은 DRAFT_SECRET이 일치할 때만 허용 (발행 글은 기존과 동일하게 통과)
+async function assertAccessible(
+  rawId: string,
+  secret: string | null,
+): Promise<boolean> {
+  if (await isPagePublished(rawId)) return true;
+  return !!process.env.DRAFT_SECRET && secret === process.env.DRAFT_SECRET;
+}
+
 // ─── GET /api/comments/[postId] ───────────────────────────────────────────────
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ postId: string }> },
 ) {
   const { postId } = await params;
   const rawId = resolveRawId(postId);
+  const secret = request.nextUrl.searchParams.get('secret');
+
+  if (!(await assertAccessible(rawId, secret))) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
   const comments = await getPageComments(rawId);
   return NextResponse.json(comments);
 }
@@ -96,6 +115,11 @@ export async function POST(
 
   const { postId } = await params;
   const rawId = resolveRawId(postId);
+  const secret = request.nextUrl.searchParams.get('secret');
+
+  if (!(await assertAccessible(rawId, secret))) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
 
   await createPageComment(rawId, author, content);
   return NextResponse.json({ success: true }, { status: 201 });
