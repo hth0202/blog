@@ -3,6 +3,7 @@ import { slugify } from '@/lib/slugify';
 import { BookmarkPreview } from './BookmarkPreview';
 import { NotionImage } from './NotionImage';
 import { NotionRichText } from './NotionRichText';
+import { NotionVideo } from './NotionVideo';
 import { PdfViewerLoader } from './PdfViewerLoader';
 import { SkillCollectionServer } from './SkillCollectionServer';
 
@@ -590,7 +591,8 @@ function NotionBlock({
         4: 'grid-cols-1 md:grid-cols-4',
       };
       // 첫 컬럼 이미지 여부로만 판단 — imageColWidth는 크기 힌트로만 사용
-      const resolvedIsImageCol = firstColIsImageCol;
+      // 단, [col:N:M] 비율 태그를 명시한 경우는 자동감지보다 우선한다
+      const resolvedIsImageCol = firstColIsImageCol && !colRatio;
       const resolvedWidth =
         firstColIsImageCol && imageColWidth !== undefined
           ? imageColWidth
@@ -777,6 +779,7 @@ function NotionBlock({
         block.video.type === 'file'
           ? block.video.file.url
           : block.video.external.url;
+      const caption = block.video.caption;
       const isYouTube = /youtube\.com|youtu\.be/.test(src);
       if (isYouTube) {
         const videoId = src.match(
@@ -784,18 +787,37 @@ function NotionBlock({
         )?.[1];
         if (videoId) {
           return (
-            <div className="my-4 aspect-video w-full overflow-hidden rounded-lg">
-              <iframe
-                src={`https://www.youtube.com/embed/${videoId}`}
-                className="h-full w-full"
-                allowFullScreen
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              />
-            </div>
+            <figure className="my-6 flex flex-col items-center">
+              <div className="aspect-video w-full overflow-hidden rounded-lg">
+                <iframe
+                  src={`https://www.youtube.com/embed/${videoId}`}
+                  className="h-full w-full"
+                  loading="lazy"
+                  allowFullScreen
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                />
+              </div>
+              {caption?.length > 0 && (
+                <figcaption className="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">
+                  <NotionRichText items={caption} />
+                </figcaption>
+              )}
+            </figure>
           );
         }
       }
-      return <video src={src} controls className="my-4 w-full rounded-lg" />;
+      return (
+        <NotionVideo
+          src={src}
+          caption={
+            caption?.length > 0 ? (
+              <figcaption className="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">
+                <NotionRichText items={caption} />
+              </figcaption>
+            ) : undefined
+          }
+        />
+      );
     }
 
     case 'audio': {
