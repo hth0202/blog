@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: '/icon.ico', sizes: 'any' },
-      { url: '/icon-dark.svg', type: 'image/svg+xml' },
+      { url: '/icon-light.png', type: 'image/png', sizes: '48x48' },
     ],
     apple: '/apple-touch-icon.png',
   },
@@ -85,8 +85,8 @@ export default function RootLayout({
                 } catch (e) {}
 
                 function setFavicon(dark) {
-                  var el = document.querySelector("link[rel='icon'][type='image/svg+xml']");
-                  if (el) el.href = dark ? '/icon-dark.svg' : '/icon-light.svg';
+                  var el = document.querySelector("link[rel='icon'][type='image/png']");
+                  if (el) el.href = dark ? '/icon-dark.png' : '/icon-light.png';
                 }
                 var mq = window.matchMedia('(prefers-color-scheme: dark)');
                 setFavicon(mq.matches);

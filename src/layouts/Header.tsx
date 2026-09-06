@@ -45,7 +45,7 @@ export const Header: React.FC = () => {
             }}
           >
             <img
-              src={theme === 'dark' ? '/logo-dark.png' : '/icon-light.svg'}
+              src={theme === 'dark' ? '/logo-dark.png' : '/logo-light.png'}
               alt="태피스토리 홈"
               className="h-9 w-9"
             />
