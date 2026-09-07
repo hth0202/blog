@@ -12,6 +12,13 @@ const nextConfig = {
     return [
       {
         source: '/portfolio',
+        has: [{ type: 'query', key: 'secret', value: 'payhere' }],
+        destination:
+          'https://drive.google.com/file/d/1Zoyb-7od1PuEgwselXj-R4e7kPN8VtHd/view',
+        permanent: false,
+      },
+      {
+        source: '/portfolio',
         destination:
           'https://drive.google.com/file/d/1eL0aedeQRyMhJ5CT3UMUdxCnQegu4tMf/view',
         permanent: true,
