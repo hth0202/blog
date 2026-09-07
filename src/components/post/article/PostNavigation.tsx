@@ -16,20 +16,25 @@ interface PostNavigationProps {
   prevPost: NavPost | null;
   nextPost: NavPost | null;
   basePath: string;
+  itemLabel?: string;
 }
 
 export function PostNavigation({
   prevPost,
   nextPost,
   basePath,
+  itemLabel = '글',
 }: PostNavigationProps) {
   if (!prevPost && !nextPost) return null;
+
+  const prevLabel = `이전 ${itemLabel}`;
+  const nextLabel = `다음 ${itemLabel}`;
 
   return (
     <>
       <nav
         className="mb-4 hidden gap-4 sm:grid sm:grid-cols-3"
-        aria-label="이전 글 다음 글"
+        aria-label={`${prevLabel} ${nextLabel}`}
       >
         {prevPost && (
           <Link
@@ -38,7 +43,7 @@ export function PostNavigation({
           >
             <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
               <ChevronLeftIcon className="h-3.5 w-3.5 flex-shrink-0 text-indigo-400 transition-colors group-hover:text-indigo-600 dark:text-indigo-400/80 dark:group-hover:text-indigo-300" />
-              이전 글
+              {prevLabel}
             </span>
             <span className="line-clamp-2 text-sm font-medium break-keep text-gray-700 dark:text-gray-300">
               {prevPost.title}
@@ -52,7 +57,7 @@ export function PostNavigation({
             className="group flex flex-col items-end gap-1 rounded-lg p-4 text-right transition-colors hover:bg-gray-50 sm:col-start-3 dark:hover:bg-neutral-800"
           >
             <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-              다음 글
+              {nextLabel}
               <ChevronRightIcon className="h-3.5 w-3.5 flex-shrink-0 text-indigo-400 transition-colors group-hover:text-indigo-600 dark:text-indigo-400/80 dark:group-hover:text-indigo-300" />
             </span>
             <span className="line-clamp-2 text-sm font-medium break-keep text-gray-700 dark:text-gray-300">
@@ -64,7 +69,7 @@ export function PostNavigation({
 
       <nav
         className="mb-0 divide-y divide-gray-200 sm:hidden dark:divide-neutral-600"
-        aria-label="이전 글 다음 글"
+        aria-label={`${prevLabel} ${nextLabel}`}
       >
         {prevPost && (
           <Link
@@ -73,7 +78,7 @@ export function PostNavigation({
           >
             <span className="flex flex-shrink-0 items-center gap-1 pt-0.5 text-xs text-gray-500 transition-colors group-hover:text-indigo-600 group-active:text-indigo-600 dark:text-gray-400 dark:group-hover:text-indigo-400 dark:group-active:text-indigo-400">
               <ChevronUpIcon className="h-3.5 w-3.5 flex-shrink-0 text-indigo-400 transition-colors group-hover:text-indigo-600 group-active:text-indigo-600 dark:text-indigo-400/80 dark:group-hover:text-indigo-300 dark:group-active:text-indigo-300" />
-              이전 글
+              {prevLabel}
             </span>
             <span className="line-clamp-2 text-sm font-medium break-keep text-gray-700 transition-colors group-hover:text-indigo-600 group-active:text-indigo-600 dark:text-gray-300 dark:group-hover:text-indigo-400 dark:group-active:text-indigo-400">
               {prevPost.title}
@@ -88,7 +93,7 @@ export function PostNavigation({
           >
             <span className="flex flex-shrink-0 items-center gap-1 pt-0.5 text-xs text-gray-500 transition-colors group-hover:text-indigo-600 group-active:text-indigo-600 dark:text-gray-400 dark:group-hover:text-indigo-400 dark:group-active:text-indigo-400">
               <ChevronDownIcon className="h-3.5 w-3.5 flex-shrink-0 text-indigo-400 transition-colors group-hover:text-indigo-600 group-active:text-indigo-600 dark:text-indigo-400/80 dark:group-hover:text-indigo-300 dark:group-active:text-indigo-300" />
-              다음 글
+              {nextLabel}
             </span>
             <span className="line-clamp-2 text-sm font-medium break-keep text-gray-700 transition-colors group-hover:text-indigo-600 group-active:text-indigo-600 dark:text-gray-300 dark:group-hover:text-indigo-400 dark:group-active:text-indigo-400">
               {nextPost.title}

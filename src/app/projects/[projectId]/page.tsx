@@ -205,6 +205,7 @@ export default async function ProjectDetailPage({
             nextProject ? { id: nextProject.id, title: nextProject.name } : null
           }
           basePath="/projects"
+          itemLabel="프로젝트"
         />
 
         <div className="border-t border-gray-200 pt-8 dark:border-neutral-600">
