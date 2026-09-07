@@ -379,7 +379,11 @@ function NotionBlock({
           : 'bg-white border border-gray-200 dark:bg-neutral-900 dark:border-neutral-700';
       let iconEl: React.ReactNode;
       if (icon?.type === 'emoji') {
-        iconEl = <span className="text-xl leading-none">{icon.emoji}</span>;
+        iconEl = (
+          <span className="mt-1 inline-block text-xl leading-none">
+            {icon.emoji}
+          </span>
+        );
       } else if (icon?.type === 'external') {
         iconEl = (
           <img
@@ -402,15 +406,21 @@ function NotionBlock({
           ? (CALLOUT_ICON_COLOR[builtinIconColor] ?? 'text-gray-500')
           : 'text-gray-500';
         iconEl = (
-          <span className={`text-xl leading-none font-bold ${iconTextColor}`}>
+          <span
+            className={`mt-1 inline-block text-xl leading-none font-bold ${iconTextColor}`}
+          >
             ✳
           </span>
         );
       } else {
-        iconEl = <span className="text-xl leading-none">💡</span>;
+        iconEl = (
+          <span className="mt-1 inline-block text-xl leading-none">💡</span>
+        );
       }
       return (
-        <div className={`my-4 flex gap-3 rounded-lg p-4 ${bgClass}`}>
+        <div
+          className={`my-4 flex gap-3 rounded-lg pt-6 pr-10 pb-4 pl-6 ${bgClass}`}
+        >
           <span className="shrink-0">{iconEl}</span>
           <div className="notion-callout-content min-w-0 flex-1 text-gray-700 dark:text-gray-300">
             <NotionRichText items={block.callout.rich_text} />
