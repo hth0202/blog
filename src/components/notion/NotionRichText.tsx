@@ -95,7 +95,7 @@ function renderItem(
   }
 
   const spanClasses = [
-    bold ? 'font-bold' : '',
+    bold ? 'font-semibold' : '',
     italic ? 'italic' : '',
     strikethrough ? 'line-through' : '',
     underline ? 'notion-underline' : '',
