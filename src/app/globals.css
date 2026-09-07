@@ -332,18 +332,10 @@
   text-indent: 0;
 }
 
-/* ─── 리스트 바로 다음 단락: 위 여백 축소 ─────────────────────────────────── */
-.notion-content ul + p,
-.notion-content ol + p,
+/* ─── 리스트 다음 리스트 / 연속 단락: 위 여백 축소 ─────────────────────────── */
 .notion-content ol + ul,
 .notion-content p + p {
   margin-top: -0.5rem;
-}
-
-/* ─── 단락 바로 다음 리스트: 위 여백 추가 ─────────────────────────────────── */
-.notion-content p + ul,
-.notion-content p + ol {
-  margin-top: 1.5rem;
 }
 
 /* ─── 자식 불렛 가진 li 다음 형제 li: 위 여백 추가 ──────────────────────────── */
