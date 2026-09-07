@@ -1,7 +1,5 @@
 import Link from 'next/link';
 
-import type { Post } from '@/types/blog';
-
 import {
   ChevronDownIcon,
   ChevronLeftIcon,
@@ -9,14 +7,22 @@ import {
   ChevronUpIcon,
 } from '@/constants';
 
-type NavPost = Pick<Post, 'id' | 'title'>;
+interface NavPost {
+  id: string;
+  title: string;
+}
 
 interface PostNavigationProps {
   prevPost: NavPost | null;
   nextPost: NavPost | null;
+  basePath: string;
 }
 
-export function PostNavigation({ prevPost, nextPost }: PostNavigationProps) {
+export function PostNavigation({
+  prevPost,
+  nextPost,
+  basePath,
+}: PostNavigationProps) {
   if (!prevPost && !nextPost) return null;
 
   return (
@@ -27,7 +33,7 @@ export function PostNavigation({ prevPost, nextPost }: PostNavigationProps) {
       >
         {prevPost && (
           <Link
-            href={`/post/${prevPost.id}`}
+            href={`${basePath}/${prevPost.id}`}
             className="group flex flex-col gap-1 rounded-lg p-4 transition-colors hover:bg-gray-50 dark:hover:bg-neutral-800"
           >
             <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
@@ -42,7 +48,7 @@ export function PostNavigation({ prevPost, nextPost }: PostNavigationProps) {
 
         {nextPost && (
           <Link
-            href={`/post/${nextPost.id}`}
+            href={`${basePath}/${nextPost.id}`}
             className="group flex flex-col items-end gap-1 rounded-lg p-4 text-right transition-colors hover:bg-gray-50 sm:col-start-3 dark:hover:bg-neutral-800"
           >
             <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
@@ -62,7 +68,7 @@ export function PostNavigation({ prevPost, nextPost }: PostNavigationProps) {
       >
         {prevPost && (
           <Link
-            href={`/post/${prevPost.id}`}
+            href={`${basePath}/${prevPost.id}`}
             className="group flex items-start gap-4 py-3 transition-colors"
           >
             <span className="flex flex-shrink-0 items-center gap-1 pt-0.5 text-xs text-gray-500 transition-colors group-hover:text-indigo-600 group-active:text-indigo-600 dark:text-gray-400 dark:group-hover:text-indigo-400 dark:group-active:text-indigo-400">
@@ -77,7 +83,7 @@ export function PostNavigation({ prevPost, nextPost }: PostNavigationProps) {
 
         {nextPost && (
           <Link
-            href={`/post/${nextPost.id}`}
+            href={`${basePath}/${nextPost.id}`}
             className="group flex items-start gap-4 py-3 transition-colors"
           >
             <span className="flex flex-shrink-0 items-center gap-1 pt-0.5 text-xs text-gray-500 transition-colors group-hover:text-indigo-600 group-active:text-indigo-600 dark:text-gray-400 dark:group-hover:text-indigo-400 dark:group-active:text-indigo-400">

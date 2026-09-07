@@ -6,6 +6,7 @@ import { TableOfContents } from '@/components/notion/TableOfContents';
 import { ReactionSection } from '@/components/post';
 import {
   CommentSection,
+  PostNavigation,
   ShareButton,
   ViewTracker,
 } from '@/components/post/article';
@@ -96,6 +97,16 @@ export default async function ProjectDetailPage({
   }
   const headings = extractHeadings(blocks);
 
+  const publishedProjects = (await getProjectsFromNotion()).filter(
+    (p) => p.status === '발행',
+  );
+  const currentIndex = publishedProjects.findIndex((p) => p.id === project.id);
+  // 목록은 날짜 내림차순이므로 다음 인덱스가 더 이전 글, 이전 인덱스가 더 최신 글이다.
+  const prevProject =
+    currentIndex >= 0 ? (publishedProjects[currentIndex + 1] ?? null) : null;
+  const nextProject =
+    currentIndex >= 0 ? (publishedProjects[currentIndex - 1] ?? null) : null;
+
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://taffy-story.com';
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -124,10 +135,7 @@ export default async function ProjectDetailPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <ViewTracker
-        postId={project.id}
-        secret={isDraft ? secret : undefined}
-      />
+      <ViewTracker postId={project.id} secret={isDraft ? secret : undefined} />
       {headings.length > 0 && <TableOfContents headings={headings} />}
       <article className="animate-fade-in mx-auto max-w-3xl">
         <header className="mb-8">
@@ -188,6 +196,16 @@ export default async function ProjectDetailPage({
             목록으로
           </Link>
         </div>
+
+        <PostNavigation
+          prevPost={
+            prevProject ? { id: prevProject.id, title: prevProject.name } : null
+          }
+          nextPost={
+            nextProject ? { id: nextProject.id, title: nextProject.name } : null
+          }
+          basePath="/projects"
+        />
 
         <div className="border-t border-gray-200 pt-8 dark:border-neutral-600">
           <ReactionSection

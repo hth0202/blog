@@ -194,7 +194,11 @@ export default async function PostDetailPage({
           </Link>
         </div>
 
-        <PostNavigation prevPost={prevPost} nextPost={nextPost} />
+        <PostNavigation
+          prevPost={prevPost}
+          nextPost={nextPost}
+          basePath="/post"
+        />
 
         <div className="border-t border-gray-200 pt-8 dark:border-neutral-600">
           <ReactionSection
