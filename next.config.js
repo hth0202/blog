@@ -12,9 +12,9 @@ const nextConfig = {
     return [
       {
         source: '/portfolio',
-        has: [{ type: 'query', key: 'secret', value: 'payhere' }],
+        has: [{ type: 'query', key: 'secret', value: 'TeamO2' }],
         destination:
-          'https://drive.google.com/file/d/1Zoyb-7od1PuEgwselXj-R4e7kPN8VtHd/view',
+          'https://drive.google.com/file/d/1fdUsYP4zmInIZu1vcQjSOELC-aNM2mD2/view?usp=sharing',
         permanent: false,
       },
       {
