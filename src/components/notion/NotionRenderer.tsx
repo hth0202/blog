@@ -635,10 +635,10 @@ function NotionBlock({
 
       return (
         <div
-          className={`my-4 overflow-x-hidden${resolvedIsImageCol ? 'pl-4' : ''}`}
+          className={`my-4 overflow-x-hidden${firstColIsImageCol ? ' pl-4' : ''}`}
         >
           <div
-            className={`grid ${resolvedIsImageCol ? 'gap-x-8' : 'gap-x-4'} ${gridClass}`}
+            className={`grid ${firstColIsImageCol ? 'gap-x-8' : 'gap-x-4'} ${gridClass}`}
             style={
               useInlineImageCol
                 ? ({
@@ -652,13 +652,13 @@ function NotionBlock({
             {processedChildren?.map((col, colIdx) => {
               const colChildren = (col as any).children;
               const blocksToRender =
-                resolvedIsImageCol && colIdx === 0
+                firstColIsImageCol && colIdx === 0
                   ? colChildren?.filter(
                       (b: any) => !isControlTagPara(b) && !isEmptyPara(b),
                     )
                   : colChildren;
               const colDivClass =
-                resolvedIsImageCol && colIdx === 0
+                firstColIsImageCol && colIdx === 0
                   ? 'min-w-0 [&_figure]:!w-full [&_figure]:!mx-0'
                   : 'min-w-0';
               return (
