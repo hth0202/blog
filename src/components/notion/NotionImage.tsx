@@ -12,6 +12,10 @@ interface NotionImageProps {
   nobg?: boolean;
   marginStyle?: CSSProperties;
   maxWidth?: number;
+  // 로컬 정적 파일처럼 실제 크기를 아는 이미지에만 지정 — Next.js 압축 최적화 적용
+  intrinsicSize?: { width: number; height: number };
+  // 최초 화면에 바로 보이는 이미지에만 지정 — lazy load 대기 없이 즉시 프리로드
+  priority?: boolean;
 }
 
 // 모바일 → 데스크탑 반응형 너비
@@ -40,6 +44,8 @@ export function NotionImage({
   nobg = false,
   marginStyle,
   maxWidth,
+  intrinsicSize,
+  priority,
 }: NotionImageProps) {
   const [loaded, setLoaded] = useState(false);
   const { figure: figureClass, caption: captionClass } = ALIGN_CLASS[align];
@@ -61,9 +67,13 @@ export function NotionImage({
         <Image
           src={src}
           alt={alt}
-          width={0}
-          height={0}
-          unoptimized
+          width={intrinsicSize?.width ?? 0}
+          height={intrinsicSize?.height ?? 0}
+          unoptimized={!intrinsicSize}
+          priority={priority}
+          // sizes 없으면 Next가 "화면 전체 너비"로 가정해 불필요하게 큰(최대 3840px) 변형을 생성함 —
+          // 이 컴포넌트가 쓰이는 영역은 실제로 그렇게 넓게 표시된 적이 없어 상한을 낮게 고정
+          sizes={intrinsicSize ? '(min-width: 768px) 500px, 100vw' : undefined}
           className={[
             'h-auto w-full rounded-lg transition-opacity duration-300',
             nobg ? 'mix-blend-multiply dark:mix-blend-normal' : '',

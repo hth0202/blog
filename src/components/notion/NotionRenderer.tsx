@@ -10,6 +10,48 @@ import { SkillCollectionServer } from './SkillCollectionServer';
 import type { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import type React from 'react';
 
+// 소개 페이지 프로필/경력/사이드 프로젝트 이미지: 거의 바뀌지 않는 콘텐츠라
+// Notion/S3를 거치지 않고 로컬 파일을 직접 사용 (학력 섹션과 동일한 방식)
+// 실제 크기를 알기 때문에 Next.js 압축 최적화도 함께 적용 가능
+// Notion 쪽 이미지가 바뀌면 이 매핑과 /public/about, /public/work, /public/side 파일도 함께 갱신 필요
+const ABOUT_STATIC_IMAGES: Record<
+  string,
+  { src: string; width: number; height: number; priority?: boolean }
+> = {
+  // 페이지 최상단에서 바로 보이는 이미지 — lazy load 없이 즉시 프리로드
+  '33d303dc-620f-80e3-b168-e8fb5635a3f1': {
+    src: '/about/profile.png',
+    width: 1821,
+    height: 2429,
+    priority: true,
+  },
+  '33d303dc-620f-8060-9f3c-cc8dca47f6f2': {
+    src: '/work/allbus.png',
+    width: 480,
+    height: 200,
+  },
+  '346303dc-620f-8059-ae97-ebfbb0a27683': {
+    src: '/work/zep.png',
+    width: 480,
+    height: 200,
+  },
+  '33d303dc-620f-807d-bb08-cb48aeeca2bf': {
+    src: '/work/maeil.png',
+    width: 480,
+    height: 200,
+  },
+  '346303dc-620f-802f-acee-f664bbc664d7': {
+    src: '/side/word.png',
+    width: 480,
+    height: 480,
+  },
+  '33d303dc-620f-8057-a3b0-f9748ab31fd9': {
+    src: '/side/depart.png',
+    width: 480,
+    height: 480,
+  },
+};
+
 const BLOCK_BG: Record<string, string> = {
   gray_background: 'n-bg-gray',
   brown_background: 'n-bg-brown',
@@ -264,12 +306,16 @@ function NotionBlock({
     }
 
     case 'image': {
-      // file 타입: blockId 전달 → proxy가 요청 시점에 Notion에서 신선한 URL 조회
+      // file 타입: getPageBlocks가 이미 받아온 신선한 S3 URL을 그대로 사용
+      // (video/audio/file 블록과 동일한 패턴 — 프록시 왕복 없이 브라우저가 S3에서 바로 받음)
       // external 타입: URL 직접 사용 (만료 없음)
+      // 단, 고정 콘텐츠로 지정된 블록은 로컬 정적 파일 사용
+      const staticOverride = ABOUT_STATIC_IMAGES[block.id];
       const imgSrc =
-        block.image.type === 'file'
-          ? `/api/notion-image?blockId=${block.id}`
-          : block.image.external.url;
+        staticOverride?.src ??
+        (block.image.type === 'file'
+          ? block.image.file.url
+          : block.image.external.url);
       const caption = block.image.caption;
       const captionText = caption?.map((c) => c.plain_text).join('') || '';
 
@@ -324,6 +370,12 @@ function NotionBlock({
           nobg={nobg}
           marginStyle={Object.keys(margins).length ? margins : undefined}
           maxWidth={maxWidth}
+          intrinsicSize={
+            staticOverride
+              ? { width: staticOverride.width, height: staticOverride.height }
+              : undefined
+          }
+          priority={staticOverride?.priority}
         />
       );
     }

@@ -140,17 +140,21 @@ const _querySkillDatabase = async (dbId: string): Promise<SkillItem[]> => {
         if (pageObj.icon) {
           if (pageObj.icon.type === 'emoji') {
             iconEmoji = pageObj.icon.emoji;
-          } else if (
-            pageObj.icon.type === 'file' ||
-            pageObj.icon.type === 'external'
-          ) {
-            // file/external 모두 프록시로 라우팅:
-            // file URL은 S3 서명 URL이라 1시간 후 만료됨 → 프록시가 요청 시점에 신선한 URL 재조회
-            // external URL도 Notion 내부 S3 서명 URL일 수 있어 동일하게 처리
-            iconUrl = `/api/notion-image?pageId=${page.id}&field=icon`;
+          } else if (pageObj.icon.type === 'file') {
+            // databases.query가 이미 받아온 신선한 S3 URL을 그대로 사용
+            iconUrl = pageObj.icon.file.url;
+          } else if (pageObj.icon.type === 'external') {
+            // 외부 URL은 만료되지 않으므로 직접 사용
+            iconUrl = pageObj.icon.external.url;
           } else if (pageObj.icon.type === 'icon') {
-            // Notion 내장 아이콘 라이브러리 (2023+ API) — 프록시로 라우팅해 에러 추적
-            iconUrl = `/api/notion-image?pageId=${page.id}&field=icon`;
+            // Notion 내장 아이콘 라이브러리: www.notion.so는 봇 방어(Cloudflare)가
+            // 걸려 있어 서버발 프록시 fetch가 502로 막힘 → 브라우저가 직접 요청하도록 URL 그대로 사용
+            const { name, color } = pageObj.icon.icon ?? {};
+            iconUrl = name
+              ? color
+                ? `https://www.notion.so/icons/${name}_${color}.svg`
+                : `https://www.notion.so/icons/${name}.svg`
+              : null;
           }
         }
 

@@ -22,16 +22,16 @@ export function SkillCollection({
   if (!initialItems.length) return null;
 
   const CATEGORY_ORDER = [
-    '프로젝트 관리',
     'AI',
     '데이터 분석',
-    '디자인',
+    '프로젝트 관리',
     '문서 작성',
+    '디자인',
   ];
 
   const ITEM_ORDER: Record<string, string[]> = {
     '프로젝트 관리': ['Jira', 'Notion', 'Slack'],
-    AI: ['Claude Code', 'Codex', 'ChatGPT', 'Gemini', 'Claude', 'Perplexity'],
+    AI: ['Claude Code', 'Codex', 'ChatGPT', 'Claude', 'Perplexity', 'Gemini'],
     '데이터 분석': ['mySQL', 'Amplitude', 'Python'],
     디자인: ['Figma', 'Photoshop', 'Illustrator'],
     '문서 작성': [
