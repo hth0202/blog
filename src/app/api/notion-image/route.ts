@@ -1,5 +1,11 @@
-import { Client } from '@notionhq/client';
 import { NextRequest, NextResponse } from 'next/server';
+
+import {
+  fetchAndCacheSkillIcon,
+  getCachedSkillIconUrl,
+  resolveBlockFileUrl,
+  resolvePageAssetUrl,
+} from '@/lib/notion-image-cache';
 
 const ALLOWED_HOSTNAMES = [
   's3.us-west-2.amazonaws.com',
@@ -8,70 +14,38 @@ const ALLOWED_HOSTNAMES = [
   'www.notion.so',
 ];
 
-const notionClient = new Client({ auth: process.env.NOTION_AUTH_TOKEN });
-
-// blockId로 Notion에서 현재 유효한 파일(이미지·PDF 등) S3 URL을 실시간 조회
-async function resolveBlockFileUrl(blockId: string): Promise<string | null> {
-  try {
-    const block = await notionClient.blocks.retrieve({ block_id: blockId });
-    if (!('type' in block)) return null;
-    if (block.type === 'image' && block.image.type === 'file') {
-      return block.image.file.url;
-    }
-    if (block.type === 'pdf' && block.pdf.type === 'file') {
-      return block.pdf.file.url;
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-// pageId + field('icon'|'cover')로 Notion 페이지 자산 URL을 실시간 조회
-async function resolvePageAssetUrl(
-  pageId: string,
-  field: string,
-): Promise<string | null> {
-  try {
-    const page = await notionClient.pages.retrieve({ page_id: pageId });
-    if (field === 'icon' && 'icon' in page) {
-      const icon = page.icon as any;
-      if (icon?.type === 'file') return icon.file.url;
-      if (icon?.type === 'external') return icon.external.url;
-      // Notion 내장 아이콘 (type: 'icon') — 안정적 CDN URL 반환
-      if (icon?.type === 'icon') {
-        const { name, color } = icon.icon ?? {};
-        if (name) {
-          return color
-            ? `https://www.notion.so/icons/${name}_${color}.svg`
-            : `https://www.notion.so/icons/${name}.svg`;
-        }
-      }
-    }
-    if (field === 'cover' && 'cover' in page) {
-      if (page.cover?.type === 'file') return page.cover.file.url;
-      if (page.cover?.type === 'external') return page.cover.external.url;
-    }
-    console.warn(
-      `[notion-image] unhandled asset: pageId=${pageId} field=${field}`,
-      JSON.stringify((page as any)[field]),
-    );
-    return null;
-  } catch (e) {
-    console.error(
-      `[notion-image] resolvePageAssetUrl failed: pageId=${pageId} field=${field}`,
-      e,
-    );
-    return null;
-  }
-}
-
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const blockId = searchParams.get('blockId');
   const pageId = searchParams.get('pageId');
   const field = searchParams.get('field'); // 'icon' | 'cover'
   const url = searchParams.get('url');
+
+  if (pageId && field === 'icon') {
+    // 역량 아이콘: Vercel Blob에 영구 캐시된 사본이 있으면 그쪽으로 리다이렉트
+    // (Notion에 전혀 의존하지 않음 — 자세한 배경은 notion-image-cache.ts 참고)
+    const cachedUrl = await getCachedSkillIconUrl(pageId);
+    if (cachedUrl) {
+      return NextResponse.redirect(cachedUrl, {
+        status: 307,
+        headers: { 'Cache-Control': 'public, max-age=86400' },
+      });
+    }
+
+    const fresh = await fetchAndCacheSkillIcon(pageId);
+    if (!fresh) {
+      return new NextResponse('Page icon not found or not a file', {
+        status: 404,
+      });
+    }
+
+    return new NextResponse(new Uint8Array(fresh.buffer), {
+      headers: {
+        'Content-Type': fresh.contentType,
+        'Cache-Control': 'public, max-age=86400',
+      },
+    });
+  }
 
   let imageUrl: string | null = null;
 
@@ -84,7 +58,7 @@ export async function GET(request: NextRequest) {
       });
     }
   } else if (pageId && field) {
-    // pageId + field 방식: 페이지 아이콘·커버 — 요청 시점에 신선한 URL 조회
+    // pageId + field 방식 (cover 등): 요청 시점에 신선한 URL 조회
     imageUrl = await resolvePageAssetUrl(pageId, field);
     if (!imageUrl) {
       return new NextResponse(`Page ${field} not found or not a file`, {

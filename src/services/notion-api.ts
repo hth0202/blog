@@ -141,8 +141,13 @@ const _querySkillDatabase = async (dbId: string): Promise<SkillItem[]> => {
           if (pageObj.icon.type === 'emoji') {
             iconEmoji = pageObj.icon.emoji;
           } else if (pageObj.icon.type === 'file') {
-            // databases.query가 이미 받아온 신선한 S3 URL을 그대로 사용
-            iconUrl = pageObj.icon.file.url;
+            // 업로드 파일 아이콘의 S3 presigned URL은 약 1시간 뒤 만료됨.
+            // about 페이지는 ISR(revalidate=300)로 정적 캐싱되는데 트래픽이
+            // 뜸하면 재생성이 늦어져 만료된 URL이 오래 박제될 수 있으므로,
+            // /api/notion-image 프록시를 경유한다. 이 프록시는 첫 요청 때만
+            // Notion을 조회하고 그 결과를 Vercel Blob에 영구 캐시하므로,
+            // 이후로는 S3 만료와 전혀 무관해진다 (src/lib/notion-image-cache.ts).
+            iconUrl = `/api/notion-image?pageId=${page.id}&field=icon`;
           } else if (pageObj.icon.type === 'external') {
             // 외부 URL은 만료되지 않으므로 직접 사용
             iconUrl = pageObj.icon.external.url;
