@@ -372,6 +372,26 @@
     'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace !important;
 }
 
+/* ─── shiki 코드 문법 강조: 라이트/다크 테마를 .dark 클래스로 전환 ───────── */
+/* shiki가 defaultColor:false로 내보낸 --shiki-light(-bg)/--shiki-dark(-bg)
+   CSS 변수를 여기서 실제 color/background-color로 적용한다 */
+.shiki,
+.shiki span {
+  color: var(--shiki-light);
+  font-family:
+    'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+}
+.shiki {
+  background-color: var(--shiki-light-bg);
+}
+.dark .shiki,
+.dark .shiki span {
+  color: var(--shiki-dark);
+}
+.dark .shiki {
+  background-color: var(--shiki-dark-bg);
+}
+
 /* ─── Notion 블록 레벨 배경색: 인라인 패딩보다 넉넉하게 ───────────────────── */
 p.n-bg-gray,
 p.n-bg-brown,

@@ -1,6 +1,7 @@
 import { slugify } from '@/lib/slugify';
 
 import { BookmarkPreview } from './BookmarkPreview';
+import { CodeBlock } from './CodeBlock';
 import { NotionImage } from './NotionImage';
 import { NotionRichText } from './NotionRichText';
 import { NotionVideo } from './NotionVideo';
@@ -380,29 +381,14 @@ function NotionBlock({
       );
     }
 
-    case 'code': {
-      const lang = block.code.language;
-      const caption = block.code.caption;
+    case 'code':
       return (
-        <div className="my-4">
-          {lang && lang !== 'plain text' && (
-            <div className="rounded-t-lg bg-gray-200 px-4 py-1 text-xs text-gray-600 dark:bg-gray-600 dark:text-gray-300">
-              {lang}
-            </div>
-          )}
-          <pre
-            className={`overflow-x-auto bg-gray-100 p-4 text-sm text-gray-800 dark:bg-gray-800 dark:text-gray-100 ${lang && lang !== 'plain text' ? 'rounded-b-lg' : 'rounded-lg'}`}
-          >
-            <code><NotionRichText items={block.code.rich_text} /></code>
-          </pre>
-          {caption?.length > 0 && (
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              <NotionRichText items={caption} />
-            </p>
-          )}
-        </div>
+        <CodeBlock
+          language={block.code.language}
+          richText={block.code.rich_text}
+          caption={block.code.caption}
+        />
       );
-    }
 
     case 'quote':
       return (
@@ -687,7 +673,7 @@ function NotionBlock({
 
       return (
         <div
-          className={`my-4 overflow-x-hidden${firstColIsImageCol ? ' pl-4' : ''}`}
+          className={`my-4 overflow-x-hidden${firstColIsImageCol ? 'pl-4' : ''}`}
         >
           <div
             className={`grid ${firstColIsImageCol ? 'gap-x-8' : 'gap-x-4'} ${gridClass}`}
