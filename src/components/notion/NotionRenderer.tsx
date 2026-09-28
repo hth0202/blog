@@ -17,14 +17,22 @@ import type React from 'react';
 // Notion 쪽 이미지가 바뀌면 이 매핑과 /public/about, /public/work, /public/side 파일도 함께 갱신 필요
 const ABOUT_STATIC_IMAGES: Record<
   string,
-  { src: string; width: number; height: number; priority?: boolean }
+  {
+    src: string;
+    width: number;
+    height: number;
+    priority?: boolean;
+    // [col:N:M] 컬럼 비율과 무관하게 이미지 표시 폭 자체를 제한 (px)
+    maxWidth?: number;
+  }
 > = {
   // 페이지 최상단에서 바로 보이는 이미지 — lazy load 없이 즉시 프리로드
   '33d303dc-620f-80e3-b168-e8fb5635a3f1': {
-    src: '/about/profile.png',
-    width: 1821,
-    height: 2429,
+    src: '/about/profile_1.png',
+    width: 480,
+    height: 480,
     priority: true,
+    maxWidth: 280,
   },
   '33d303dc-620f-8060-9f3c-cc8dca47f6f2': {
     src: '/work/allbus.png',
@@ -343,7 +351,9 @@ function NotionBlock({
       const nobg = !!nobgMatch;
 
       const wMatch = popTag(/\[w:(\d+)\]\s*/i);
-      const maxWidth = wMatch ? parseInt(wMatch[1], 10) : undefined;
+      const maxWidth =
+        staticOverride?.maxWidth ??
+        (wMatch ? parseInt(wMatch[1], 10) : undefined);
 
       const margins: Record<string, string> = {};
       for (const dir of ['mt', 'mb', 'ml', 'mr'] as const) {
@@ -638,13 +648,24 @@ function NotionBlock({
         3: 'grid-cols-1 md:grid-cols-3',
         4: 'grid-cols-1 md:grid-cols-4',
       };
+      // 첫 컬럼 이미지 하나에 코드상 maxWidth 오버라이드가 있으면 그 값을
+      // 컬럼 폭 자체로 강제 고정 — 안 그러면 이미지만 줄어들고 컬럼은 그대로라
+      // 이미지-본문 사이에 빈 여백이 생겨 간격이 벌어져 보인다
+      const staticFirstColWidth =
+        firstColIsImageCol && firstColImageBlocks.length === 1
+          ? ABOUT_STATIC_IMAGES[firstColImageBlocks[0].id]?.maxWidth
+          : undefined;
       // 첫 컬럼 이미지 여부로만 판단 — imageColWidth는 크기 힌트로만 사용
       // 단, [col:N:M] 비율 태그를 명시한 경우는 자동감지보다 우선한다
-      const resolvedIsImageCol = firstColIsImageCol && !colRatio;
+      // (단, 정적 오버라이드로 폭이 고정된 경우는 비율 태그보다도 우선)
+      const resolvedIsImageCol =
+        firstColIsImageCol && (!colRatio || staticFirstColWidth !== undefined);
       const resolvedWidth =
-        firstColIsImageCol && imageColWidth !== undefined
-          ? imageColWidth
-          : (firstColWidth ?? 480);
+        staticFirstColWidth !== undefined
+          ? staticFirstColWidth
+          : firstColIsImageCol && imageColWidth !== undefined
+            ? imageColWidth
+            : (firstColWidth ?? 480);
 
       const PREDEFINED_COL_WIDTHS = new Set([
         64, 120, 200, 280, 300, 360, 480, 520, 600,

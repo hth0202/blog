@@ -123,7 +123,7 @@ export default async function AboutPage() {
                 <NotionRenderer
                   key={i}
                   blocks={part.blocks}
-                  imageColWidth={300}
+                  imageColWidth={240}
                   noIndent
                 />
               );
