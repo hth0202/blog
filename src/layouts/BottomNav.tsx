@@ -55,9 +55,10 @@ const NAV_ITEMS = [
         strokeLinejoin="round"
         className="h-6 w-6"
       >
-        <rect x="3" y="3" width="18" height="18" rx="2" />
-        <circle cx="8.5" cy="8.5" r="1.5" />
-        <path d="m3 17 5-5 4 4 3-3 6 5" />
+        <path d="M9.5 2h5" />
+        <path d="M10.5 2v6.2L4.8 18.6A2.3 2.3 0 0 0 6.8 22h10.4a2.3 2.3 0 0 0 2-3.4L13.5 8.2V2" />
+        <path d="M7 15h10" />
+        <path d="M19 1.5l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9z" />
       </svg>
     ),
   },
