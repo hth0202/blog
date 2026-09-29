@@ -21,8 +21,8 @@ const CELL_H = 75; // 300  / 4  = 75
  * useAnimateText
  *
  * Time-based animation — plays automatically on mount.
- * Scroll is locked (overflow hidden + touchmove blocked) while the animation runs.
- * After the subtitle appears the lock is released and the scroll indicator shows.
+ * Scrolling stays available while the animation runs.
+ * After the subtitle appears, the scroll indicator shows.
  * -----------------------------------------------------------------------------------------------*/
 const useAnimateText = () => {
   const strokeTextRef = useRef<SVGTextElement>(null);
@@ -55,45 +55,19 @@ const useAnimateText = () => {
       maskRectsRef.current.forEach((r) => r?.setAttribute('fill', fill));
     };
 
-    // Lock scroll by blocking events only — no CSS manipulation,
-    // so fixed elements (Header, BottomNav) stay correctly positioned on all browsers.
-    const preventWheel = (e: Event) => e.preventDefault();
-    const preventTouch = (e: TouchEvent) => e.preventDefault();
-    const preventKeys = (e: KeyboardEvent) => {
-      if (
-        [
-          ' ',
-          'ArrowDown',
-          'ArrowUp',
-          'PageDown',
-          'PageUp',
-          'Home',
-          'End',
-        ].includes(e.key)
-      ) {
-        e.preventDefault();
-      }
-    };
-    window.addEventListener('wheel', preventWheel, { passive: false });
-    window.addEventListener('touchmove', preventTouch, { passive: false });
-    window.addEventListener('keydown', preventKeys);
-
-    const unlock = () => {
-      window.removeEventListener('wheel', preventWheel);
-      window.removeEventListener('touchmove', preventTouch);
-      window.removeEventListener('keydown', preventKeys);
-    };
-
     // Initial state — wrapper fully visible so stroke drawing is visible from the start
     wrapperEl.style.opacity = '1';
     strokeEl.style.strokeDashoffset = String(initialDashOffset);
     setAllBlocks(false);
 
+    const reducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches;
     const startTime = performance.now();
     const TOTAL = FILL_START + FILL_DURATION;
 
     const tick = (now: number) => {
-      const elapsed = now - startTime;
+      const elapsed = reducedMotion ? TOTAL : now - startTime;
 
       // Phase 1: stroke draws
       const strokeP = Math.min(elapsed / STROKE_DURATION, 1);
@@ -122,8 +96,7 @@ const useAnimateText = () => {
       if (elapsed < TOTAL) {
         rafRef.current = requestAnimationFrame(tick);
       } else {
-        // Animation complete — unlock scroll, show subtitle
-        unlock();
+        // Animation complete — show subtitle
         setSubtitleReadyState(true);
 
         // Show indicator after subtitle finishes animating (0.2s delay + 0.8s duration)
@@ -146,7 +119,6 @@ const useAnimateText = () => {
 
     return () => {
       cancelAnimationFrame(rafRef.current);
-      unlock();
     };
   }, []);
 

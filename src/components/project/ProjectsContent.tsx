@@ -115,7 +115,7 @@ export function ProjectsContent({
               작업
             </h1>
             <p className="mt-2 text-gray-500 dark:text-gray-400">
-              그간 진행했던 크고 작은 프로젝트들을 담았습니다
+              그간 진행했던 크고 작은 프로젝트들을 담았어요
             </p>
           </div>
 
