@@ -41,6 +41,8 @@ export async function generateMetadata({
     alternates: {
       canonical: `${baseUrl}/projects/${project.id}`,
     },
+    // 비표준 지시어지만 일부 AI 크롤러가 준수한다.
+    ...(project.blockAI && { other: { robots: 'noai, noimageai' } }),
     openGraph: {
       title: project.name,
       description: project.contentPreview,

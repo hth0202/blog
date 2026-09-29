@@ -221,6 +221,12 @@ export const getPageMarkdown = cache(_getPageMarkdown);
 
 // ─── 공식 API: 포스트 목록 ────────────────────────────────────────────────────
 
+// 'AI 차단' 체크박스. 속성이 없는 DB에서는 false로 처리한다.
+const extractBlockAI = (props: Record<string, any>): boolean =>
+  props['AI 차단']?.type === 'checkbox'
+    ? (props['AI 차단'] as { checkbox: boolean }).checkbox
+    : false;
+
 const extractText = (richText: { plain_text: string }[]): string =>
   richText?.map((t) => t.plain_text).join('') || '';
 
@@ -340,6 +346,7 @@ const _getPostsFromNotion = async (databaseId?: string): Promise<Post[]> => {
           views,
           likes,
           thumbnailUrl,
+          blockAI: extractBlockAI(props),
         } satisfies Post;
       });
 
@@ -485,6 +492,7 @@ const _getProjectsFromNotion = async (
           likes,
           status,
           thumbnailUrl,
+          blockAI: extractBlockAI(props),
         } satisfies Project;
       });
 
@@ -593,6 +601,7 @@ const _getPostMetaById = async (postId: string): Promise<Post | undefined> => {
       views,
       likes,
       thumbnailUrl,
+      blockAI: extractBlockAI(props),
     };
   } catch (error: any) {
     if (error?.status === 404 || error?.code === 'object_not_found') {
@@ -726,6 +735,7 @@ const _getProjectMetaById = async (
       likes,
       status,
       thumbnailUrl,
+      blockAI: extractBlockAI(props),
     } satisfies Project;
   } catch (error: any) {
     if (error?.status === 404 || error?.code === 'object_not_found') {

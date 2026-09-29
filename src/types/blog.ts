@@ -11,6 +11,7 @@ export interface Post {
   views: number;
   likes: number;
   status: '백로그' | '임시저장' | '발행';
+  blockAI?: boolean; // AI 크롤러 수집 차단 여부
 }
 
 export interface Category {
@@ -32,6 +33,7 @@ export interface Project {
   views: number;
   likes: number;
   status: '백로그' | '임시저장' | '발행';
+  blockAI?: boolean; // AI 크롤러 수집 차단 여부
 }
 
 export interface ProjectCategory {
