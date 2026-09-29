@@ -30,8 +30,10 @@
 
 <본문 — 구체적으로 어떤 파일/로직이 바뀌었는지 1~3줄>
 
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+Co-Authored-By: Claude <모델명> <noreply@anthropic.com>
 ```
+
+`<모델명>`에는 이 커밋을 작성하는 현재 모델의 이름과 버전을 넣습니다 (예: `Opus 5.5`, `Sonnet 5`). 시스템이 커밋 attribution 줄을 안내하면 그 줄을 그대로 사용합니다.
 
 ## 그룹화 우선순위
 
