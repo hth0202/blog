@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
 @custom-variant dark (&:where(.dark, .dark *));
+@custom-variant pointer-fine (@media (hover: hover) and (pointer: fine));
 
 @theme {
   /* Purple color palette */
