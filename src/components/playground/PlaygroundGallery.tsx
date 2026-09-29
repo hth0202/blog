@@ -2,11 +2,17 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useMemo, useRef, useState } from 'react';
-
-import { ChevronDownIcon } from '@/constants';
+import {
+  type CSSProperties,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import type { PlaygroundImage } from '@/types/blog';
+
+import { ChevronDownIcon } from '@/constants';
 
 import { CopyPromptButton } from './CopyPromptButton';
 
@@ -19,6 +25,14 @@ const getImageDimensions = (ratio: string) => {
     ? { width: width * 400, height: height * 400 }
     : { width: 1200, height: 1200 };
 };
+
+// 16:9보다 가로로 긴 이미지는 두 칸을 차지한다
+const WIDE_ASPECT = 16 / 9;
+// 칸 사이 간격을 칸 너비 비율로 두어 위치를 CSS 계산만으로 맞춘다
+const GAP = 0.07;
+// 넓은 이미지 아래로 생기는 빈 공간 허용치(칸 너비 단위)와 최대 대기 개수
+const MAX_WIDE_WASTE = 0.35;
+const MAX_WIDE_WAIT = 4;
 
 export function PlaygroundGallery({
   images,
@@ -115,17 +129,77 @@ export function PlaygroundGallery({
     return () => observer.disconnect();
   }, [hasMore, visibleCount, visibleImages.length]);
 
-  const columns = Array.from(
-    { length: columnCount },
-    () => [] as PlaygroundImage[],
-  );
+  // 위치와 크기는 모두 칸 너비(--col) 단위
   const columnHeights = Array<number>(columnCount).fill(0);
+  const placedImages: {
+    image: PlaygroundImage;
+    aspect: number;
+    span: number;
+    left: number;
+    top: number;
+    width: number;
+  }[] = [];
+  const findSlot = (span: number) => {
+    let column = 0;
+    let top = Infinity;
+    for (let start = 0; start <= columnCount - span; start++) {
+      const spanTop = Math.max(...columnHeights.slice(start, start + span));
+      if (spanTop < top) {
+        column = start;
+        top = spanTop;
+      }
+    }
+    const waste = columnHeights
+      .slice(column, column + span)
+      .reduce((sum, height) => sum + top - height, 0);
+    return { column, top, waste };
+  };
+  const place = (image: PlaygroundImage, aspect: number, span: number) => {
+    const { column, top } = findSlot(span);
+    const itemWidth = span + (span - 1) * GAP;
+    for (let index = column; index < column + span; index++) {
+      columnHeights[index] = top + itemWidth / aspect + GAP;
+    }
+    placedImages.push({
+      image,
+      aspect,
+      span,
+      left: column * (1 + GAP),
+      top,
+      width: itemWidth,
+    });
+  };
+  // 넓은 이미지는 아래 빈 공간이 작아질 때까지 잠시 미뤘다가 넣는다
+  const pendingWide: {
+    image: PlaygroundImage;
+    aspect: number;
+    waited: number;
+  }[] = [];
+  const flushWide = (force: boolean) => {
+    while (
+      pendingWide.length &&
+      (force ||
+        pendingWide[0].waited >= MAX_WIDE_WAIT ||
+        findSlot(2).waste <= MAX_WIDE_WASTE)
+    ) {
+      const { image, aspect } = pendingWide.shift()!;
+      place(image, aspect, 2);
+    }
+  };
   displayedImages.forEach((image) => {
-    const shortestColumn = columnHeights.indexOf(Math.min(...columnHeights));
     const { width, height } = getImageDimensions(image.meta.ratio);
-    columns[shortestColumn].push(image);
-    columnHeights[shortestColumn] += height / width;
+    const aspect = width / height;
+    if (columnCount > 1 && aspect >= WIDE_ASPECT) {
+      pendingWide.push({ image, aspect, waited: 0 });
+    } else {
+      place(image, aspect, 1);
+      pendingWide.forEach((item) => item.waited++);
+    }
+    flushWide(false);
   });
+  flushWide(true);
+  const galleryHeight = Math.max(0, Math.max(...columnHeights) - GAP);
+  const toLength = (units: number) => `calc(${units} * var(--col))`;
   const priorityImageIds = new Set(
     displayedImages.slice(0, columnCount).map((image) => image.id),
   );
@@ -244,53 +318,67 @@ export function PlaygroundGallery({
       </div>
       {hasImages ? (
         <>
-          <div ref={galleryRef} className="flex items-start gap-3 sm:gap-4">
-            {columns.map((column, index) => (
-              <div
-                key={index}
-                className="min-w-0 flex-1 space-y-3 sm:space-y-4"
-              >
-                {column.map((image) => (
-                  <article
-                    key={image.id}
-                    className="group relative overflow-hidden rounded-xl bg-gray-100 dark:bg-neutral-800"
+          <div ref={galleryRef} className="@container">
+            <div
+              className="relative"
+              style={
+                {
+                  '--col': `calc(100cqw / ${columnCount + (columnCount - 1) * GAP})`,
+                  height: toLength(galleryHeight),
+                } as CSSProperties
+              }
+            >
+              {placedImages.map(({ image, aspect, span, left, top, width }) => (
+                <article
+                  key={image.id}
+                  className="group absolute overflow-hidden rounded-xl bg-gray-100 dark:bg-neutral-800"
+                  style={{
+                    left: toLength(left),
+                    top: toLength(top),
+                    width: toLength(width),
+                  }}
+                >
+                  <Link
+                    href={`/playground/${image.slug}`}
+                    className="block focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+                    aria-label={`${image.title} 상세 보기`}
                   >
-                    <Link
-                      href={`/playground/${image.slug}`}
-                      className="block focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-                      aria-label={`${image.title} 상세 보기`}
-                    >
-                      {image.imageUrl.startsWith('/') ? (
-                        <Image
-                          src={image.imageUrl}
-                          alt={image.title}
-                          {...getImageDimensions(image.meta.ratio)}
-                          sizes="(min-width: 1280px) 220px, (min-width: 900px) 25vw, (min-width: 640px) 33vw, 50vw"
-                          priority={priorityImageIds.has(image.id)}
-                          className="block h-auto w-full"
-                        />
-                      ) : (
-                        <img
-                          src={image.imageUrl}
-                          alt={image.title}
-                          loading={
-                            priorityImageIds.has(image.id) ? 'eager' : 'lazy'
-                          }
-                          className="block h-auto w-full"
-                        />
-                      )}
-                    </Link>
-                    <CopyPromptButton
-                      imageId={image.id}
-                      prompt={image.prompt}
-                      initialCopies={image.copies}
-                      views={image.views}
-                      card
-                    />
-                  </article>
-                ))}
-              </div>
-            ))}
+                    {image.imageUrl.startsWith('/') ? (
+                      <Image
+                        src={image.imageUrl}
+                        alt={image.title}
+                        {...getImageDimensions(image.meta.ratio)}
+                        sizes={
+                          span === 2
+                            ? '(min-width: 1280px) 440px, (min-width: 900px) 50vw, (min-width: 640px) 67vw, 100vw'
+                            : '(min-width: 1280px) 220px, (min-width: 900px) 25vw, (min-width: 640px) 33vw, 50vw'
+                        }
+                        priority={priorityImageIds.has(image.id)}
+                        className="block h-auto w-full object-cover"
+                        style={{ aspectRatio: aspect }}
+                      />
+                    ) : (
+                      <img
+                        src={image.imageUrl}
+                        alt={image.title}
+                        loading={
+                          priorityImageIds.has(image.id) ? 'eager' : 'lazy'
+                        }
+                        className="block h-auto w-full object-cover"
+                        style={{ aspectRatio: aspect }}
+                      />
+                    )}
+                  </Link>
+                  <CopyPromptButton
+                    imageId={image.id}
+                    prompt={image.prompt}
+                    initialCopies={image.copies}
+                    views={image.views}
+                    card
+                  />
+                </article>
+              ))}
+            </div>
           </div>
           {hasMore && (
             <div ref={loadMoreRef} className="h-px" aria-hidden="true" />
