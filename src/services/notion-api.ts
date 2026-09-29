@@ -236,6 +236,12 @@ const extractBlockAI = (props: Record<string, any>): boolean =>
     ? (props['AI 차단'] as { checkbox: boolean }).checkbox
     : false;
 
+// 'ID'(고유 ID) 번호를 주소로 쓴다. 속성이 없으면 페이지 id로 대체한다.
+const extractSlug = (props: Record<string, any>, id: string): string =>
+  props['ID']?.type === 'unique_id' && props['ID'].unique_id?.number != null
+    ? String(props['ID'].unique_id.number)
+    : id;
+
 const extractText = (richText: { plain_text: string }[]): string =>
   richText?.map((t) => t.plain_text).join('') || '';
 
@@ -345,6 +351,7 @@ const _getPostsFromNotion = async (databaseId?: string): Promise<Post[]> => {
         return {
           id: page.id.replace(/-/g, ''),
           rawId: page.id,
+          slug: extractSlug(props, page.id.replace(/-/g, '')),
           title,
           category,
           date,
@@ -490,6 +497,7 @@ const _getProjectsFromNotion = async (
         return {
           id: page.id.replace(/-/g, ''),
           rawId: page.id,
+          slug: extractSlug(props, page.id.replace(/-/g, '')),
           name,
           category,
           role,
@@ -687,6 +695,7 @@ const _getPostMetaById = async (postId: string): Promise<Post | undefined> => {
     return {
       id: postId,
       rawId,
+      slug: extractSlug(props, postId),
       title,
       category,
       date,
@@ -709,6 +718,30 @@ const _getPostMetaById = async (postId: string): Promise<Post | undefined> => {
 };
 
 export const getPostMetaById = cache(_getPostMetaById);
+
+// ─── 주소(번호 또는 페이지 id)로 조회 ─────────────────────────────────────────
+
+// 숫자 주소는 'ID' 번호로 페이지를 찾아 32자리 id를 돌려준다.
+const findIdBySlug = async (
+  databaseId: string,
+  slug: string,
+): Promise<string | undefined> => {
+  if (!/^\d+$/.test(slug)) return slug;
+  if (!databaseId) return undefined;
+  const response = await notionClient.databases.query({
+    database_id: databaseId,
+    filter: { property: 'ID', unique_id: { equals: Number(slug) } },
+    page_size: 1,
+  });
+  return response.results[0]?.id.replace(/-/g, '');
+};
+
+export const getPostMetaBySlug = cache(
+  async (slug: string): Promise<Post | undefined> => {
+    const id = await findIdBySlug(NOTION_POST_DATABASE_ID, slug);
+    return id ? getPostMetaById(id) : undefined;
+  },
+);
 
 // ─── 단일 프로젝트 메타 조회 ──────────────────────────────────────────────────
 
@@ -820,6 +853,7 @@ const _getProjectMetaById = async (
     return {
       id: projectId,
       rawId,
+      slug: extractSlug(props, projectId),
       name,
       category,
       role,
@@ -843,6 +877,13 @@ const _getProjectMetaById = async (
 };
 
 export const getProjectMetaById = cache(_getProjectMetaById);
+
+export const getProjectMetaBySlug = cache(
+  async (slug: string): Promise<Project | undefined> => {
+    const id = await findIdBySlug(NOTION_PROJECTS_DATABASE_ID, slug);
+    return id ? getProjectMetaById(id) : undefined;
+  },
+);
 
 // ─── 페이지 발행 상태 확인 (포스트/프로젝트 공용) ──────────────────────────────
 

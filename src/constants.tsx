@@ -13,6 +13,7 @@ export const MOCK_PROJECTS: Project[] = [
   {
     id: '1',
     rawId: '1',
+    slug: '1',
     category: '카테고리 1',
     name: '프로젝트 A',
     role: 'UX/UI Designer',
@@ -27,6 +28,7 @@ export const MOCK_PROJECTS: Project[] = [
   {
     id: '2',
     rawId: '2',
+    slug: '2',
     category: '카테고리 2',
     name: '프로젝트 B',
     role: 'Frontend Developer',
@@ -41,6 +43,7 @@ export const MOCK_PROJECTS: Project[] = [
   {
     id: '3',
     rawId: '3',
+    slug: '3',
     category: '카테고리 3',
     name: '프로젝트 C',
     role: 'Project Manager',
@@ -55,6 +58,7 @@ export const MOCK_PROJECTS: Project[] = [
   {
     id: '4',
     rawId: '4',
+    slug: '4',
     category: '카테고리 1',
     name: '프로젝트 D',
     role: 'UX/UI Designer',
@@ -69,6 +73,7 @@ export const MOCK_PROJECTS: Project[] = [
   {
     id: '5',
     rawId: '5',
+    slug: '5',
     category: '카테고리 2',
     name: '프로젝트 E',
     role: 'Frontend Developer',
@@ -83,6 +88,7 @@ export const MOCK_PROJECTS: Project[] = [
   {
     id: '6',
     rawId: '6',
+    slug: '6',
     category: '카테고리 3',
     name: '프로젝트 F',
     role: 'Product Owner',

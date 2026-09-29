@@ -1,6 +1,8 @@
 export interface Post {
   id: string;
   rawId: string;
+  slug: string; // 주소용: Notion 'ID' 번호, 없으면 id
+
   category: string;
   title: string;
   date: string; // 표시용: yyyy.MM.dd
@@ -22,6 +24,8 @@ export interface Category {
 export interface Project {
   id: string;
   rawId: string;
+  slug: string; // 주소용: Notion 'ID' 번호, 없으면 id
+
   category: string;
   name: string;
   role: string;

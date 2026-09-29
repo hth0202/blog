@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 
 import { NotionRenderer } from '@/components/notion/NotionRenderer';
 import { TableOfContents } from '@/components/notion/TableOfContents';
@@ -13,7 +13,7 @@ import {
 
 import {
   getPageBlocks,
-  getProjectMetaById,
+  getProjectMetaBySlug,
   getProjectsFromNotion,
 } from '@/services/notion-api';
 
@@ -27,7 +27,7 @@ export async function generateMetadata({
   params,
 }: ProjectDetailPageProps): Promise<Metadata> {
   const { projectId } = await params;
-  const project = await getProjectMetaById(projectId);
+  const project = await getProjectMetaBySlug(projectId);
   if (!project) return {};
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://taffy-story.com';
   const ogImage = project.thumbnailUrl
@@ -39,14 +39,14 @@ export async function generateMetadata({
     title: `${project.name} | 태피스토리`,
     description: project.contentPreview,
     alternates: {
-      canonical: `${baseUrl}/projects/${project.id}`,
+      canonical: `${baseUrl}/projects/${project.slug}`,
     },
     // 비표준 지시어지만 일부 AI 크롤러가 준수한다.
     ...(project.blockAI && { other: { robots: 'noai, noimageai' } }),
     openGraph: {
       title: project.name,
       description: project.contentPreview,
-      url: `${baseUrl}/projects/${project.id}`,
+      url: `${baseUrl}/projects/${project.slug}`,
       siteName: '태피스토리',
       images: ogImage ? [{ url: ogImage, alt: project.name }] : [],
       type: 'article',
@@ -67,7 +67,7 @@ export async function generateStaticParams() {
   const projects = await getProjectsFromNotion();
   return projects
     .filter((p) => p.status === '발행')
-    .map((p) => ({ projectId: p.id }));
+    .map((p) => ({ projectId: p.slug }));
 }
 
 interface ProjectDetailPageProps {
@@ -84,8 +84,14 @@ export default async function ProjectDetailPage({
   const isDraft =
     !!process.env.DRAFT_SECRET && secret === process.env.DRAFT_SECRET;
 
-  const project = await getProjectMetaById(projectId);
+  const project = await getProjectMetaBySlug(projectId);
   if (!project || (!isDraft && project.status !== '발행')) notFound();
+  // 예전 id 주소로 들어오면 번호 주소로 옮긴다.
+  if (projectId !== project.slug) {
+    permanentRedirect(
+      `/projects/${project.slug}${secret ? `?secret=${secret}` : ''}`,
+    );
+  }
 
   let blocks: Awaited<ReturnType<typeof getPageBlocks>> = [];
   try {
@@ -118,7 +124,7 @@ export default async function ProjectDetailPage({
     image: project.thumbnailUrl,
     datePublished: project.date,
     dateModified: project.date,
-    url: `${baseUrl}/projects/${project.id}`,
+    url: `${baseUrl}/projects/${project.slug}`,
     author: {
       '@type': 'Person',
       name: '태피',
@@ -201,10 +207,14 @@ export default async function ProjectDetailPage({
 
         <PostNavigation
           prevPost={
-            prevProject ? { id: prevProject.id, title: prevProject.name } : null
+            prevProject
+              ? { slug: prevProject.slug, title: prevProject.name }
+              : null
           }
           nextPost={
-            nextProject ? { id: nextProject.id, title: nextProject.name } : null
+            nextProject
+              ? { slug: nextProject.slug, title: nextProject.name }
+              : null
           }
           basePath="/projects"
           itemLabel="프로젝트"

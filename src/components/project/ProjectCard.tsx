@@ -14,8 +14,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   secret,
 }) => {
   const href = secret
-    ? `/projects/${project.id}?secret=${secret}`
-    : `/projects/${project.id}`;
+    ? `/projects/${project.slug}?secret=${secret}`
+    : `/projects/${project.slug}`;
   return (
     <Link href={href} className="group block h-full">
       <div className="flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 transition-all duration-300 ease-in-out group-hover:-translate-y-1 group-hover:shadow-lg dark:border-neutral-700 dark:group-hover:shadow-neutral-800/60">

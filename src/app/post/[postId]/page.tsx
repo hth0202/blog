@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 
 import { NotionRenderer } from '@/components/notion/NotionRenderer';
 import { TableOfContents } from '@/components/notion/TableOfContents';
@@ -13,7 +13,7 @@ import {
 
 import {
   getPageBlocks,
-  getPostMetaById,
+  getPostMetaBySlug,
   getPostsFromNotion,
 } from '@/services/notion-api';
 
@@ -27,7 +27,7 @@ export async function generateMetadata({
   params,
 }: PostDetailPageProps): Promise<Metadata> {
   const { postId } = await params;
-  const post = await getPostMetaById(postId);
+  const post = await getPostMetaBySlug(postId);
   if (!post) return {};
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://taffy-story.com';
   const ogImage = post.thumbnailUrl
@@ -39,14 +39,14 @@ export async function generateMetadata({
     title: `${post.title} | 태피스토리`,
     description: post.contentPreview,
     alternates: {
-      canonical: `${baseUrl}/post/${post.id}`,
+      canonical: `${baseUrl}/post/${post.slug}`,
     },
     // 비표준 지시어지만 일부 AI 크롤러가 준수한다.
     ...(post.blockAI && { other: { robots: 'noai, noimageai' } }),
     openGraph: {
       title: post.title,
       description: post.contentPreview,
-      url: `${baseUrl}/post/${post.id}`,
+      url: `${baseUrl}/post/${post.slug}`,
       siteName: '태피스토리',
       images: ogImage ? [{ url: ogImage, alt: post.title }] : [],
       type: 'article',
@@ -67,7 +67,7 @@ export async function generateStaticParams() {
   const posts = await getPostsFromNotion();
   return posts
     .filter((p) => p.status === '발행')
-    .map((p) => ({ postId: p.id }));
+    .map((p) => ({ postId: p.slug }));
 }
 
 interface PostDetailPageProps {
@@ -84,8 +84,12 @@ export default async function PostDetailPage({
   const isDraft =
     process.env.DRAFT_SECRET && secret === process.env.DRAFT_SECRET;
 
-  const post = await getPostMetaById(postId);
+  const post = await getPostMetaBySlug(postId);
   if (!post || (!isDraft && post.status !== '발행')) notFound();
+  // 예전 id 주소로 들어오면 번호 주소로 옮긴다.
+  if (postId !== post.slug) {
+    permanentRedirect(`/post/${post.slug}${secret ? `?secret=${secret}` : ''}`);
+  }
 
   let blocks: Awaited<ReturnType<typeof getPageBlocks>> = [];
   try {
@@ -115,7 +119,7 @@ export default async function PostDetailPage({
     image: post.thumbnailUrl,
     datePublished: post.date,
     dateModified: post.date,
-    url: `${baseUrl}/post/${post.id}`,
+    url: `${baseUrl}/post/${post.slug}`,
     author: {
       '@type': 'Person',
       name: '태피',

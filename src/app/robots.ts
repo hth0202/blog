@@ -37,8 +37,8 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
     getProjectsFromNotion(),
   ]);
   const aiBlockedPaths = [
-    ...posts.filter((p) => p.blockAI).map((p) => `/post/${p.id}`),
-    ...projects.filter((p) => p.blockAI).map((p) => `/projects/${p.id}`),
+    ...posts.filter((p) => p.blockAI).map((p) => `/post/${p.slug}`),
+    ...projects.filter((p) => p.blockAI).map((p) => `/projects/${p.slug}`),
   ];
 
   return {
