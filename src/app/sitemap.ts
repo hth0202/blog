@@ -1,5 +1,6 @@
 import {
   getPostsFromNotion,
+  getPlaygroundImagesFromNotion,
   getProjectsFromNotion,
 } from '@/services/notion-api';
 
@@ -8,9 +9,10 @@ import type { MetadataRoute } from 'next';
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://taffy-story.com';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [posts, projects] = await Promise.all([
+  const [posts, projects, images] = await Promise.all([
     getPostsFromNotion(),
     getProjectsFromNotion(),
+    getPlaygroundImagesFromNotion(),
   ]);
 
   const postEntries = posts
@@ -51,6 +53,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
+      url: `${BASE_URL}/playground`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
       url: `${BASE_URL}/about`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
@@ -58,5 +66,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     ...postEntries,
     ...projectEntries,
+    ...images.map((image) => ({
+      url: `${BASE_URL}/playground/${image.id}`,
+      lastModified: new Date(image.isoDate),
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    })),
   ];
 }

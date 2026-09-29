@@ -41,6 +41,19 @@ export interface ProjectCategory {
   name: string;
 }
 
+export interface PlaygroundImage {
+  id: string;
+  title: string;
+  category: string;
+  imageUrl: string;
+  prompt: string;
+  date: string;
+  isoDate: string;
+  views: number;
+  copies: number;
+  meta: import('@/lib/midjourney').MidjourneyMeta;
+}
+
 export interface Comment {
   id: string;
   author: string;

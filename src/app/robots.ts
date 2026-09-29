@@ -52,7 +52,7 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
       {
         userAgent: AI_BOTS,
         allow: '/',
-        disallow: [...DEFAULT_DISALLOW, ...aiBlockedPaths],
+        disallow: [...DEFAULT_DISALLOW, '/playground', ...aiBlockedPaths],
       },
     ],
     sitemap: `${BASE_URL}/sitemap.xml`,

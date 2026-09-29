@@ -1,15 +1,24 @@
 import { Client } from '@notionhq/client';
 import { format } from 'date-fns';
+import { NotionToMarkdown } from 'notion-to-md';
 import { cache } from 'react';
 
-import type { Post, Category, Project, Comment } from '@/types/blog';
+import { DATABASE_ID } from '@/services/database';
+
+import type {
+  Post,
+  Category,
+  Project,
+  PlaygroundImage,
+  Comment,
+} from '@/types/blog';
+
+import { parseMidjourneyPrompt } from '@/lib/midjourney';
 
 import type {
   BlockObjectResponse,
   RichTextItemResponse,
 } from '@notionhq/client/build/src/api-endpoints';
-
-import { NotionToMarkdown } from 'notion-to-md';
 
 // 공식 API 클라이언트
 const notionClient = new Client({
@@ -504,6 +513,93 @@ const _getProjectsFromNotion = async (
 };
 
 export const getProjectsFromNotion = cache(_getProjectsFromNotion);
+
+const _getPlaygroundImagesFromNotion = async (): Promise<PlaygroundImage[]> => {
+  const images: PlaygroundImage[] = [];
+  let cursor: string | undefined;
+
+  try {
+    do {
+      const response = await notionClient.databases.query({
+        database_id: DATABASE_ID.PLAYGROUND,
+        page_size: 100,
+        filter: {
+          and: [
+            { property: '상태', status: { equals: '발행' } },
+            { property: '카테고리', select: { equals: '이미지' } },
+          ],
+        },
+        ...(cursor ? { start_cursor: cursor } : {}),
+      });
+
+      for (const page of response.results) {
+        if (
+          !('properties' in page) ||
+          !('cover' in page) ||
+          !page.cover ||
+          !('created_time' in page)
+        )
+          continue;
+        const props = page.properties as Record<
+          string,
+          {
+            type: string;
+            title?: { plain_text: string }[];
+            rich_text?: { plain_text: string }[];
+            date?: { start: string } | null;
+            number?: number | null;
+          }
+        >;
+        const imageUrl = extractCoverUrl(page.cover, page.id, '');
+        if (!imageUrl) continue;
+
+        const promptProperty = props['프롬프트'] ?? props['설명'];
+        const prompt =
+          promptProperty?.type === 'rich_text'
+            ? extractText(promptProperty.rich_text ?? [])
+            : '';
+        const rawDate =
+          props['날짜']?.type === 'date'
+            ? (props['날짜'].date?.start ?? page.created_time)
+            : page.created_time;
+
+        images.push({
+          id: page.id.replace(/-/g, ''),
+          title:
+            (props['제목']?.type === 'title'
+              ? extractText(props['제목'].title ?? [])
+              : '') || '이미지',
+          category: '이미지',
+          imageUrl,
+          prompt,
+          date: format(new Date(rawDate), 'yyyy.MM.dd'),
+          isoDate: rawDate,
+          views:
+            props['조회수']?.type === 'number'
+              ? (props['조회수'].number ?? 0)
+              : 0,
+          copies:
+            props['복사수']?.type === 'number'
+              ? (props['복사수'].number ?? 0)
+              : 0,
+          meta: parseMidjourneyPrompt(prompt),
+        });
+      }
+
+      cursor = response.has_more
+        ? (response.next_cursor ?? undefined)
+        : undefined;
+    } while (cursor);
+  } catch (error) {
+    console.error('놀이터 이미지 가져오기 실패:', error);
+  }
+
+  return images;
+};
+
+export const getPlaygroundImagesFromNotion = cache(
+  _getPlaygroundImagesFromNotion,
+);
 
 // ─── 단일 포스트 메타 조회 ────────────────────────────────────────────────────
 

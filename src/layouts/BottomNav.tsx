@@ -5,24 +5,6 @@ import { usePathname } from 'next/navigation';
 
 const NAV_ITEMS = [
   {
-    href: '/',
-    label: '처음',
-    icon: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={1.8}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="h-6 w-6"
-      >
-        <path d="M3 12L12 4l9 8" />
-        <path d="M5 10v9a1 1 0 001 1h4v-4h4v4h4a1 1 0 001-1v-9" />
-      </svg>
-    ),
-  },
-  {
     href: '/post',
     label: '기록',
     icon: (
@@ -57,6 +39,25 @@ const NAV_ITEMS = [
         <rect x="14" y="3" width="7" height="7" rx="1" />
         <rect x="3" y="14" width="7" height="7" rx="1" />
         <rect x="14" y="14" width="7" height="7" rx="1" />
+      </svg>
+    ),
+  },
+  {
+    href: '/playground',
+    label: '놀이터',
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="h-6 w-6"
+      >
+        <rect x="3" y="3" width="18" height="18" rx="2" />
+        <circle cx="8.5" cy="8.5" r="1.5" />
+        <path d="m3 17 5-5 4 4 3-3 6 5" />
       </svg>
     ),
   },

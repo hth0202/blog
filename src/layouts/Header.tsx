@@ -8,9 +8,9 @@ import { SunIcon, MoonIcon } from '../constants';
 import { useThemeContext } from './ThemeProvider';
 
 const NAV_LINKS = [
-  { href: '/', label: '처음 화면' },
   { href: '/post', label: '기록' },
   { href: '/projects', label: '작업' },
+  { href: '/playground', label: '놀이터' },
   { href: '/about', label: '소개' },
 ];
 
