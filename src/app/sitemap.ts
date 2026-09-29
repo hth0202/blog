@@ -67,7 +67,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...postEntries,
     ...projectEntries,
     ...images.map((image) => ({
-      url: `${BASE_URL}/playground/${image.id}`,
+      url: `${BASE_URL}/playground/${image.slug}`,
       lastModified: new Date(image.isoDate),
       changeFrequency: 'monthly' as const,
       priority: 0.6,

@@ -1,6 +1,6 @@
 import { Eye } from 'lucide-react';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 
 import { CopyPromptButton } from '@/components/playground/CopyPromptButton';
 import { ShareButton, ViewTracker } from '@/components/post/article';
@@ -50,7 +50,7 @@ export async function generateMetadata({
 }: DetailProps): Promise<Metadata> {
   const { imageId } = await params;
   const image = (await getPlaygroundImagesFromNotion()).find(
-    (item) => item.id === imageId,
+    (item) => item.slug === imageId || item.id === imageId,
   );
   if (!image) return {};
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://taffy-story.com';
@@ -61,7 +61,7 @@ export async function generateMetadata({
   return {
     title: `${image.title} | 놀이터 | 태피스토리`,
     description: image.prompt.slice(0, 160),
-    alternates: { canonical: `${baseUrl}/playground/${image.id}` },
+    alternates: { canonical: `${baseUrl}/playground/${image.slug}` },
     openGraph: { images: [{ url: imageUrl, alt: image.title }] },
   };
 }
@@ -69,9 +69,11 @@ export async function generateMetadata({
 export default async function PlaygroundDetailPage({ params }: DetailProps) {
   const { imageId } = await params;
   const image = (await getPlaygroundImagesFromNotion()).find(
-    (item) => item.id === imageId,
+    (item) => item.slug === imageId || item.id === imageId,
   );
   if (!image) notFound();
+  // 예전 id 주소로 들어오면 번호 주소로 옮긴다.
+  if (imageId !== image.slug) permanentRedirect(`/playground/${image.slug}`);
 
   const rows = [
     {

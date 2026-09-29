@@ -47,6 +47,7 @@ export interface ProjectCategory {
 
 export interface PlaygroundImage {
   id: string;
+  slug: string; // 주소용: Notion 'ID' 번호, 없으면 id
   title: string;
   category: string;
   imageUrl: string;

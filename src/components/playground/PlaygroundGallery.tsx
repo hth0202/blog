@@ -256,7 +256,7 @@ export function PlaygroundGallery({
                     className="group relative overflow-hidden rounded-xl bg-gray-100 dark:bg-neutral-800"
                   >
                     <Link
-                      href={`/playground/${image.id}`}
+                      href={`/playground/${image.slug}`}
                       className="block focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
                       aria-label={`${image.title} 상세 보기`}
                     >

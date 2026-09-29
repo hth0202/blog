@@ -573,6 +573,7 @@ const _getPlaygroundImagesFromNotion = async (): Promise<PlaygroundImage[]> => {
 
         images.push({
           id: page.id.replace(/-/g, ''),
+          slug: extractSlug(props, page.id.replace(/-/g, '')),
           title:
             (props['제목']?.type === 'title'
               ? extractText(props['제목'].title ?? [])
