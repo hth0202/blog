@@ -1,0 +1,1001 @@
+diff --git a/src/components/home/MainSection.tsx b/src/components/home/MainSection.tsx
+--- a/src/components/home/MainSection.tsx
++++ b/src/components/home/MainSection.tsx
+@@ -1,229 +1,48 @@
+ 'use client';
+ 
+-import { useEffect, useRef, useState } from 'react';
++import { useEffect, useState } from 'react';
+ 
+ import { ChevronDoubleDownIcon } from '@/constants';
+ 
+-/* -------------------------------------------------------------------------------------------------
+- * Animation timing constants (ms)
+- * -----------------------------------------------------------------------------------------------*/
+-const STROKE_DURATION = 1600; // stroke draws over this many ms
+-const FILL_START = STROKE_DURATION * 0.6; // fill begins while stroke is still finishing
+-const FILL_DURATION = 1100; // fill reveals over this many ms
++import { WovenTitle } from './WovenTitle';
+ 
+-/* Block grid for rectangular fill reveal */
+-const COLS = 16;
+-const ROWS = 4;
+-const CELL_W = 75; // 1200 / 16 = 75
+-const CELL_H = 75; // 300  / 4  = 75
+-
+-/* -------------------------------------------------------------------------------------------------
+- * useAnimateText
+- *
+- * Time-based animation — plays automatically on mount.
+- * Scrolling stays available while the animation runs.
+- * After the subtitle appears, the scroll indicator shows.
+- * -----------------------------------------------------------------------------------------------*/
+-const useAnimateText = () => {
+-  const strokeTextRef = useRef<SVGTextElement>(null);
+-  const fillTextRef = useRef<SVGTextElement>(null);
+-  const maskRectsRef = useRef<(SVGRectElement | null)[]>([]);
+-  const thresholdsRef = useRef<number[]>([]);
+-  const titleWrapperRef = useRef<HTMLDivElement>(null);
+-  const sectionRef = useRef<HTMLElement>(null);
+-  const rafRef = useRef(0);
+-
+-  const [scrollIndicatorVisible, setScrollIndicatorVisible] = useState(false);
+-  const [subtitleReady, setSubtitleReadyState] = useState(false);
++export function MainSection() {
++  const [ready, setReady] = useState(false);
++  const [indicatorVisible, setIndicatorVisible] = useState(false);
+ 
+   useEffect(() => {
+-    const initialDashOffset = 5000;
+-    const strokeEl = strokeTextRef.current;
+-    const wrapperEl = titleWrapperRef.current;
+-    if (!strokeEl || !wrapperEl) return;
++    if (!ready) return;
++    const delay = window.matchMedia('(prefers-reduced-motion: reduce)').matches
++      ? 0
++      : 1000;
++    const timeout = window.setTimeout(() => setIndicatorVisible(true), delay);
++    return () => window.clearTimeout(timeout);
++  }, [ready]);
+ 
+-    // Initialise block reveal thresholds — left(태) → right(리) + slight noise
+-    thresholdsRef.current = Array.from({ length: COLS * ROWS }, (_, i) => {
+-      const col = i % COLS;
+-      const base = col / (COLS - 1); // 0 = 왼쪽(태), 1 = 오른쪽(리)
+-      const noise = (Math.random() - 0.5) * 0.25;
+-      return Math.max(0, Math.min(1, base + noise));
+-    });
+-
+-    const setAllBlocks = (visible: boolean) => {
+-      const fill = visible ? 'white' : 'black';
+-      maskRectsRef.current.forEach((r) => r?.setAttribute('fill', fill));
++  useEffect(() => {
++    if (!indicatorVisible) return;
++    const onScroll = () => {
++      if (window.scrollY > 50) setIndicatorVisible(false);
+     };
+-
+-    // Initial state — wrapper fully visible so stroke drawing is visible from the start
+-    wrapperEl.style.opacity = '1';
+-    strokeEl.style.strokeDashoffset = String(initialDashOffset);
+-    setAllBlocks(false);
+-
+-    const reducedMotion = window.matchMedia(
+-      '(prefers-reduced-motion: reduce)',
+-    ).matches;
+-    const startTime = performance.now();
+-    const TOTAL = FILL_START + FILL_DURATION;
+-
+-    const tick = (now: number) => {
+-      const elapsed = reducedMotion ? TOTAL : now - startTime;
+-
+-      // Phase 1: stroke draws
+-      const strokeP = Math.min(elapsed / STROKE_DURATION, 1);
+-      const strokeFill = Math.pow(strokeP, 1.5);
+-
+-      // Phase 2: fill reveals block by block (starts while stroke is still finishing)
+-      const fillP = Math.min(
+-        Math.max(elapsed - FILL_START, 0) / FILL_DURATION,
+-        1,
+-      );
+-      const colorFill = Math.pow(fillP, 1.5);
+-
+-      if (strokeTextRef.current) {
+-        strokeTextRef.current.style.strokeDashoffset = String(
+-          initialDashOffset * (1 - strokeFill),
+-        );
+-      }
+-      const thresholds = thresholdsRef.current;
+-      maskRectsRef.current.forEach((rect, i) => {
+-        rect?.setAttribute(
+-          'fill',
+-          thresholds[i] <= colorFill ? 'white' : 'black',
+-        );
+-      });
+-
+-      if (elapsed < TOTAL) {
+-        rafRef.current = requestAnimationFrame(tick);
+-      } else {
+-        // Animation complete — show subtitle
+-        setSubtitleReadyState(true);
+-
+-        // Show indicator after subtitle finishes animating (0.2s delay + 0.8s duration)
+-        setTimeout(() => {
+-          setScrollIndicatorVisible(true);
+-
+-          // Hide indicator once user scrolls away from hero
+-          const onScroll = () => {
+-            if (window.scrollY > 50) {
+-              setScrollIndicatorVisible(false);
+-              window.removeEventListener('scroll', onScroll);
+-            }
+-          };
+-          window.addEventListener('scroll', onScroll, { passive: true });
+-        }, 1000);
+-      }
+-    };
+-
+-    rafRef.current = requestAnimationFrame(tick);
+-
+-    return () => {
+-      cancelAnimationFrame(rafRef.current);
+-    };
+-  }, []);
+-
+-  return {
+-    strokeTextRef,
+-    fillTextRef,
+-    maskRectsRef,
+-    titleWrapperRef,
+-    sectionRef,
+-    subtitleReady,
+-    scrollIndicatorVisible,
+-  };
+-};
+-
+-/* -------------------------------------------------------------------------------------------------
+- * MainSection
+- * -----------------------------------------------------------------------------------------------*/
+-export function MainSection() {
+-  const {
+-    strokeTextRef,
+-    fillTextRef,
+-    maskRectsRef,
+-    titleWrapperRef,
+-    sectionRef,
+-    subtitleReady,
+-    scrollIndicatorVisible,
+-  } = useAnimateText();
++    window.addEventListener('scroll', onScroll, { passive: true });
++    onScroll();
++    return () => window.removeEventListener('scroll', onScroll);
++  }, [indicatorVisible]);
+ 
+   return (
+-    <section ref={sectionRef} className="relative h-svh">
++    <section className="relative h-svh">
+       <div className="flex h-full flex-col items-center justify-center overflow-hidden text-center">
+-        <div className="absolute inset-0 z-0 overflow-hidden">
+-          <div className="animate-blob-1 absolute top-0 -left-24 h-72 w-72 rounded-full bg-indigo-200 opacity-40 blur-3xl filter md:h-96 md:w-96 dark:bg-indigo-400 dark:opacity-[0.12]"></div>
+-          <div className="animate-blob-2 absolute top-0 -right-24 h-72 w-72 rounded-full bg-indigo-200 opacity-40 blur-3xl filter md:h-96 md:w-96 dark:bg-violet-400 dark:opacity-[0.10]"></div>
+-          <div className="animate-blob-3 absolute -bottom-8 left-20 h-72 w-72 rounded-full bg-fuchsia-200 opacity-40 blur-3xl filter md:h-96 md:w-96 dark:bg-fuchsia-400 dark:opacity-[0.10]"></div>
+-        </div>
++        <div className="animate-blob-1 absolute top-0 -left-24 h-72 w-72 rounded-full bg-indigo-200 opacity-40 blur-3xl md:h-96 md:w-96 dark:bg-indigo-400 dark:opacity-[0.12]" />
++        <div className="animate-blob-2 absolute top-0 -right-24 h-72 w-72 rounded-full bg-indigo-200 opacity-40 blur-3xl md:h-96 md:w-96 dark:bg-violet-400 dark:opacity-[0.10]" />
++        <div className="animate-blob-3 absolute -bottom-8 left-20 h-72 w-72 rounded-full bg-fuchsia-200 opacity-40 blur-3xl md:h-96 md:w-96 dark:bg-fuchsia-400 dark:opacity-[0.10]" />
+ 
+-        <div className="relative z-10 px-4">
+-          <div ref={titleWrapperRef}>
+-            <svg
+-              viewBox="0 0 1200 300"
+-              fontSize={200}
+-              className="title-svg mx-auto w-full max-w-xl md:max-w-[1152px]"
+-              aria-label="태피스토리"
+-              overflow="hidden"
+-            >
+-              <defs>
+-                {/* Rectangular block mask — each rect flips black->white independently */}
+-                <mask id="tapestory-block-mask">
+-                  {Array.from({ length: COLS * ROWS }, (_, i) => {
+-                    const col = i % COLS;
+-                    const row = Math.floor(i / COLS);
+-                    return (
+-                      <rect
+-                        key={i}
+-                        ref={(el) => {
+-                          maskRectsRef.current[i] = el;
+-                        }}
+-                        x={col * CELL_W}
+-                        y={row * CELL_H}
+-                        width={CELL_W}
+-                        height={CELL_H}
+-                        fill="black"
+-                      />
+-                    );
+-                  })}
+-                </mask>
+-              </defs>
+-
+-              {/* Layer 1 (bottom): solid fill, revealed block-by-block via rect mask */}
+-              <text
+-                ref={fillTextRef}
+-                x="50%"
+-                y="50%"
+-                dominantBaseline="middle"
+-                textAnchor="middle"
+-                mask="url(#tapestory-block-mask)"
+-                style={{
+-                  // eslint-disable-next-line quotes
+-                  fontFamily: "'Pretendard', sans-serif",
+-                  fontWeight: 800,
+-                  letterSpacing: '-0.025em',
+-                  fill: '#a78bfa',
+-                  stroke: 'none',
+-                }}
+-              >
+-                태피스토리
+-              </text>
+-
+-              {/* Layer 2 (top): stroke outline, drawn via dashoffset animation */}
+-              <text
+-                ref={strokeTextRef}
+-                className="title-stroke"
+-                x="50%"
+-                y="50%"
+-                dominantBaseline="middle"
+-                textAnchor="middle"
+-              >
+-                태피스토리
+-              </text>
+-            </svg>
+-          </div>
+-
+-          <div className={subtitleReady ? 'animate-fade-in-up' : 'opacity-0'}>
+-            <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600 dark:text-gray-300">
++        <div className="z-10 px-4">
++          <h1 className="sr-only">태피스토리</h1>
++          <WovenTitle onSubtitleReady={() => setReady(true)} />
++          <div
++            className={`transition-all duration-700 ease-out motion-reduce:transition-none ${ready ? 'translate-y-0 opacity-100' : '-translate-y-2 opacity-0'}`}
++          >
++            <p className="relative mx-auto mt-4 max-w-2xl text-lg text-gray-700 dark:text-gray-200">
+               서비스 기획자 겸 PM 태피가
+               <br className="sm:hidden" /> 엮어가는 성장 기록
+               <br />
+@@ -231,14 +50,14 @@
+             </p>
+           </div>
+         </div>
++      </div>
+ 
+-        <div
+-          className={`absolute bottom-20 left-1/2 z-20 -translate-x-1/2 transition-opacity duration-1000 md:bottom-36 ${scrollIndicatorVisible ? 'opacity-100' : 'opacity-0'}`}
+-          aria-hidden="true"
+-        >
+-          <div className="animate-bounce-slow text-indigo-300 dark:text-indigo-300">
+-            <ChevronDoubleDownIcon className="mx-auto h-12 w-12" />
+-          </div>
++      <div
++        className={`absolute bottom-20 left-1/2 z-20 -translate-x-1/2 transition-opacity duration-1000 md:bottom-36 ${indicatorVisible ? 'opacity-100' : 'opacity-0'}`}
++        aria-hidden="true"
++      >
++        <div className="animate-bounce-slow text-indigo-300">
++          <ChevronDoubleDownIcon className="mx-auto h-12 w-12" />
+         </div>
+       </div>
+     </section>
+diff --git a/src/app/globals.css b/src/app/globals.css
+--- a/src/app/globals.css
++++ b/src/app/globals.css
+@@ -183,29 +183,6 @@
+     }
+   }
+ 
+-  .title-svg {
+-    height: auto;
+-  }
+-}
+-
+-/* title-stroke: @layer 밖에서 정의해야 Tailwind v4에서 덮어씌워지지 않음 */
+-/* font-size는 SVG 유저 유닛으로 SVG 요소에서 직접 지정 (비율 유지를 위해) */
+-.title-stroke {
+-  font-family: 'Pretendard', sans-serif;
+-  font-weight: 800;
+-  letter-spacing: -0.025em;
+-  stroke: #a78bfa !important;
+-  stroke-width: 1;
+-  stroke-dasharray: 5000;
+-  stroke-dashoffset: 5000;
+-  /* fill color is always set; fill-opacity is driven by JS scroll */
+-  fill: #a78bfa;
+-  fill-opacity: 0;
+-}
+-
+-.dark .title-stroke {
+-  stroke: #a78bfa !important;
+-  fill: #a78bfa;
+ }
+ 
+ @media (prefers-reduced-motion: reduce) {
+diff --git a/src/components/home/WovenTitle.tsx b/src/components/home/WovenTitle.tsx
+new file mode 100644
+--- /dev/null
++++ b/src/components/home/WovenTitle.tsx
+@@ -0,0 +1,623 @@
++'use client';
++
++import { useEffect, useRef } from 'react';
++
++import { WEAVE_DURATION as DURATION, weftPass } from './weaveMotion';
++
++const TITLE = '태피스토리';
++const WEFT_START = 820;
++const WEFT_TRAVEL = 440;
++const WEFT_SPAN = 1600;
++
++type Strand = {
++  position: number;
++  offset: number;
++  pluckedAt: number;
++  amplitude: number;
++};
++type Loom = {
++  width: number;
++  height: number;
++  fontSize: number;
++  step: number;
++  left: number;
++  top: number;
++  titleWidth: number;
++  titleHeight: number;
++  centerY: number;
++  subtitleTop: number;
++  threadTop: number;
++  threadBottom: number;
++  threadLeft: number;
++  threadRight: number;
++  columns: Strand[];
++  rows: Strand[];
++  titleColumns: Strand[];
++  titleRows: Strand[];
++  courseRows: number[];
++  dye: Float32Array;
++};
++
++const clamp = (value: number) => Math.max(0, Math.min(1, value));
++const easeOut = (value: number) => 1 - (1 - value) ** 3;
++
++function makeLoom(
++  section: DOMRect,
++  guide: DOMRect,
++  subtitle: DOMRect,
++  fontFamily: string,
++): Loom {
++  const { width, height } = section;
++  // Use the original SVG's rendered box instead of guessing its CSS size.
++  const fontSize = guide.width / 6;
++  const step = Math.max(3, fontSize / 32);
++  const titleWidth = guide.width;
++  const titleHeight = guide.height;
++  const left = guide.left - section.left;
++  const top = guide.top - section.top;
++  const centerY = top + titleHeight / 2;
++  const subtitleTop = subtitle.top - section.top;
++  const threadTop = 0;
++  const threadBottom = Math.min(
++    height,
++    subtitle.bottom - section.top + titleHeight * 1.4,
++  );
++  const threadLeft = 0;
++  const threadRight = width;
++  const makeStrand = (position: number): Strand => ({
++    position,
++    offset: 0,
++    pluckedAt: 0,
++    amplitude: 0,
++  });
++  const columns = Array.from({ length: Math.ceil(width / step) + 2 }, (_, i) =>
++    makeStrand(left + (i - Math.ceil(left / step) + 0.5) * step),
++  ).filter((strand) => strand.position >= 0 && strand.position <= width);
++  const rows = Array.from(
++    { length: Math.ceil(threadBottom / step) + 2 },
++    (_, i) => makeStrand(top + (i - Math.ceil(top / step) + 0.5) * step),
++  ).filter((strand) => strand.position >= 0 && strand.position <= threadBottom);
++  const titleColumns = columns.filter(
++    (strand) => strand.position >= left && strand.position < left + titleWidth,
++  );
++  const titleRows = rows.filter(
++    (strand) => strand.position >= top && strand.position < top + titleHeight,
++  );
++
++  // The text supplies a weaving chart only. No visible text mask or text layer is drawn.
++  const chart = document.createElement('canvas');
++  chart.width = Math.ceil(titleWidth);
++  chart.height = Math.ceil(titleHeight);
++  const chartContext = chart.getContext('2d', { willReadFrequently: true });
++  const dye = new Float32Array(titleColumns.length * titleRows.length);
++  if (chartContext) {
++    chartContext.fillStyle = '#fff';
++    chartContext.font = `800 ${fontSize}px ${fontFamily}`;
++    chartContext.letterSpacing = `${-fontSize * 0.025}px`;
++    chartContext.textAlign = 'center';
++    chartContext.textBaseline = 'middle';
++    chartContext.fillText(TITLE, chart.width / 2, chart.height / 2);
++    const pixels = chartContext.getImageData(0, 0, chart.width, chart.height);
++    const sample = (x: number, y: number) => {
++      const px = Math.max(0, Math.min(chart.width - 1, Math.round(x)));
++      const py = Math.max(0, Math.min(chart.height - 1, Math.round(y)));
++      return pixels.data[(py * chart.width + px) * 4 + 3] / 255;
++    };
++    titleRows.forEach((row, j) => {
++      titleColumns.forEach((column, i) => {
++        const x = column.position - left;
++        const y = row.position - top;
++        const spread = step * 0.23;
++        dye[j * titleColumns.length + i] =
++          (sample(x - spread, y - spread) +
++            sample(x + spread, y - spread) +
++            sample(x - spread, y + spread) +
++            sample(x + spread, y + spread)) /
++          4;
++      });
++    });
++  }
++  const courseRows = titleRows
++    .map((_, index) => index)
++    .filter((index) =>
++      dye
++        .subarray(
++          index * titleColumns.length,
++          (index + 1) * titleColumns.length,
++        )
++        .some((coverage) => coverage >= 0.13),
++    )
++    .reverse();
++  return {
++    width,
++    height,
++    fontSize,
++    step,
++    left,
++    top,
++    titleWidth,
++    titleHeight,
++    centerY,
++    subtitleTop,
++    threadTop,
++    threadBottom,
++    threadLeft,
++    threadRight,
++    columns,
++    rows,
++    titleColumns,
++    titleRows,
++    courseRows,
++    dye,
++  };
++}
++
++function strokeWeft(
++  context: CanvasRenderingContext2D,
++  from: number,
++  to: number,
++  spacing: number,
++  yAt: (x: number) => number,
++) {
++  if (from === to) return;
++  context.beginPath();
++  context.moveTo(from, yAt(from));
++  const segments = Math.ceil(Math.abs(to - from) / spacing);
++  for (let point = 1; point <= segments; point++) {
++    const x = from + ((to - from) * point) / segments;
++    context.lineTo(x, yAt(x));
++  }
++  context.stroke();
++}
++
++function drawScene(
++  context: CanvasRenderingContext2D,
++  loom: Loom,
++  elapsed: number,
++  dark: boolean,
++) {
++  const {
++    width,
++    height,
++    step,
++    left,
++    titleWidth,
++    titleHeight,
++    centerY,
++    subtitleTop,
++    threadTop,
++    threadBottom,
++    threadLeft,
++    threadRight,
++    columns,
++    rows,
++    titleColumns,
++    titleRows,
++    courseRows,
++    dye,
++  } = loom;
++  context.clearRect(0, 0, width, height);
++  context.lineCap = 'butt';
++  const edgeOpacity =
++    (dark ? 0.17 : 0.13) + 0.03 * (1 - clamp(elapsed / DURATION));
++  const edgeColor = dark ? '183, 151, 249' : '167, 139, 250';
++  const contrastEnd = Math.min(threadBottom, subtitleTop + titleHeight * 0.35);
++  const lowerContrast = (y: number) => {
++    const progress = clamp(
++      (y - centerY) / Math.max(step, contrastEnd - centerY),
++    );
++    return 1 - 0.6 * progress * progress * (3 - 2 * progress);
++  };
++  const warpFade = context.createLinearGradient(0, threadTop, 0, threadBottom);
++  warpFade.addColorStop(0, `rgba(${edgeColor}, 0)`);
++  warpFade.addColorStop(
++    clamp((centerY - titleHeight * 1.5) / threadBottom),
++    `rgba(${edgeColor}, ${edgeOpacity * 0.55})`,
++  );
++  warpFade.addColorStop(
++    centerY / threadBottom,
++    `rgba(${edgeColor}, ${edgeOpacity})`,
++  );
++  [0.25, 0.5, 0.75, 1].forEach((progress) => {
++    const y = centerY + (contrastEnd - centerY) * progress;
++    warpFade.addColorStop(
++      clamp(y / threadBottom),
++      `rgba(${edgeColor}, ${edgeOpacity * lowerContrast(y)})`,
++    );
++  });
++  warpFade.addColorStop(1, `rgba(${edgeColor}, 0)`);
++  const weftFade = context.createLinearGradient(threadLeft, 0, threadRight, 0);
++  weftFade.addColorStop(0, `rgba(${edgeColor}, 0)`);
++  weftFade.addColorStop(0.15, `rgba(${edgeColor}, ${edgeOpacity})`);
++  weftFade.addColorStop(0.85, `rgba(${edgeColor}, ${edgeOpacity})`);
++  weftFade.addColorStop(1, `rgba(${edgeColor}, 0)`);
++  context.strokeStyle = warpFade;
++  context.lineWidth = step * 0.28;
++  const focus = (distance: number, spread: number) =>
++    Math.exp(-((distance / spread) ** 4));
++  const courseLeft = Math.max(threadLeft, left - titleHeight * 1.2);
++  const courseRight = Math.min(
++    threadRight,
++    left + titleWidth + titleHeight * 1.2,
++  );
++  const passes = courseRows.map((rowIndex, index) => {
++    const timing = weftPass(index, courseRows.length);
++    const age = elapsed - timing.start;
++    const progress = clamp(age / timing.travel);
++    const pack = clamp((age - timing.travel) / timing.beat);
++    return {
++      rowIndex,
++      index,
++      age,
++      progress,
++      pack,
++      y: titleRows[rowIndex].position - step * 3 * (1 - easeOut(pack)),
++      tip:
++        index % 2 === 0
++          ? courseLeft + (courseRight - courseLeft) * progress
++          : courseRight - (courseRight - courseLeft) * progress,
++    };
++  });
++  const working = passes.findLast((pass) => pass.age >= 0 && pass.pack < 1);
++  const shed = working ? Math.sin(working.progress * Math.PI) : 0;
++  const warpXAt = (strand: Strand, index: number, y: number) => {
++    const edgeX = strand.position + (1.5 - (index % 4)) * step * 0.8;
++    const gathered = focus(y - centerY, titleHeight * 1.8);
++    const opening = working
++      ? (index % 2 ? -1 : 1) *
++        step *
++        0.28 *
++        shed *
++        Math.exp(-(((y - working.y) / (titleHeight * 0.4)) ** 2))
++      : 0;
++    return (
++      edgeX + (strand.position - edgeX + strand.offset) * gathered + opening
++    );
++  };
++  const rowStart = (position: number) =>
++    WEFT_START + clamp(position / (centerY + titleHeight * 0.6)) * WEFT_SPAN;
++
++  columns.forEach((strand, i) => {
++    context.globalAlpha = Math.sin((Math.PI * strand.position) / width) ** 0.7;
++    const delay = (i % 4) * 18 + Math.abs(i - columns.length / 2) * 0.12;
++    const progress = Math.max(0.035, easeOut(clamp((elapsed - delay) / 300)));
++    const trace = (from: number, to: number) => {
++      context.moveTo(warpXAt(strand, i, from), from);
++      const segments = Math.ceil(Math.abs(to - from) / 18);
++      for (let point = 1; point <= segments; point++) {
++        const y = from + ((to - from) * point) / segments;
++        context.lineTo(warpXAt(strand, i, y), y);
++      }
++    };
++    context.beginPath();
++    trace(threadTop, threadTop + (centerY - threadTop) * progress);
++    const tail = threadBottom - ((i * 7) % 11) * step * 0.6;
++    trace(tail, tail - (tail - centerY) * progress);
++    context.stroke();
++  });
++
++  context.strokeStyle = weftFade;
++  rows.forEach((strand, j) => {
++    const yDistance = (strand.position - centerY) / (titleHeight * 2.3);
++    context.globalAlpha =
++      Math.exp(-yDistance * yDistance) *
++      clamp((threadBottom - strand.position) / (titleHeight * 0.5)) *
++      lowerContrast(strand.position);
++    const start = rowStart(strand.position);
++    const progress = Math.max(0.02, clamp((elapsed - start) / WEFT_TRAVEL));
++    const fromLeft = j % 2 === 0;
++    const startX = fromLeft ? threadLeft : threadRight;
++    const tip = fromLeft
++      ? threadLeft + (threadRight - threadLeft) * progress
++      : threadRight - (threadRight - threadLeft) * progress;
++    const edgeY = strand.position + (1.5 - (j % 4)) * step * 0.8;
++    const yAt = (x: number) => {
++      const gathered = focus(x - (left + titleWidth / 2), titleWidth * 1.6);
++      return edgeY + (strand.position - edgeY + strand.offset) * gathered;
++    };
++    strokeWeft(context, startX, tip, 18, yAt);
++  });
++
++  if (working) {
++    const halfHeight = titleHeight * 0.6;
++    const workingFade = context.createLinearGradient(
++      0,
++      working.y - halfHeight,
++      0,
++      working.y + halfHeight,
++    );
++    workingFade.addColorStop(0, 'rgba(159, 137, 199, 0)');
++    workingFade.addColorStop(0.5, 'rgba(159, 137, 199, 0.65)');
++    workingFade.addColorStop(1, 'rgba(159, 137, 199, 0)');
++    context.strokeStyle = workingFade;
++    context.lineWidth = step * 0.32;
++    columns.forEach((strand, i) => {
++      if (strand.position < courseLeft || strand.position > courseRight) return;
++      context.globalAlpha = (i % 4 ? 0.22 : 1) * (1 - working.pack);
++      context.beginPath();
++      for (let point = 0; point <= 8; point++) {
++        const y = working.y - halfHeight + (halfHeight * point) / 4;
++        const x = warpXAt(strand, i, y);
++        if (point === 0) context.moveTo(x, y);
++        else context.lineTo(x, y);
++      }
++      context.stroke();
++    });
++  }
++
++  // One continuous weft per course. The chart dyes lengths of that yarn.
++  const titleColumnStart = columns.indexOf(titleColumns[0]);
++  passes.forEach((pass) => {
++    if (pass.age < 0) return;
++    const row = titleRows[pass.rowIndex];
++    const fromLeft = pass.index % 2 === 0;
++    const from = fromLeft ? left : left + titleWidth;
++    const to = Math.max(left, Math.min(left + titleWidth, pass.tip));
++    const yAt = (x: number) =>
++      pass.y +
++      row.offset * focus(x - (left + titleWidth / 2), titleWidth * 1.6);
++    const dyedYarn = context.createLinearGradient(
++      left,
++      0,
++      left + titleWidth,
++      0,
++    );
++    dyedYarn.addColorStop(0, 'rgba(167, 139, 250, 0)');
++    titleColumns.forEach((column, i) => {
++      const color = `rgba(167, 139, 250, ${dye[pass.rowIndex * titleColumns.length + i]})`;
++      for (const edge of [-0.4, 0.4]) {
++        dyedYarn.addColorStop(
++          clamp((column.position - left + step * edge) / titleWidth),
++          color,
++        );
++      }
++    });
++    dyedYarn.addColorStop(1, 'rgba(167, 139, 250, 0)');
++    context.globalAlpha = 1;
++    context.strokeStyle = dyedYarn;
++    context.lineCap = 'butt';
++    context.lineWidth = step * 0.88;
++    strokeWeft(context, from, to, step, yAt);
++
++    context.strokeStyle = '#bfa6e8';
++    context.lineWidth = step * 0.24;
++    titleColumns.forEach((column, i) => {
++      if ((i + pass.index) % 2) return;
++      if (fromLeft ? column.position > pass.tip : column.position < pass.tip)
++        return;
++      const coverage = dye[pass.rowIndex * titleColumns.length + i];
++      if (coverage < 0.13) return;
++      const x = warpXAt(column, titleColumnStart + i, pass.y);
++      const y = yAt(column.position);
++      context.globalAlpha = coverage * 0.38;
++      context.beginPath();
++      context.moveTo(x, y - step * 0.46);
++      context.lineTo(x, y + step * 0.46);
++      context.stroke();
++    });
++  });
++
++  if (working) {
++    const row = titleRows[working.rowIndex];
++    const fromLeft = working.index % 2 === 0;
++    const yAt = (x: number) =>
++      working.y +
++      row.offset * focus(x - (left + titleWidth / 2), titleWidth * 1.6) +
++      Math.cos((Math.PI * (x - left)) / (step * 4)) *
++        step *
++        0.45 *
++        (1 - working.pack);
++    context.strokeStyle = '#a78bfa';
++    context.globalAlpha =
++      (working.index < 2 ? 0.85 : 0.55) * (1 - easeOut(working.pack));
++    context.lineWidth = step * 0.65;
++    context.lineCap = 'round';
++    const enteredLeft = fromLeft ? courseLeft : working.tip;
++    const enteredRight = fromLeft ? working.tip : courseRight;
++    let yarnStart = enteredLeft;
++    columns.forEach((column, i) => {
++      if (i % 4 || (Math.floor(i / 4) + working.index) % 2) return;
++      const x = warpXAt(column, i, working.y);
++      if (x < enteredLeft || x > enteredRight) return;
++      const gap = step * 0.55 * (1 - working.pack);
++      strokeWeft(
++        context,
++        yarnStart,
++        Math.max(yarnStart, x - gap),
++        step / 2,
++        yAt,
++      );
++      yarnStart = Math.min(enteredRight, x + gap);
++    });
++    strokeWeft(context, yarnStart, enteredRight, step / 2, yAt);
++    context.strokeStyle = '#af96d8';
++    context.lineWidth = step * 0.32;
++    columns.forEach((column, i) => {
++      if (i % 4 || (Math.floor(i / 4) + working.index) % 2) return;
++      if (column.position < courseLeft || column.position > courseRight) return;
++      if (
++        fromLeft ? column.position > working.tip : column.position < working.tip
++      )
++        return;
++      const x = warpXAt(column, i, working.y);
++      const y = yAt(column.position);
++      context.globalAlpha = 0.65 * (1 - working.pack);
++      context.beginPath();
++      context.moveTo(x, y - step);
++      context.lineTo(x, y + step);
++      context.stroke();
++    });
++  }
++  context.globalAlpha = 1;
++}
++
++export function WovenTitle({
++  onSubtitleReady,
++}: {
++  onSubtitleReady: () => void;
++}) {
++  const canvasRef = useRef<HTMLCanvasElement>(null);
++  const buttonRef = useRef<HTMLButtonElement>(null);
++  const guideRef = useRef<SVGSVGElement>(null);
++  const onSubtitleReadyRef = useRef(onSubtitleReady);
++  onSubtitleReadyRef.current = onSubtitleReady;
++
++  useEffect(() => {
++    const canvas = canvasRef.current;
++    const button = buttonRef.current;
++    const guide = guideRef.current;
++    const section = canvas?.closest('section');
++    const subtitle = section?.querySelector('p');
++    const context = canvas?.getContext('2d');
++    if (!canvas || !button || !guide || !section || !subtitle || !context)
++      return;
++
++    const reducedMotion = window.matchMedia(
++      '(prefers-reduced-motion: reduce)',
++    ).matches;
++    let loom: Loom;
++    let frame = 0;
++    let subtitleShown = false;
++    let finished = false;
++    let active = true;
++    const startTime = performance.now() - (reducedMotion ? DURATION : 0);
++    const lastPulse = { x: 0, y: 0, time: 0 };
++
++    const schedule = () => {
++      if (!frame && loom) frame = requestAnimationFrame(render);
++    };
++    const render = (now: number) => {
++      frame = 0;
++      if (!loom) return;
++      const elapsed = Math.max(0, now - startTime);
++      let moving = false;
++      for (const strand of [...loom.columns, ...loom.rows]) {
++        const age = now - strand.pluckedAt;
++        strand.offset =
++          age >= 0 && age < 1200
++            ? strand.amplitude * Math.sin(age * 0.052) * Math.exp(-age / 380)
++            : 0;
++        moving ||= strand.amplitude > 0.15 && age < 1200;
++      }
++      drawScene(
++        context,
++        loom,
++        reducedMotion ? DURATION : elapsed,
++        document.documentElement.classList.contains('dark'),
++      );
++      if (elapsed >= DURATION - 500 && !subtitleShown) {
++        subtitleShown = true;
++        onSubtitleReadyRef.current();
++      }
++      if (elapsed >= DURATION) finished = true;
++      if (elapsed < DURATION || moving) schedule();
++    };
++    const resize = () => {
++      if (!active) return;
++      const sectionRect = section.getBoundingClientRect();
++      const guideRect = guide.getBoundingClientRect();
++      const { width, height } = sectionRect;
++      if (!width || !height || !guideRect.width || !guideRect.height) return;
++      const ratio = Math.min(window.devicePixelRatio || 1, 2);
++      canvas.width = Math.round(width * ratio);
++      canvas.height = Math.round(height * ratio);
++      context.setTransform(ratio, 0, 0, ratio, 0, 0);
++      loom = makeLoom(
++        sectionRect,
++        guideRect,
++        subtitle.getBoundingClientRect(),
++        getComputedStyle(section).fontFamily,
++      );
++      button.style.left = `${loom.left}px`;
++      button.style.width = `${loom.titleWidth}px`;
++      button.style.height = `${loom.titleHeight}px`;
++      button.style.top = `${loom.top}px`;
++      schedule();
++    };
++    const pulse = (event: MouseEvent | PointerEvent, force = false) => {
++      if (!finished || reducedMotion || !loom) return;
++      const bounds = section.getBoundingClientRect();
++      const keyboard = event.type === 'click' && event.detail === 0;
++      const x = keyboard ? bounds.width / 2 : event.clientX - bounds.left;
++      const y = keyboard ? loom.centerY : event.clientY - bounds.top;
++      const now = performance.now();
++      if (
++        !force &&
++        (now - lastPulse.time < 70 ||
++          Math.hypot(x - lastPulse.x, y - lastPulse.y) < loom.step * 1.5)
++      )
++        return;
++      lastPulse.x = x;
++      lastPulse.y = y;
++      lastPulse.time = now;
++      const pluck = (strands: Strand[], position: number, strength: number) => {
++        const radius = force ? loom.fontSize * 0.42 : loom.step * 3.5;
++        for (const strand of strands) {
++          const distance = Math.abs(strand.position - position);
++          if (distance > radius) continue;
++          strand.amplitude =
++            loom.step * strength * Math.exp(-((distance / radius) ** 2));
++          strand.pluckedAt = now + (force ? (distance / loom.step) * 14 : 0);
++        }
++      };
++      pluck(loom.columns, x, 1.25);
++      pluck(loom.rows, y, 0.7);
++      schedule();
++    };
++    const onPointerEnter = (event: PointerEvent) => {
++      if (event.pointerType === 'mouse') pulse(event, true);
++    };
++    const onPointerMove = (event: PointerEvent) => {
++      if (event.pointerType === 'mouse') pulse(event);
++    };
++    const onClick = (event: MouseEvent) => pulse(event, true);
++    const observer = new ResizeObserver(resize);
++    const themeObserver = new MutationObserver(schedule);
++    observer.observe(section);
++    observer.observe(guide);
++    observer.observe(subtitle);
++    themeObserver.observe(document.documentElement, {
++      attributes: true,
++      attributeFilter: ['class'],
++    });
++    button.addEventListener('pointerenter', onPointerEnter);
++    button.addEventListener('pointermove', onPointerMove);
++    button.addEventListener('click', onClick);
++    resize();
++    document.fonts.ready.then(resize);
++    return () => {
++      active = false;
++      cancelAnimationFrame(frame);
++      observer.disconnect();
++      themeObserver.disconnect();
++      button.removeEventListener('pointerenter', onPointerEnter);
++      button.removeEventListener('pointermove', onPointerMove);
++      button.removeEventListener('click', onClick);
++    };
++  }, []);
++
++  return (
++    <>
++      <canvas
++        ref={canvasRef}
++        className="pointer-events-none absolute inset-0 h-full w-full"
++        aria-hidden="true"
++      />
++      <button
++        ref={buttonRef}
++        type="button"
++        aria-label="태피스토리 실 튕기기"
++        className="absolute z-10 cursor-pointer touch-manipulation rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-500"
++      />
++      <div>
++        <svg
++          ref={guideRef}
++          viewBox="0 0 1200 300"
++          fontSize={200}
++          className="title-svg invisible mx-auto w-full max-w-xl md:max-w-[1152px]"
++          aria-hidden="true"
++        />
++      </div>
++    </>
++  );
++}
+diff --git a/src/components/home/weaveMotion.ts b/src/components/home/weaveMotion.ts
+new file mode 100644
+--- /dev/null
++++ b/src/components/home/weaveMotion.ts
+@@ -0,0 +1,9 @@
++export const WEAVE_DURATION = 3000;
++
++// The first two passes teach the motion; the remaining courses speed up.
++export function weftPass(index: number, count: number) {
++  if (index === 0) return { start: 300, travel: 520, beat: 160 };
++  if (index === 1) return { start: 980, travel: 380, beat: 120 };
++  const interval = (WEAVE_DURATION - 360 - 1480) / Math.max(1, count - 3);
++  return { start: 1480 + (index - 2) * interval, travel: 140, beat: 120 };
++}
+diff --git a/scripts/check-woven-title-motion.mjs b/scripts/check-woven-title-motion.mjs
+new file mode 100644
+--- /dev/null
++++ b/scripts/check-woven-title-motion.mjs
+@@ -0,0 +1,35 @@
++import assert from 'node:assert/strict';
++import { readFile } from 'node:fs/promises';
++
++import ts from 'typescript';
++
++const source = await readFile(
++  new URL('../src/components/home/weaveMotion.ts', import.meta.url),
++  'utf8',
++);
++const { outputText } = ts.transpileModule(source, {
++  compilerOptions: { module: ts.ModuleKind.ESNext },
++});
++const { WEAVE_DURATION, weftPass } = await import(
++  `data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`
++);
++
++for (const count of [1, 2, 3, 18, 24, 42]) {
++  let previousStart = -1;
++  for (let index = 0; index < count; index++) {
++    const { start, travel, beat } = weftPass(index, count);
++    assert(start > previousStart, 'Courses must enter in order');
++    assert(travel > 0 && beat > 0, 'Every course must traverse and pack');
++    assert(
++      start + travel + beat <= WEAVE_DURATION,
++      'Weaving must finish in 3s',
++    );
++    previousStart = start;
++  }
++}
++const first = weftPass(0, 24);
++const second = weftPass(1, 24);
++assert.equal(first.start + first.travel + first.beat, second.start);
++assert.equal(second.start + second.travel + second.beat, weftPass(2, 24).start);
++assert(first.travel > second.travel && second.travel > weftPass(2, 24).travel);
++console.log('Weave motion checks passed');
