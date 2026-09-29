@@ -153,7 +153,7 @@ export function PostContent({
 
         {/* Main Content */}
         <main className="md:col-span-3">
-          <div className="mb-6 border-b border-gray-200 pb-4 dark:border-neutral-600">
+          <div className="mb-6">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
               기록
             </h1>
