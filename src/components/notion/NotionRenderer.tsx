@@ -28,9 +28,9 @@ const ABOUT_STATIC_IMAGES: Record<
 > = {
   // 페이지 최상단에서 바로 보이는 이미지 — lazy load 없이 즉시 프리로드
   '33d303dc-620f-80e3-b168-e8fb5635a3f1': {
-    src: '/about/profile_1.png',
-    width: 480,
-    height: 480,
+    src: '/about/profile_0.png',
+    width: 1821,
+    height: 2429,
     priority: true,
     maxWidth: 280,
   },
@@ -697,7 +697,7 @@ function NotionBlock({
           className={`my-4 overflow-x-hidden${firstColIsImageCol ? 'pl-4' : ''}`}
         >
           <div
-            className={`grid ${firstColIsImageCol ? 'gap-x-8' : 'gap-x-4'} ${gridClass}`}
+            className={`grid ${staticFirstColWidth !== undefined ? 'gap-x-6' : firstColIsImageCol ? 'gap-x-8' : 'gap-x-4'} ${gridClass}`}
             style={
               useInlineImageCol
                 ? ({
