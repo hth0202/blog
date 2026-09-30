@@ -14,6 +14,7 @@ import type {
 } from '@/types/blog';
 
 import { parseMidjourneyPrompt } from '@/lib/midjourney';
+import { getNotionFileId } from '@/lib/notion-file-id';
 
 import type {
   BlockObjectResponse,
@@ -558,8 +559,14 @@ const _getPlaygroundImagesFromNotion = async (): Promise<PlaygroundImage[]> => {
             number?: number | null;
           }
         >;
-        const imageUrl = extractCoverUrl(page.cover, page.id, '');
-        if (!imageUrl) continue;
+        const coverUrl = extractCoverUrl(page.cover, page.id, '');
+        if (!coverUrl) continue;
+        // 업로드한 커버는 파일 ID를 붙여 Blob에 캐시된 줄인 이미지를 쓴다
+        const fileId =
+          page.cover.type === 'file'
+            ? getNotionFileId(page.cover.file.url)
+            : null;
+        const imageUrl = fileId ? `${coverUrl}&v=${fileId}` : coverUrl;
 
         const promptProperty = props['프롬프트'] ?? props['설명'];
         const prompt =

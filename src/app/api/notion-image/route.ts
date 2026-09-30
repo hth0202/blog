@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import {
+  fetchAndCacheCover,
   fetchAndCacheSkillIcon,
+  getCachedCover,
   getCachedSkillIconUrl,
   resolveBlockFileUrl,
   resolvePageAssetUrl,
@@ -43,6 +45,28 @@ export async function GET(request: NextRequest) {
       headers: {
         'Content-Type': fresh.contentType,
         'Cache-Control': 'public, max-age=86400',
+      },
+    });
+  }
+
+  const fileId = searchParams.get('v');
+  if (pageId && field === 'cover' && fileId) {
+    // 놀이터 커버: 파일 ID로 Blob에 저장한 줄인 WebP를 쓴다. 주소에 파일 ID가
+    // 들어 있어 내용이 바뀌지 않으므로 CDN에 오래 캐시한다
+    const image =
+      (await getCachedCover(fileId)) ??
+      (await fetchAndCacheCover(pageId, fileId));
+    if (!image) {
+      return new NextResponse('Cover not found', {
+        status: 404,
+        headers: { 'Cache-Control': 'no-store' },
+      });
+    }
+    return new NextResponse(new Uint8Array(image), {
+      headers: {
+        'Content-Type': 'image/webp',
+        'Cache-Control':
+          'public, max-age=31536000, s-maxage=31536000, immutable',
       },
     });
   }
