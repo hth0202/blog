@@ -8,6 +8,11 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  // sharp의 네이티브 바이너리(@img/sharp-*)는 자동 추적에서 빠지므로 직접 포함한다.
+  // 설치된 플랫폼 패키지만 잡히므로 Vercel에서는 linux용만 들어간다
+  outputFileTracingIncludes: {
+    '/api/notion-image': ['./node_modules/@img/sharp-*/**/*'],
+  },
   async redirects() {
     return [
       {
