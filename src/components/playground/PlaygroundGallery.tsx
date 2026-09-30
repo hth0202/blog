@@ -38,15 +38,18 @@ export function PlaygroundGallery({
   images,
   initialSref = '',
   initialProfile = '',
+  initialCombo = '',
   initialModel = '',
 }: {
   images: PlaygroundImage[];
   initialSref?: string;
   initialProfile?: string;
+  initialCombo?: string;
   initialModel?: string;
 }) {
   const [sref, setSref] = useState(initialSref);
   const [profile, setProfile] = useState(initialProfile);
+  const [combo, setCombo] = useState(initialCombo);
   const [model, setModel] = useState(initialModel);
   const [sort, setSort] = useState<SortOrder>('views');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
@@ -67,6 +70,21 @@ export function PlaygroundGallery({
     () => [...new Set(images.flatMap((image) => image.meta.profiles))].sort(),
     [images],
   );
+  // 이미지에 쓰인 조합을 많이 쓴 순으로
+  const combos = useMemo(() => {
+    const counts = new Map<string, { label: string; count: number }>();
+    images.forEach(({ meta }) => {
+      if (!meta.combo) return;
+      const item = counts.get(meta.combo.key);
+      counts.set(meta.combo.key, {
+        label: item?.label ?? meta.combo.label,
+        count: (item?.count ?? 0) + 1,
+      });
+    });
+    return [...counts]
+      .map(([key, item]) => ({ key, ...item }))
+      .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+  }, [images]);
   const models = useMemo(
     () => [...new Set(images.map((image) => image.meta.model))].sort(),
     [images],
@@ -79,6 +97,7 @@ export function PlaygroundGallery({
           (image) =>
             (!sref || image.meta.srefs.some((item) => item.value === sref)) &&
             (!profile || image.meta.profiles.includes(profile)) &&
+            (!combo || image.meta.combo?.key === combo) &&
             (!model || image.meta.model === model),
         )
         .sort((a, b) =>
@@ -88,10 +107,10 @@ export function PlaygroundGallery({
               ? b.copies - a.copies || b.isoDate.localeCompare(a.isoDate)
               : b.views - a.views || b.isoDate.localeCompare(a.isoDate),
         ),
-    [images, sref, profile, model, sort],
+    [images, sref, profile, combo, model, sort],
   );
   const hasImages = visibleImages.length > 0;
-  const hasFilters = Boolean(sref || profile || model);
+  const hasFilters = Boolean(sref || profile || combo || model);
   const displayedImages = visibleImages.slice(0, visibleCount);
   const hasMore = displayedImages.length < visibleImages.length;
 
@@ -109,7 +128,7 @@ export function PlaygroundGallery({
 
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [sref, profile, model, sort]);
+  }, [sref, profile, combo, model, sort]);
 
   useEffect(() => {
     const target = loadMoreRef.current;
@@ -207,6 +226,7 @@ export function PlaygroundGallery({
   const clearFilters = () => {
     setSref('');
     setProfile('');
+    setCombo('');
     setModel('');
   };
 
@@ -231,7 +251,25 @@ export function PlaygroundGallery({
       </div>
 
       <div className="mb-6">
-        <div className="grid grid-cols-2 items-end gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-2 items-end gap-3 sm:grid-cols-[repeat(3,minmax(0,1fr))_minmax(0,3fr)]">
+          <label className="col-span-2 block min-w-0 text-xs font-semibold tracking-widest text-gray-500 sm:col-span-1 dark:text-gray-400">
+            모델
+            <span className="relative mt-2 block">
+              <select
+                value={model}
+                onChange={(event) => setModel(event.target.value)}
+                className={selectClass}
+              >
+                <option value="">모든 모델</option>
+                {models.map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
+              </select>
+              <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            </span>
+          </label>
           <label className="block min-w-0 text-xs font-semibold tracking-widest text-gray-500 dark:text-gray-400">
             SREF
             <span className="relative mt-2 block">
@@ -268,18 +306,18 @@ export function PlaygroundGallery({
               <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-2 h-4 w-4 -translate-y-1/2 text-gray-400" />
             </span>
           </label>
-          <label className="block min-w-0 text-xs font-semibold tracking-widest text-gray-500 dark:text-gray-400">
-            모델
+          <label className="col-span-2 block min-w-0 text-xs font-semibold tracking-widest text-gray-500 sm:col-span-1 dark:text-gray-400">
+            조합
             <span className="relative mt-2 block">
               <select
-                value={model}
-                onChange={(event) => setModel(event.target.value)}
+                value={combo}
+                onChange={(event) => setCombo(event.target.value)}
                 className={selectClass}
               >
-                <option value="">모든 모델</option>
-                {models.map((value) => (
-                  <option key={value} value={value}>
-                    {value}
+                <option value="">모든 조합</option>
+                {combos.map(({ key, label }) => (
+                  <option key={key} value={key}>
+                    {label}
                   </option>
                 ))}
               </select>

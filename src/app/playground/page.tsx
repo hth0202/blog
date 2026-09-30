@@ -15,13 +15,23 @@ export const metadata: Metadata = {
 export const revalidate = 300;
 
 type PlaygroundPageProps = {
-  searchParams: Promise<{ model?: string; sref?: string; profile?: string }>;
+  searchParams: Promise<{
+    model?: string;
+    sref?: string;
+    profile?: string;
+    combo?: string;
+  }>;
 };
 
 export default async function PlaygroundPage({
   searchParams,
 }: PlaygroundPageProps) {
-  const { model = '', sref = '', profile = '' } = await searchParams;
+  const {
+    model = '',
+    sref = '',
+    profile = '',
+    combo = '',
+  } = await searchParams;
   const images = await getPlaygroundImagesFromNotion();
   return (
     <PlaygroundGallery
@@ -29,6 +39,7 @@ export default async function PlaygroundPage({
       initialModel={model}
       initialSref={sref}
       initialProfile={profile}
+      initialCombo={combo}
     />
   );
 }
