@@ -12,10 +12,41 @@ const MAX_TOTAL_WAIT_MS = IS_BUILD ? 60_000 : 8000;
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+// about 페이지처럼 하위 블록·스킬 항목을 Promise.all로 한꺼번에 불러오면 요청이
+// 수십 개씩 동시에 나가 바로 요청 제한에 걸린다. 그래서 인스턴스 안에서 동시에
+// 진행 중인 요청 수를 제한한다. 재시도 대기 중에는 자리를 비워 다른 요청이 쓴다
+const MAX_CONCURRENT = 3;
+let active = 0;
+const waiting: (() => void)[] = [];
+
+const acquire = async () => {
+  if (active < MAX_CONCURRENT) {
+    active++;
+    return;
+  }
+  // 자리를 넘겨받으므로 active는 그대로 둔다
+  await new Promise<void>((resolve) => waiting.push(resolve));
+};
+
+const release = () => {
+  const next = waiting.shift();
+  if (next) next();
+  else active--;
+};
+
+const limitedFetch: typeof fetch = async (input, init) => {
+  await acquire();
+  try {
+    return await fetch(input, init);
+  } finally {
+    release();
+  }
+};
+
 export const retryingFetch: typeof fetch = async (input, init) => {
   let waited = 0;
   for (let attempt = 0; ; attempt++) {
-    const response = await fetch(input, init);
+    const response = await limitedFetch(input, init);
     if (
       (response.status !== 429 && response.status !== 503) ||
       attempt >= MAX_RETRIES
