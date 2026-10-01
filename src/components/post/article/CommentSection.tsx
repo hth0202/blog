@@ -146,13 +146,18 @@ export function CommentSection({ postId, secret }: CommentSectionProps) {
     }
   };
 
+  const totalCount = comments.reduce(
+    (sum, comment) => sum + 1 + comment.replies.length,
+    0,
+  );
+
   return (
     <section aria-labelledby="comments-heading">
       <h2
         id="comments-heading"
         className="mb-4 text-xl font-bold text-gray-900 dark:text-white"
       >
-        댓글 {loading ? '' : `${comments.length}개`}
+        댓글 {loading ? '' : `${totalCount}개`}
       </h2>
 
       {/* 댓글 목록 */}
