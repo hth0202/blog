@@ -148,7 +148,11 @@ export async function clearSkillIconCache(): Promise<number> {
 // list() 같은 연산을 쓰지 않는다 (Hobby 한도 절약).
 const FILE_BLOB_PREFIX = 'notion-files/';
 const IMAGE_MAX_SIZE = 2048;
-const KEEP_ORIGINAL_TYPES = ['image/gif', 'image/svg+xml'];
+// 원본 그대로 저장할 형식 (sharp가 판별한 형식 → Content-Type)
+const KEEP_ORIGINAL_TYPES: Record<string, string> = {
+  gif: 'image/gif',
+  svg: 'image/svg+xml',
+};
 
 export type CachedFile = { body: ArrayBuffer | Buffer; contentType: string };
 
@@ -188,14 +192,19 @@ export async function fetchAndCacheFile(
   if (!res.ok) return null;
 
   const original = Buffer.from(await res.arrayBuffer());
-  const originalType = (res.headers.get('Content-Type') || '').split(';')[0];
-  // 이미지가 아닌 파일(PDF 등)은 이 캐시 대상이 아니다
-  if (!originalType.startsWith('image/')) return null;
+  // 형식은 응답 헤더가 아니라 파일 내용으로 판별한다 — Notion S3는 Content-Type을
+  // "image"처럼 하위 형식 없이 주기도 한다. 이미지가 아니면(PDF 등) 저장하지 않는다
+  const { default: sharp } = await import('sharp');
+  let format: string | undefined;
+  try {
+    format = (await sharp(original).metadata()).format;
+  } catch {
+    return null;
+  }
   let file: { body: Buffer; contentType: string };
-  if (KEEP_ORIGINAL_TYPES.includes(originalType)) {
-    file = { body: original, contentType: originalType };
+  if (format && format in KEEP_ORIGINAL_TYPES) {
+    file = { body: original, contentType: KEEP_ORIGINAL_TYPES[format] };
   } else {
-    const { default: sharp } = await import('sharp');
     file = {
       body: await sharp(original)
         .rotate()
