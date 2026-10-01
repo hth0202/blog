@@ -1,3 +1,4 @@
+import { collectPaginatedAPI } from '@notionhq/client';
 import { format } from 'date-fns';
 import { unstable_cache } from 'next/cache';
 import { NotionToMarkdown } from 'notion-to-md';
@@ -13,12 +14,14 @@ import type {
   Comment,
 } from '@/types/blog';
 
+import { buildCommentThreads, type RawComment } from '@/lib/comment-thread';
 import { parseMidjourneyPrompt } from '@/lib/midjourney';
 import { createNotionClient, queryDatabase } from '@/lib/notion-client';
 import { getNotionFileId } from '@/lib/notion-file-id';
 
 import type {
   BlockObjectResponse,
+  CommentObjectResponse,
   RichTextItemResponse,
 } from '@notionhq/client/build/src/api-endpoints';
 
@@ -938,21 +941,38 @@ export async function isPagePublished(rawId: string): Promise<boolean> {
 
 // ─── 댓글 ────────────────────────────────────────────────────────────────────
 
-const AUTHOR_PREFIX = '[작성자: ';
+// 방문자 이름은 댓글의 표시 이름(display_name)으로 저장해 노션에서도 작성자로 보인다.
+// 그 전에 달린 댓글은 연동 이름(BLOG)으로 저장되고 본문 앞에 "[작성자: 이름]"이 붙어 있다.
+const LEGACY_AUTHOR_RE = /^\[작성자: (.+?)\]\n([\s\S]*)$/;
+
+const toRawComment = (comment: CommentObjectResponse): RawComment => {
+  const text = comment.rich_text.map((t) => t.plain_text).join('');
+  const base = { id: comment.id, createdAt: comment.created_time };
+
+  switch (comment.display_name.type) {
+    case 'user':
+      return { ...base, text, author: null };
+    case 'custom':
+      return {
+        ...base,
+        text,
+        author: comment.display_name.resolved_name ?? '익명',
+      };
+    default: {
+      const match = text.match(LEGACY_AUTHOR_RE);
+      return match
+        ? { ...base, text: match[2], author: match[1] }
+        : { ...base, text, author: '익명' };
+    }
+  }
+};
 
 export const getPageComments = async (pageId: string): Promise<Comment[]> => {
   try {
-    const response = await notionClient.comments.list({ block_id: pageId });
-    return response.results.map((comment) => {
-      const text = comment.rich_text.map((t) => t.plain_text).join('');
-      const match = text.match(/^\[작성자: (.+?)\]\n([\s\S]*)$/);
-      return {
-        id: comment.id,
-        author: match ? match[1] : '익명',
-        content: match ? match[2] : text,
-        createdAt: comment.created_time,
-      };
+    const comments = await collectPaginatedAPI(notionClient.comments.list, {
+      block_id: pageId,
     });
+    return buildCommentThreads(comments.map(toRawComment));
   } catch (error) {
     console.error('Notion 댓글 조회 실패:', error);
     return [];
@@ -966,13 +986,8 @@ export const createPageComment = async (
 ): Promise<void> => {
   await notionClient.comments.create({
     parent: { page_id: pageId },
-    rich_text: [
-      {
-        text: {
-          content: `${AUTHOR_PREFIX}${author}]\n${content}`,
-        },
-      },
-    ],
+    rich_text: [{ text: { content } }],
+    display_name: { type: 'custom', custom: { name: author } },
   });
 };
 

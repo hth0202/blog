@@ -59,9 +59,19 @@ export interface PlaygroundImage {
   meta: import('@/lib/midjourney').MidjourneyMeta;
 }
 
+// 블로그 주인이 노션에서 직접 단 답글
+export interface CommentReply {
+  id: string;
+  content: string;
+  createdAt: string;
+}
+
 export interface Comment {
   id: string;
   author: string;
   content: string;
   createdAt: string;
+  // 방문자 댓글 없이 블로그 주인이 노션에서 먼저 쓴 댓글
+  isOwner: boolean;
+  replies: CommentReply[];
 }

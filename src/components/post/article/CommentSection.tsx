@@ -2,9 +2,51 @@
 
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import Image from 'next/image';
 import React, { useEffect, useRef, useState } from 'react';
 
 import type { Comment } from '@/types/blog';
+
+import { OWNER_NAME } from '@/lib/comment-thread';
+
+function OwnerAvatar() {
+  return (
+    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white dark:border-neutral-700 dark:bg-neutral-900">
+      <Image
+        src="/icon-light.png"
+        alt=""
+        width={20}
+        height={20}
+        loading="eager"
+        className="dark:hidden"
+      />
+      <Image
+        src="/icon-dark.png"
+        alt=""
+        width={20}
+        height={20}
+        loading="eager"
+        className="hidden dark:block"
+      />
+    </div>
+  );
+}
+
+function OwnerBadge() {
+  return (
+    <span className="rounded bg-indigo-600 px-1.5 py-1 text-[10px] leading-none font-semibold text-white dark:bg-indigo-500">
+      작성자
+    </span>
+  );
+}
+
+function CommentDate({ date }: { date: string }) {
+  return (
+    <time dateTime={date}>
+      {format(new Date(date), 'yyyy.MM.dd HH:mm', { locale: ko })}
+    </time>
+  );
+}
 
 interface CommentSectionProps {
   postId: string;
@@ -117,7 +159,7 @@ export function CommentSection({ postId, secret }: CommentSectionProps) {
       {loading ? (
         <div className="space-y-4">
           {[1, 2].map((i) => (
-            <div key={i} className="flex items-start gap-4">
+            <div key={i} className="flex items-start gap-3">
               <div className="h-10 w-10 flex-shrink-0 animate-pulse rounded-full bg-gray-200 dark:bg-neutral-700" />
               <div className="flex-grow space-y-2">
                 <div className="h-4 w-24 animate-pulse rounded bg-gray-200 dark:bg-neutral-700" />
@@ -133,25 +175,57 @@ export function CommentSection({ postId, secret }: CommentSectionProps) {
       ) : (
         <div className="space-y-6">
           {comments.map((comment) => (
-            <div key={comment.id} className="flex items-start gap-4">
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-400/25">
-                <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-300">
-                  {comment.author.charAt(0).toUpperCase()}
-                </span>
-              </div>
-              <div className="flex-grow">
-                <div className="font-semibold text-gray-900 dark:text-white">
-                  {comment.author}
+            <div key={comment.id}>
+              <div className="flex items-start gap-3">
+                {comment.isOwner ? (
+                  <OwnerAvatar />
+                ) : (
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-400/25">
+                    <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-300">
+                      {comment.author.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                )}
+                <div className="min-w-0 flex-grow">
+                  <div className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white">
+                    {comment.author}
+                    {comment.isOwner && <OwnerBadge />}
+                  </div>
+                  <p className="text-sm break-words whitespace-pre-wrap text-gray-600 dark:text-gray-300">
+                    {comment.content}
+                  </p>
+                  <div className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                    <CommentDate date={comment.createdAt} />
+                  </div>
                 </div>
-                <p className="text-sm whitespace-pre-wrap text-gray-600 dark:text-gray-300">
-                  {comment.content}
-                </p>
-                <div className="mt-1 text-xs text-gray-400 dark:text-gray-500">
-                  {format(new Date(comment.createdAt), 'yyyy.MM.dd HH:mm', {
-                    locale: ko,
-                  })}
-                </div>
               </div>
+
+              {/* 답글은 댓글 아바타 가운데에서 ㄴ 모양으로 이어진다 */}
+              {comment.replies.length > 0 && (
+                <div className="mt-4 ml-5 space-y-4">
+                  {comment.replies.map((reply) => (
+                    <div key={reply.id} className="flex items-start">
+                      <span
+                        aria-hidden="true"
+                        className="mt-2 mr-3 h-3 w-3 flex-shrink-0 rounded-bl border-b-2 border-l-2 border-gray-300 dark:border-neutral-600"
+                      />
+                      <OwnerAvatar />
+                      <div className="ml-3 min-w-0 flex-grow">
+                        <div className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white">
+                          {OWNER_NAME}
+                          <OwnerBadge />
+                        </div>
+                        <p className="text-sm break-words whitespace-pre-wrap text-gray-600 dark:text-gray-300">
+                          {reply.content}
+                        </p>
+                        <div className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                          <CommentDate date={reply.createdAt} />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>
