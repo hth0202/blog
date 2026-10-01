@@ -392,15 +392,16 @@
   font-family:
     'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
 }
+/* 배경은 테마 색(github-light는 #fff라 페이지와 구분 안 됨) 대신 기존 회색 유지 */
 .shiki {
-  background-color: var(--shiki-light-bg);
+  background-color: var(--color-gray-100);
 }
 .dark .shiki,
 .dark .shiki span {
   color: var(--shiki-dark);
 }
 .dark .shiki {
-  background-color: var(--shiki-dark-bg);
+  background-color: var(--color-gray-800);
 }
 
 /* ─── Notion 블록 레벨 배경색: 인라인 패딩보다 넉넉하게 ───────────────────── */
