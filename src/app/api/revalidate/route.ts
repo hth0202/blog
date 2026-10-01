@@ -1,5 +1,6 @@
-import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
+
+import { revalidateAllIfNotionHealthy } from '@/services/revalidate';
 
 import { clearSkillIconCache } from '@/lib/notion-image-cache';
 
@@ -17,7 +18,14 @@ export async function GET(request: NextRequest) {
     clearedIcons = await clearSkillIconCache();
   }
 
-  revalidatePath('/', 'layout');
+  // 5분 캐시된 글·프로젝트·놀이터 목록까지 비워 새 글을 바로 반영한다.
+  // Notion이 응답하지 않으면 비우지 않는다 — 기존 페이지를 계속 보여준다
+  if (!(await revalidateAllIfNotionHealthy())) {
+    return NextResponse.json(
+      { revalidated: false, reason: 'Notion 응답 실패 — 기존 캐시 유지' },
+      { status: 503 },
+    );
+  }
 
   return NextResponse.json({
     revalidated: true,

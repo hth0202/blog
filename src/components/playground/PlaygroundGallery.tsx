@@ -34,23 +34,11 @@ const GAP = 0.07;
 const MAX_WIDE_WASTE = 0.35;
 const MAX_WIDE_WAIT = 4;
 
-export function PlaygroundGallery({
-  images,
-  initialSref = '',
-  initialProfile = '',
-  initialCombo = '',
-  initialModel = '',
-}: {
-  images: PlaygroundImage[];
-  initialSref?: string;
-  initialProfile?: string;
-  initialCombo?: string;
-  initialModel?: string;
-}) {
-  const [sref, setSref] = useState(initialSref);
-  const [profile, setProfile] = useState(initialProfile);
-  const [combo, setCombo] = useState(initialCombo);
-  const [model, setModel] = useState(initialModel);
+export function PlaygroundGallery({ images }: { images: PlaygroundImage[] }) {
+  const [sref, setSref] = useState('');
+  const [profile, setProfile] = useState('');
+  const [combo, setCombo] = useState('');
+  const [model, setModel] = useState('');
   const [sort, setSort] = useState<SortOrder>('views');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [columnCount, setColumnCount] = useState(2);
@@ -125,6 +113,15 @@ export function PlaygroundGallery({
     observer.observe(galleryRef.current);
     return () => observer.disconnect();
   }, [hasImages]);
+
+  // 상세 페이지의 모델·SREF·프로필 링크(?sref= 등)로 들어오면 그 필터를 건다
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setModel(params.get('model') ?? '');
+    setSref(params.get('sref') ?? '');
+    setProfile(params.get('profile') ?? '');
+    setCombo(params.get('combo') ?? '');
+  }, []);
 
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);

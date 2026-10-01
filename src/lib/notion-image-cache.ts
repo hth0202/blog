@@ -1,9 +1,9 @@
-import { Client } from '@notionhq/client';
 import { del, list, put } from '@vercel/blob';
 
+import { createNotionClient } from './notion-client';
 import { getNotionFileId } from './notion-file-id';
 
-const notionClient = new Client({ auth: process.env.NOTION_AUTH_TOKEN });
+const notionClient = createNotionClient();
 
 // blockId로 Notion에서 현재 유효한 파일(이미지·PDF 등) S3 URL을 실시간 조회
 export async function resolveBlockFileUrl(
@@ -133,72 +133,96 @@ export async function clearSkillIconCache(): Promise<number> {
   return blobs.length;
 }
 
-// ─── 놀이터 커버: 줄인 WebP를 Vercel Blob에 영구 캐시 ──────────────────────
+// ─── Notion 파일 이미지(커버·본문): Vercel Blob 영구 캐시 ───────────────────
 //
-// 놀이터 원본은 장당 약 7MB PNG라, 요청마다 Notion 조회 + 원본 다운로드를 하면
-// 동시 요청이 몰릴 때 일부가 실패해 썸네일이 깨졌다. 처음 한 번만 원본을 받아
-// 긴 변 2048px WebP로 줄여 Blob에 저장하고, 그 뒤로는 Blob에서만 서빙한다.
+// Notion이 주는 파일 URL은 약 1시간 뒤 만료되고, 요청 시점에 새 URL을 받으려면
+// 매번 Notion을 불러야 한다. 그래서 캐시된 옛 페이지에서는 이미지가 깨지고,
+// 요청이 몰리면 Notion 요청 제한으로 썸네일이 깨졌다. 처음 한 번만 원본을 받아
+// Blob에 저장하고, 그 뒤로는 Notion 없이 Blob에서만 서빙한다.
 //
-// 저장 키는 Notion 파일 ID(S3 경로의 두 번째 부분)라 커버를 바꾸면 새 키로
+// 사진은 긴 변 2048px WebP로 줄여 저장한다 (놀이터 원본 7MB → 약 500KB).
+// 움직이는 GIF와 SVG는 변환하면 망가지므로 원본 그대로 저장한다.
+//
+// 저장 키는 Notion 파일 ID(S3 경로의 두 번째 부분)라 이미지를 바꾸면 새 키로
 // 자동 저장된다. Blob 주소는 토큰의 스토어 ID로 바로 만들 수 있어서 조회에
 // list() 같은 연산을 쓰지 않는다 (Hobby 한도 절약).
-const COVER_BLOB_PREFIX = 'playground-covers/';
-const COVER_MAX_SIZE = 2048;
+const FILE_BLOB_PREFIX = 'notion-files/';
+const IMAGE_MAX_SIZE = 2048;
+const KEEP_ORIGINAL_TYPES = ['image/gif', 'image/svg+xml'];
 
-const getCoverBlobUrl = (fileId: string) => {
+export type CachedFile = { body: ArrayBuffer | Buffer; contentType: string };
+
+const getFileBlobUrl = (fileId: string) => {
   const storeId = process.env.BLOB_READ_WRITE_TOKEN?.split('_')[3];
   return storeId
-    ? `https://${storeId.toLowerCase()}.public.blob.vercel-storage.com/${COVER_BLOB_PREFIX}${fileId}.webp`
+    ? `https://${storeId.toLowerCase()}.public.blob.vercel-storage.com/${FILE_BLOB_PREFIX}${fileId}`
     : null;
 };
 
-export async function getCachedCover(
+export async function getCachedFile(
   fileId: string,
-): Promise<ArrayBuffer | null> {
-  const url = getCoverBlobUrl(fileId);
+): Promise<CachedFile | null> {
+  const url = getFileBlobUrl(fileId);
   if (!url) return null;
   try {
     const res = await fetch(url, { cache: 'no-store' });
-    return res.ok ? await res.arrayBuffer() : null;
+    if (!res.ok) return null;
+    return {
+      body: await res.arrayBuffer(),
+      contentType: res.headers.get('Content-Type') || 'image/webp',
+    };
   } catch {
     return null;
   }
 }
 
-export async function fetchAndCacheCover(
-  pageId: string,
+// freshUrl: 요청 시점에 Notion에서 받은 파일 URL. 파일 ID가 다르면(이미지가
+// 바뀌었거나 잘못된 요청) 저장하지 않는다
+export async function fetchAndCacheFile(
   fileId: string,
-): Promise<Buffer | null> {
-  const freshUrl = await resolvePageAssetUrl(pageId, 'cover');
+  freshUrl: string | null,
+): Promise<CachedFile | null> {
   if (!freshUrl || getNotionFileId(freshUrl) !== fileId) return null;
 
   const res = await fetch(freshUrl);
   if (!res.ok) return null;
 
-  const { default: sharp } = await import('sharp');
-  const buffer = await sharp(Buffer.from(await res.arrayBuffer()))
-    .rotate()
-    .resize(COVER_MAX_SIZE, COVER_MAX_SIZE, {
-      fit: 'inside',
-      withoutEnlargement: true,
-    })
-    .webp({ quality: 85 })
-    .toBuffer();
+  const original = Buffer.from(await res.arrayBuffer());
+  const originalType = (res.headers.get('Content-Type') || '').split(';')[0];
+  // 이미지가 아닌 파일(PDF 등)은 이 캐시 대상이 아니다
+  if (!originalType.startsWith('image/')) return null;
+  let file: { body: Buffer; contentType: string };
+  if (KEEP_ORIGINAL_TYPES.includes(originalType)) {
+    file = { body: original, contentType: originalType };
+  } else {
+    const { default: sharp } = await import('sharp');
+    file = {
+      body: await sharp(original)
+        .rotate()
+        .resize(IMAGE_MAX_SIZE, IMAGE_MAX_SIZE, {
+          fit: 'inside',
+          withoutEnlargement: true,
+        })
+        .webp({ quality: 85 })
+        .toBuffer(),
+      contentType: 'image/webp',
+    };
+  }
 
   try {
-    await put(`${COVER_BLOB_PREFIX}${fileId}.webp`, buffer, {
+    await put(`${FILE_BLOB_PREFIX}${fileId}`, file.body, {
       access: 'public',
-      contentType: 'image/webp',
+      contentType: file.contentType,
       addRandomSuffix: false,
       allowOverwrite: true,
     });
   } catch (e) {
     // 캐시 저장에 실패해도 이번 요청은 정상 응답한다 — 다음 요청에서 다시 시도됨
     console.error(
-      `[notion-image] cover cache write failed: fileId=${fileId}`,
+      `[notion-image] file cache write failed: fileId=${fileId}`,
       e,
     );
   }
 
-  return buffer;
+  return file;
 }

@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import {
-  fetchAndCacheCover,
+  fetchAndCacheFile,
   fetchAndCacheSkillIcon,
-  getCachedCover,
+  getCachedFile,
   getCachedSkillIconUrl,
   resolveBlockFileUrl,
   resolvePageAssetUrl,
@@ -49,22 +49,27 @@ export async function GET(request: NextRequest) {
     });
   }
 
+  // v(Notion 파일 ID)가 붙은 이미지(커버·본문): Blob에 저장한 사본을 쓴다. 주소에
+  // 파일 ID가 들어 있어 내용이 바뀌지 않으므로 CDN에 오래 캐시한다
   const fileId = searchParams.get('v');
-  if (pageId && field === 'cover' && fileId) {
-    // 놀이터 커버: 파일 ID로 Blob에 저장한 줄인 WebP를 쓴다. 주소에 파일 ID가
-    // 들어 있어 내용이 바뀌지 않으므로 CDN에 오래 캐시한다
-    const image =
-      (await getCachedCover(fileId)) ??
-      (await fetchAndCacheCover(pageId, fileId));
-    if (!image) {
-      return new NextResponse('Cover not found', {
+  if (fileId && ((pageId && field === 'cover') || blockId)) {
+    const file =
+      (await getCachedFile(fileId)) ??
+      (await fetchAndCacheFile(
+        fileId,
+        blockId
+          ? await resolveBlockFileUrl(blockId)
+          : await resolvePageAssetUrl(pageId!, 'cover'),
+      ));
+    if (!file) {
+      return new NextResponse('Image not found', {
         status: 404,
         headers: { 'Cache-Control': 'no-store' },
       });
     }
-    return new NextResponse(new Uint8Array(image), {
+    return new NextResponse(new Uint8Array(file.body), {
       headers: {
-        'Content-Type': 'image/webp',
+        'Content-Type': file.contentType,
         'Cache-Control':
           'public, max-age=31536000, s-maxage=31536000, immutable',
       },

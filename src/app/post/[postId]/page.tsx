@@ -91,13 +91,8 @@ export default async function PostDetailPage({
     permanentRedirect(`/post/${post.slug}${secret ? `?secret=${secret}` : ''}`);
   }
 
-  let blocks: Awaited<ReturnType<typeof getPageBlocks>> = [];
-  try {
-    blocks = await getPageBlocks(post.rawId);
-  } catch (err) {
-    console.error(`[PostDetailPage] 블록 조회 실패 rawId=${post.rawId}:`, err);
-    blocks = [];
-  }
+  // 본문 조회 실패를 빈 본문으로 캐시하지 않도록 오류를 그대로 올린다
+  const blocks = await getPageBlocks(post.rawId);
   const headings = extractHeadings(blocks);
 
   const publishedPosts = (await getPostsFromNotion()).filter(

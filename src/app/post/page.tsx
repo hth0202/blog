@@ -44,8 +44,9 @@ async function getPosts(): Promise<{
 
     return { posts: publishedPosts, categories };
   } catch (error) {
+    // 빈 목록을 캐시하지 않도록 던진다 — Next.js가 직전 페이지를 유지한다
     console.error('블로그 데이터 가져오기 실패:', error);
-    return { posts: [], categories: [{ id: 'all', name: '전체보기' }] };
+    throw error;
   }
 }
 

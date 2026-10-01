@@ -1,8 +1,9 @@
-import { Client } from '@notionhq/client';
 import { unstable_cache } from 'next/cache';
 import { NextResponse } from 'next/server';
 
-const notionClient = new Client({ auth: process.env.NOTION_AUTH_TOKEN });
+import { createNotionClient } from '@/lib/notion-client';
+
+const notionClient = createNotionClient();
 
 const getSkillTextBlocks = unstable_cache(
   async (pageId: string): Promise<string[]> => {

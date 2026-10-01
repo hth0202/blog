@@ -1,9 +1,10 @@
-import { Client } from '@notionhq/client';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { DATABASE_ID } from '@/services/database';
 
-const notion = new Client({ auth: process.env.NOTION_AUTH_TOKEN });
+import { createNotionClient } from '@/lib/notion-client';
+
+const notion = createNotionClient();
 
 export async function POST(
   request: NextRequest,

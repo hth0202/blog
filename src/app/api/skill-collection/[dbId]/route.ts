@@ -1,7 +1,8 @@
-import { Client } from '@notionhq/client';
 import { NextResponse } from 'next/server';
 
-const notionClient = new Client({ auth: process.env.NOTION_AUTH_TOKEN });
+import { createNotionClient } from '@/lib/notion-client';
+
+const notionClient = createNotionClient();
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

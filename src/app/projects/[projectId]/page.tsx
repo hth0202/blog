@@ -93,16 +93,8 @@ export default async function ProjectDetailPage({
     );
   }
 
-  let blocks: Awaited<ReturnType<typeof getPageBlocks>> = [];
-  try {
-    blocks = await getPageBlocks(project.rawId);
-  } catch (err) {
-    console.error(
-      `[ProjectDetailPage] 블록 조회 실패 rawId=${project.rawId}:`,
-      err,
-    );
-    blocks = [];
-  }
+  // 본문 조회 실패를 빈 본문으로 캐시하지 않도록 오류를 그대로 올린다
+  const blocks = await getPageBlocks(project.rawId);
   const headings = extractHeadings(blocks);
 
   const publishedProjects = (await getProjectsFromNotion()).filter(

@@ -11,6 +11,11 @@ import type { Metadata } from 'next';
 
 export const revalidate = 300;
 
+export async function generateStaticParams() {
+  const images = await getPlaygroundImagesFromNotion();
+  return images.map((image) => ({ imageId: image.slug }));
+}
+
 type DetailProps = { params: Promise<{ imageId: string }> };
 
 const optionColors: Record<string, string> = {

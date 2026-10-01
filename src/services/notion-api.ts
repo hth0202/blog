@@ -1,5 +1,5 @@
-import { Client } from '@notionhq/client';
 import { format } from 'date-fns';
+import { unstable_cache } from 'next/cache';
 import { NotionToMarkdown } from 'notion-to-md';
 import { cache } from 'react';
 
@@ -14,6 +14,7 @@ import type {
 } from '@/types/blog';
 
 import { parseMidjourneyPrompt } from '@/lib/midjourney';
+import { createNotionClient } from '@/lib/notion-client';
 import { getNotionFileId } from '@/lib/notion-file-id';
 
 import type {
@@ -22,9 +23,26 @@ import type {
 } from '@notionhq/client/build/src/api-endpoints';
 
 // 공식 API 클라이언트
-const notionClient = new Client({
-  auth: process.env.NOTION_AUTH_TOKEN,
-});
+const notionClient = createNotionClient();
+
+// ─── 목록 캐시 ───────────────────────────────────────────────────────────────
+//
+// 목록 조회가 Notion 요청 제한(429) 등으로 실패하면 예전에는 빈 목록을 돌려줬고,
+// 그 결과가 ISR로 캐시돼 "게시글이 없습니다" 화면이 떴다. 이제 목록 함수는 실패 시
+// 오류를 던지고, 이 캐시가 직전에 성공한 목록을 계속 쓴다. 캐시도 없을 때 실패하면
+// 오류가 페이지까지 올라가 Next.js가 직전에 생성된 페이지를 그대로 유지한다.
+// 요청이 몰려도 목록마다 5분에 한 번만 Notion을 부른다.
+// /api/revalidate가 NOTION_LIST_TAG를 비워 새 글을 바로 반영한다.
+export const NOTION_LIST_TAG = 'notion-lists';
+
+const cacheNotionList = <Args extends unknown[], Result>(
+  fetcher: (...args: Args) => Promise<Result>,
+  key: string,
+) =>
+  unstable_cache(fetcher, [key], {
+    revalidate: 300,
+    tags: [NOTION_LIST_TAG],
+  });
 
 // 마크다운 변환기 (필요 시 사용)
 const n2m = new NotionToMarkdown({ notionClient });
@@ -47,9 +65,12 @@ const extractCoverUrl = (
   if (!cover) return fallback;
   if (cover.type === 'external' && cover.external?.url)
     return cover.external.url;
-  // file 타입: pageId 전달 → 프록시가 요청 시점에 신선한 URL 조회 (S3 만료 없음)
-  if (cover.type === 'file')
-    return `/api/notion-image?pageId=${pageId}&field=cover`;
+  // file 타입: 프록시가 Notion 파일 ID(v)로 Blob에 저장한 사본을 서빙한다
+  // (만료되는 S3 URL을 페이지에 넣지 않고, 요청 시점에 Notion을 부르지 않음)
+  if (cover.type === 'file') {
+    const fileId = cover.file?.url ? getNotionFileId(cover.file.url) : null;
+    return `/api/notion-image?pageId=${pageId}&field=cover${fileId ? `&v=${fileId}` : ''}`;
+  }
   return fallback;
 };
 
@@ -80,7 +101,7 @@ const _getPageBlocks = async (
 
   // has_children인 블록은 재귀적으로 children fetch
   // child_database / child_page는 별도 컴포넌트에서 처리하므로 제외
-  // 개별 자식 fetch 실패는 해당 블록만 children 없이 처리 (전체 실패 방지)
+  // 자식 fetch 실패는 그대로 던진다 — 내용이 빠진 본문이 캐시되지 않게
   await Promise.all(
     blocks
       .filter(
@@ -90,15 +111,7 @@ const _getPageBlocks = async (
           b.type !== 'child_page',
       )
       .map(async (block) => {
-        try {
-          const children = await _getPageBlocks(block.id);
-          (block as any).children = children;
-        } catch (err) {
-          console.error(
-            `[getPageBlocks] 자식 블록 조회 실패 blockId=${block.id}:`,
-            err,
-          );
-        }
+        (block as any).children = await _getPageBlocks(block.id);
       }),
   );
 
@@ -177,7 +190,7 @@ const _querySkillDatabase = async (dbId: string): Promise<SkillItem[]> => {
       });
   } catch (error) {
     console.error('스킬 DB 조회 실패:', error);
-    return [];
+    throw error;
   }
 };
 
@@ -207,8 +220,9 @@ const _getSkillTextBlocks = async (
         const hasText = richText.some((t: any) => t.plain_text);
         return hasText ? [richText] : [];
       });
-  } catch {
-    return [];
+  } catch (error) {
+    console.error(`스킬 본문 조회 실패: pageId=${pageId}`, error);
+    throw error;
   }
 };
 
@@ -370,11 +384,16 @@ const _getPostsFromNotion = async (databaseId?: string): Promise<Post[]> => {
     return posts;
   } catch (error) {
     console.error('Notion에서 포스트 가져오기 실패:', error);
-    return [];
+    throw error;
   }
 };
 
-export const getPostsFromNotion = cache(_getPostsFromNotion);
+export const getPostsFromNotion = cache(
+  cacheNotionList(_getPostsFromNotion, 'notion-posts'),
+);
+
+// 초안 미리보기용: 캐시 없이 바로 조회한다
+export const getPostsFromNotionUncached = cache(_getPostsFromNotion);
 
 // ─── 공식 API: 프로젝트 목록 ──────────────────────────────────────────────────
 
@@ -517,11 +536,16 @@ const _getProjectsFromNotion = async (
     return projects;
   } catch (error) {
     console.error('Notion에서 프로젝트 가져오기 실패:', error);
-    return [];
+    throw error;
   }
 };
 
-export const getProjectsFromNotion = cache(_getProjectsFromNotion);
+export const getProjectsFromNotion = cache(
+  cacheNotionList(_getProjectsFromNotion, 'notion-projects'),
+);
+
+// 초안 미리보기용: 캐시 없이 바로 조회한다
+export const getProjectsFromNotionUncached = cache(_getProjectsFromNotion);
 
 const _getPlaygroundImagesFromNotion = async (): Promise<PlaygroundImage[]> => {
   const images: PlaygroundImage[] = [];
@@ -559,14 +583,8 @@ const _getPlaygroundImagesFromNotion = async (): Promise<PlaygroundImage[]> => {
             number?: number | null;
           }
         >;
-        const coverUrl = extractCoverUrl(page.cover, page.id, '');
-        if (!coverUrl) continue;
-        // 업로드한 커버는 파일 ID를 붙여 Blob에 캐시된 줄인 이미지를 쓴다
-        const fileId =
-          page.cover.type === 'file'
-            ? getNotionFileId(page.cover.file.url)
-            : null;
-        const imageUrl = fileId ? `${coverUrl}&v=${fileId}` : coverUrl;
+        const imageUrl = extractCoverUrl(page.cover, page.id, '');
+        if (!imageUrl) continue;
 
         const promptProperty = props['프롬프트'] ?? props['설명'];
         const prompt =
@@ -607,13 +625,20 @@ const _getPlaygroundImagesFromNotion = async (): Promise<PlaygroundImage[]> => {
         : undefined;
     } while (cursor);
   } catch (error) {
+    // 실패를 빈 목록으로 캐시하지 않도록 그대로 던진다
     console.error('놀이터 이미지 가져오기 실패:', error);
+    throw error;
   }
 
   return images;
 };
 
 export const getPlaygroundImagesFromNotion = cache(
+  cacheNotionList(_getPlaygroundImagesFromNotion, 'notion-playground-images'),
+);
+
+// 안전한 전체 갱신(services/revalidate.ts)이 캐시 없이 조회할 때 쓴다
+export const getPlaygroundImagesFromNotionUncached = cache(
   _getPlaygroundImagesFromNotion,
 );
 

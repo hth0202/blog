@@ -15,8 +15,9 @@ async function getRecentPosts(): Promise<Post[]> {
     }
     return []; // 포스트가 없을 때 빈 배열 반환
   } catch (error) {
+    // 빈 목록을 캐시하지 않도록 던진다 — Next.js가 직전 페이지를 유지한다
     console.error('포스트 데이터 가져오기 실패:', error);
-    return []; // 에러 발생 시 빈 배열 반환
+    throw error;
   }
 }
 

@@ -1,7 +1,8 @@
-import { Client } from '@notionhq/client';
 import { NextRequest, NextResponse } from 'next/server';
 
-const notionClient = new Client({ auth: process.env.NOTION_AUTH_TOKEN });
+import { createNotionClient } from '@/lib/notion-client';
+
+const notionClient = createNotionClient();
 
 // ─── Rate Limiting ─────────────────────────────────────────────────────────────
 // IP 기준, 1분에 30번 초과 시 차단 (좋아요 add/remove 조합)

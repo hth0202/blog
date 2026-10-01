@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 
 import { PostContent } from '@/components/post';
 
-import { getPostsFromNotion } from '@/services/notion-api';
+import { getPostsFromNotionUncached } from '@/services/notion-api';
 
 import { Post, Category } from '@/types/blog';
 
@@ -17,7 +17,7 @@ async function getPosts(): Promise<{
   categories: Category[];
 }> {
   try {
-    const notionPosts = await getPostsFromNotion();
+    const notionPosts = await getPostsFromNotionUncached();
     const draftPosts = notionPosts.filter((post) => post.status === '임시저장');
 
     const categorySet = new Set<string>();

@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 
 import { ProjectsContent } from '@/components/project/ProjectsContent';
 
-import { getProjectsFromNotion } from '@/services/notion-api';
+import { getProjectsFromNotionUncached } from '@/services/notion-api';
 
 import { ProjectCategory } from '@/types/blog';
 
@@ -14,7 +14,7 @@ interface DraftPageProps {
 
 async function getProjectsData() {
   try {
-    const allProjects = await getProjectsFromNotion();
+    const allProjects = await getProjectsFromNotionUncached();
     const draftProjects = allProjects.filter((p) => p.status === '임시저장');
 
     const categorySet = new Set<string>();

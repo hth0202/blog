@@ -1,3 +1,4 @@
+import { getNotionFileId } from '@/lib/notion-file-id';
 import { slugify } from '@/lib/slugify';
 
 import { BookmarkPreview } from './BookmarkPreview';
@@ -315,15 +316,21 @@ function NotionBlock({
     }
 
     case 'image': {
-      // file 타입: getPageBlocks가 이미 받아온 신선한 S3 URL을 그대로 사용
-      // (video/audio/file 블록과 동일한 패턴 — 프록시 왕복 없이 브라우저가 S3에서 바로 받음)
+      // file 타입: S3 URL은 약 1시간 뒤 만료돼 캐시된 페이지에서 깨지므로, 프록시가
+      // Notion 파일 ID(v)로 Blob에 저장한 사본을 쓴다. ID를 못 읽으면 S3 URL 사용
       // external 타입: URL 직접 사용 (만료 없음)
       // 단, 고정 콘텐츠로 지정된 블록은 로컬 정적 파일 사용
       const staticOverride = ABOUT_STATIC_IMAGES[block.id];
+      const fileId =
+        block.image.type === 'file'
+          ? getNotionFileId(block.image.file.url)
+          : null;
       const imgSrc =
         staticOverride?.src ??
         (block.image.type === 'file'
-          ? block.image.file.url
+          ? fileId
+            ? `/api/notion-image?blockId=${block.id}&v=${fileId}`
+            : block.image.file.url
           : block.image.external.url);
       const caption = block.image.caption;
       const captionText = caption?.map((c) => c.plain_text).join('') || '';

@@ -1,7 +1,8 @@
-import { Client } from '@notionhq/client';
 import { NextRequest, NextResponse } from 'next/server';
 
-const notionClient = new Client({ auth: process.env.NOTION_AUTH_TOKEN });
+import { createNotionClient } from '@/lib/notion-client';
+
+const notionClient = createNotionClient();
 
 // ─── Rate Limiting ─────────────────────────────────────────────────────────────
 // IP+postId 조합 기준, 1시간에 1번만 실제 카운트

@@ -14,32 +14,9 @@ export const metadata: Metadata = {
 
 export const revalidate = 300;
 
-type PlaygroundPageProps = {
-  searchParams: Promise<{
-    model?: string;
-    sref?: string;
-    profile?: string;
-    combo?: string;
-  }>;
-};
-
-export default async function PlaygroundPage({
-  searchParams,
-}: PlaygroundPageProps) {
-  const {
-    model = '',
-    sref = '',
-    profile = '',
-    combo = '',
-  } = await searchParams;
+// 필터 파라미터(?sref= 등)는 갤러리가 브라우저에서 읽는다. 서버에서 읽으면 요청마다
+// 렌더링되는 페이지가 되어, Notion 조회 실패 시 직전 페이지를 유지할 수 없다
+export default async function PlaygroundPage() {
   const images = await getPlaygroundImagesFromNotion();
-  return (
-    <PlaygroundGallery
-      images={images}
-      initialModel={model}
-      initialSref={sref}
-      initialProfile={profile}
-      initialCombo={combo}
-    />
-  );
+  return <PlaygroundGallery images={images} />;
 }
