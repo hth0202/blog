@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-import { createNotionClient } from '@/lib/notion-client';
+import { createNotionClient, queryDatabase } from '@/lib/notion-client';
 
 const notionClient = createNotionClient();
 
@@ -18,8 +18,7 @@ export async function GET(
   }
 
   try {
-    const response = await notionClient.databases.query({
-      database_id: dbId,
+    const response = await queryDatabase(notionClient, dbId, {
       page_size: 100,
     });
 

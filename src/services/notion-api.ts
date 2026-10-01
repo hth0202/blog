@@ -14,7 +14,7 @@ import type {
 } from '@/types/blog';
 
 import { parseMidjourneyPrompt } from '@/lib/midjourney';
-import { createNotionClient } from '@/lib/notion-client';
+import { createNotionClient, queryDatabase } from '@/lib/notion-client';
 import { getNotionFileId } from '@/lib/notion-file-id';
 
 import type {
@@ -132,8 +132,7 @@ export interface SkillItem {
 
 const _querySkillDatabase = async (dbId: string): Promise<SkillItem[]> => {
   try {
-    const response = await notionClient.databases.query({
-      database_id: dbId,
+    const response = await queryDatabase(notionClient, dbId, {
       page_size: 100,
     });
 
@@ -268,8 +267,7 @@ const _getPostsFromNotion = async (databaseId?: string): Promise<Post[]> => {
   }
 
   try {
-    const response = await notionClient.databases.query({
-      database_id: targetId,
+    const response = await queryDatabase(notionClient, targetId, {
       sorts: [{ property: '날짜', direction: 'descending' }],
     });
 
@@ -407,8 +405,7 @@ const _getProjectsFromNotion = async (
   }
 
   try {
-    const response = await notionClient.databases.query({
-      database_id: targetId,
+    const response = await queryDatabase(notionClient, targetId, {
       sorts: [{ property: '날짜', direction: 'descending' }],
     });
 
@@ -553,17 +550,20 @@ const _getPlaygroundImagesFromNotion = async (): Promise<PlaygroundImage[]> => {
 
   try {
     do {
-      const response = await notionClient.databases.query({
-        database_id: DATABASE_ID.PLAYGROUND,
-        page_size: 100,
-        filter: {
-          and: [
-            { property: '상태', status: { equals: '발행' } },
-            { property: '카테고리', select: { equals: '이미지' } },
-          ],
+      const response = await queryDatabase(
+        notionClient,
+        DATABASE_ID.PLAYGROUND,
+        {
+          page_size: 100,
+          filter: {
+            and: [
+              { property: '상태', status: { equals: '발행' } },
+              { property: '카테고리', select: { equals: '이미지' } },
+            ],
+          },
+          ...(cursor ? { start_cursor: cursor } : {}),
         },
-        ...(cursor ? { start_cursor: cursor } : {}),
-      });
+      );
 
       for (const page of response.results) {
         if (
@@ -761,8 +761,7 @@ const findIdBySlug = async (
 ): Promise<string | undefined> => {
   if (!/^\d+$/.test(slug)) return slug;
   if (!databaseId) return undefined;
-  const response = await notionClient.databases.query({
-    database_id: databaseId,
+  const response = await queryDatabase(notionClient, databaseId, {
     filter: { property: 'ID', unique_id: { equals: Number(slug) } },
     page_size: 1,
   });

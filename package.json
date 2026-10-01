@@ -20,7 +20,7 @@
     "prepare": "husky install || true"
   },
   "dependencies": {
-    "@notionhq/client": "^2.3.0",
+    "@notionhq/client": "^5.27.0",
     "@tailwindcss/typography": "^0.5.19",
     "@vercel/analytics": "^2.0.1",
     "@vercel/blob": "^2.8.0",

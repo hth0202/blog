@@ -23,7 +23,10 @@ export async function POST(
     const page = await notion.pages.retrieve({ page_id: imageId });
     if (
       !('properties' in page) ||
-      page.parent.type !== 'database_id' ||
+      // API 2025-09-03부터 데이터베이스 행의 부모는 data_source_id 형식이고,
+      // 그 안에 원래 데이터베이스 ID도 함께 들어 있다
+      (page.parent.type !== 'database_id' &&
+        page.parent.type !== 'data_source_id') ||
       page.parent.database_id.replace(/-/g, '') !== DATABASE_ID.PLAYGROUND
     ) {
       return NextResponse.json({ error: 'Image not found' }, { status: 404 });

@@ -1,4 +1,4 @@
-import { Client } from '@notionhq/client';
+import { Client, type QueryDataSourceParameters } from '@notionhq/client';
 
 // Notion API는 요청 제한(평균 초당 3회)에 걸리면 429를 돌려준다. 배포 직후처럼
 // 요청이 몰릴 때 이 한 번의 실패로 목록이 비어 보이는 일이 있어, 429와 일시 장애
@@ -33,5 +33,45 @@ export const retryingFetch: typeof fetch = async (input, init) => {
   }
 };
 
+// SDK v5에도 자체 재시도가 있지만, 위 retryingFetch와 겹치면 대기 시간이 곱절로
+// 늘어나므로 끈다
 export const createNotionClient = () =>
-  new Client({ auth: process.env.NOTION_AUTH_TOKEN, fetch: retryingFetch });
+  new Client({
+    auth: process.env.NOTION_AUTH_TOKEN,
+    fetch: retryingFetch,
+    retry: false,
+  });
+
+// Notion API 2025-09-03부터 데이터베이스 행 조회는 데이터베이스가 아니라 그 안의
+// 데이터 소스(data source)를 대상으로 한다. 환경 변수에는 데이터베이스 ID가 들어
+// 있으므로 첫 데이터 소스 ID를 찾아 쓴다. 이 매핑은 바뀌지 않아 인스턴스 안에서
+// 한 번만 조회한다.
+const dataSourceIds = new Map<string, Promise<string>>();
+
+const resolveDataSourceId = (client: Client, databaseId: string) => {
+  let id = dataSourceIds.get(databaseId);
+  if (!id) {
+    id = client.databases.retrieve({ database_id: databaseId }).then((db) => {
+      const dataSourceId =
+        'data_sources' in db ? db.data_sources[0]?.id : undefined;
+      if (!dataSourceId) {
+        throw new Error(`데이터 소스가 없는 데이터베이스: ${databaseId}`);
+      }
+      return dataSourceId;
+    });
+    // 실패한 조회는 캐시하지 않고 다음 요청에서 다시 시도한다
+    id.catch(() => dataSourceIds.delete(databaseId));
+    dataSourceIds.set(databaseId, id);
+  }
+  return id;
+};
+
+export const queryDatabase = async (
+  client: Client,
+  databaseId: string,
+  params: Omit<QueryDataSourceParameters, 'data_source_id'> = {},
+) =>
+  client.dataSources.query({
+    ...params,
+    data_source_id: await resolveDataSourceId(client, databaseId),
+  });
