@@ -1,6 +1,8 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
-import React from 'react';
+import React, { useState } from 'react';
 
 import type { Project } from '@/types/blog';
 
@@ -13,6 +15,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   project,
   secret,
 }) => {
+  const [failedSrc, setFailedSrc] = useState<string>();
   const href = secret
     ? `/projects/${project.slug}?secret=${secret}`
     : `/projects/${project.slug}`;
@@ -24,8 +27,12 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             src={project.thumbnailUrl}
             alt={project.name}
             fill
-            sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
-            unoptimized
+            sizes="(min-width: 1280px) 264px, (min-width: 1024px) 25vw, (min-width: 768px) 38vw, (min-width: 640px) 50vw, 100vw"
+            unoptimized={
+              !project.thumbnailUrl.startsWith('/') ||
+              failedSrc === project.thumbnailUrl
+            }
+            onError={() => setFailedSrc(project.thumbnailUrl)}
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
         </div>

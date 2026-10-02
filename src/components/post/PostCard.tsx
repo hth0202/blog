@@ -1,6 +1,8 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
-import React from 'react';
+import React, { useState } from 'react';
 
 import type { Post } from '@/types/blog';
 
@@ -10,6 +12,7 @@ interface PostCardProps {
 }
 
 export const PostCard: React.FC<PostCardProps> = ({ post, secret }) => {
+  const [failedSrc, setFailedSrc] = useState<string>();
   const href = secret
     ? `/post/${post.slug}?secret=${secret}`
     : `/post/${post.slug}`;
@@ -21,8 +24,12 @@ export const PostCard: React.FC<PostCardProps> = ({ post, secret }) => {
             src={post.thumbnailUrl}
             alt={post.title}
             fill
-            sizes="(min-width: 640px) 144px, 100vw"
-            unoptimized
+            sizes="(min-width: 640px) 144px, calc(100vw - 64px)"
+            unoptimized={
+              !post.thumbnailUrl.startsWith('/') ||
+              failedSrc === post.thumbnailUrl
+            }
+            onError={() => setFailedSrc(post.thumbnailUrl)}
             className="rounded-md bg-gray-100 object-cover dark:bg-neutral-700"
           />
         </div>
